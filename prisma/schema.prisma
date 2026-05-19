@@ -10,3 +10,41 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id        String   @id @default(uuid())
+  updatedAt DateTime @updatedAt
+  prompts   Prompt[]
+  notes     Note[]
+}
+
+model Prompt {
+  id        String     @id @default(uuid())
+  content   String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  author    User       @relation(fields: [authorId], references: [id])
+  authorId  String
+  feedbacks Feedback[]
+}
+
+model Note {
+  id        String     @id @default(uuid())
+  content   String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  author    User       @relation(fields: [authorId], references: [id])
+  authorId  String
+  feedbacks Feedback[]
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  prompt    Prompt   @relation(fields: [promptId], references: [id])
+  promptId  String
+  note      Note     @relation(fields: [noteId], references: [id])
+  noteId    String
+}
