@@ -4,44 +4,36 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-
-const signupActionSchema = z.object({
-  email: z.email("正しいメールアドレスの形式を入力してください。"),
-  password: z.string().min(8, "パスワードは8文字以上が必要です。"),
-});
-
-export type SignupActionState = {
-  message: string;
-  errors: {
-    email?: string[];
-    password?: string[];
-  };
-};
+import { signupActionSchema, SignupActionState } from "./schema";
 
 export async function signupAction(
   _prevState: SignupActionState,
   formData: FormData,
-): Promise<SignupActionState> {
-  const parsed = signupActionSchema.safeParse({
-    email: formData.get("email"),
-    password: formData.get("password"),
-  });
+) {
+  const values = {
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+    confirmPassword: formData.get("confirmPassword") as string,
+  };
 
-  if (!parsed.success) {
-    const { fieldErrors } = z.flattenError(parsed.error);
+  const result = signupActionSchema.safeParse(values);
+
+  if (!result.success) {
     return {
-      message: "入力内容を確認してください",
-      errors: fieldErrors,
+      values,
+      success: false,
+      errors: z.flattenError(result.error).fieldErrors,
     };
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp(parsed.data);
+  const { error } = await supabase.auth.signUp(result.data);
 
   if (error) {
     return {
-      message: error.message,
-      errors: {},
+      values,
+      success: false,
+      serverError: "サーバーエラーです。",
     };
   }
 
