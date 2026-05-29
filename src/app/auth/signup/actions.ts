@@ -11,9 +11,9 @@ export async function signupAction(
   formData: FormData,
 ) {
   const values = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-    confirmPassword: formData.get("confirmPassword") as string,
+    email: formData.get("email")?.toString() ?? "",
+    password: formData.get("password")?.toString() ?? "",
+    confirmPassword: formData.get("confirmPassword")?.toString() ?? "",
   };
 
   const result = signupActionSchema.safeParse(values);
