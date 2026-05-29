@@ -23,6 +23,7 @@ import { useActionState } from "react";
 import { signupAction } from "@/app/auth/signup/actions";
 import { type SignupActionState } from "@/app/auth/signup/schema";
 import { Spinner } from "./ui/spinner";
+import Link from "next/link";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [formState, formAction, isPending] = useActionState<
@@ -103,7 +104,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 </Button> */}
                 <FieldDescription className="px-6 text-center">
                   既にアカウントをお持ちですか？{" "}
-                  <a href="/auth/signin">サインイン</a>
+                  <Link href="/auth/signin">サインイン</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
