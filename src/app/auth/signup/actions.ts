@@ -27,7 +27,8 @@ export async function signupAction(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp(result.data);
+  const { email, password } = result.data;
+  const { error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
     return {
