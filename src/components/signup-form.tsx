@@ -62,7 +62,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <Input
                 id="password"
                 name="password"
-                defaultValue={formState.values?.password}
                 disabled={isPending}
                 aria-invalid={!!formState.errors?.password?.length}
                 type="password"
@@ -78,7 +77,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <Input
                 id="confirm-password"
                 name="confirmPassword"
-                defaultValue={formState.values?.confirmPassword}
                 disabled={isPending}
                 aria-invalid={!!formState.errors?.confirmPassword?.length}
                 type="password"
