@@ -104,7 +104,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 </Button> */}
                 <FieldDescription className="px-6 text-center">
                   既にアカウントをお持ちですか？{" "}
-                  <Link href="/auth/signin">サインイン</Link>
+                  <Link href="/auth/signin">ログイン</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
