@@ -82,6 +82,9 @@ export function SigninForm({
                 )}
               </Field>
               <Field>
+                {formState.serverError && (
+                  <FieldError>{formState.serverError}</FieldError>
+                )}
                 <Button type="submit" disabled={isPending}>
                   {isPending && <Spinner />}
                   ログインする

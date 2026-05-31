@@ -32,7 +32,7 @@ export async function signinAction(
     return {
       values,
       success: false,
-      serverError: "サーバーエラーです。",
+      serverError: "メールアドレスまたはパスワードが正しくありません。",
     };
   }
 
