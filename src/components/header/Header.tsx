@@ -23,7 +23,12 @@ export default async function Header() {
           </Link>
         </div>
       ) : (
-        <SignoutButton />
+        <div className="flex gap-10">
+          <Link href={"/prompts"} className="hover:cursor-pointer">
+            指示文一覧
+          </Link>
+          <SignoutButton />
+        </div>
       )}
     </header>
   );
