@@ -21,7 +21,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { SigninActionState } from "@/app/auth/signin/schema";
 import { signinAction } from "@/app/auth/signin/actions";
-import { Spinner } from "./ui/spinner";
+import { Spinner } from "../ui/spinner";
 
 export function SigninForm({
   className,

@@ -22,8 +22,9 @@ import { useActionState } from "react";
 
 import { signupAction } from "@/app/auth/signup/actions";
 import { type SignupActionState } from "@/app/auth/signup/schema";
-import { Spinner } from "./ui/spinner";
+
 import Link from "next/link";
+import { Spinner } from "../ui/spinner";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [formState, formAction, isPending] = useActionState<
