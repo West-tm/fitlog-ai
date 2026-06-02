@@ -1,3 +1,4 @@
+import DeletePromptButton from "@/components/prompts/delete-prompt-button";
 import { prisma } from "@/lib/prisma/prisma";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
@@ -34,7 +35,7 @@ export default async function PromptPage(
         <div className="w-1/8">{prompt.content}</div>
         <div>{prompt.createdAt.toLocaleString()}</div>
         <Link href={`/prompts/${prompt.id}/edit`}>編集</Link>
-        <button>削除</button>
+        <DeletePromptButton id={id} />
       </div>
     </>
   );
