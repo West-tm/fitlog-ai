@@ -15,6 +15,9 @@ export default async function PromptsPage() {
     where: {
       authorId: user.id,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   return (
@@ -31,7 +34,11 @@ export default async function PromptsPage() {
       {prompts.map((prompt) => (
         <div className="flex gap-3" key={prompt.id}>
           <div className="w-1/8">{prompt.content}</div>
-          <div>{prompt.createdAt.toLocaleString()}</div>
+          <div>
+            {prompt.createdAt.toLocaleString("ja-JP", {
+              timeZone: "Asia/Tokyo",
+            })}
+          </div>
           <Link href={`/prompts/${prompt.id}`}>詳細</Link>
         </div>
       ))}
