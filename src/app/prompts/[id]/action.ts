@@ -13,12 +13,22 @@ export async function deletePrompt(id: string) {
 
   if (!user) redirect("/auth/signin");
 
-  const result = await prisma.prompt.deleteMany({
-    where: { id, authorId: user.id },
-  });
+  try {
+    const result = await prisma.prompt.deleteMany({
+      where: { id, authorId: user.id },
+    });
 
-  if (result.count === 0) {
-    throw new Error("削除対象の指示文が見つかりません。");
+    if (result.count === 0) {
+      return {
+        error: "削除対象の指示文が見つかりません。",
+      };
+    }
+  } catch (error) {
+    console.error("削除に失敗しました:", error);
+
+    return {
+      error: "削除に失敗しました。もう一度お試しください。",
+    };
   }
 
   revalidatePath("/prompts");
