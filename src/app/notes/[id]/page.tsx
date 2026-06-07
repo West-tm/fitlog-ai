@@ -1,3 +1,4 @@
+import DeleteNoteButton from "@/components/notes/delete-note-button";
 import { prisma } from "@/lib/prisma/prisma";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
@@ -34,6 +35,7 @@ export default async function NotePage(
         <div className="w-1/8">{note.content}</div>
         <div>{note.createdAt.toLocaleString()}</div>
         <Link href={`/notes/${note.id}/edit`}>編集</Link>
+        <DeleteNoteButton id={id} />
       </div>
     </>
   );
