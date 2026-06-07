@@ -33,7 +33,11 @@ export default async function NotePage(
 
       <div className="flex gap-3" key={note.id}>
         <div className="w-1/8">{note.content}</div>
-        <div>{note.createdAt.toLocaleString()}</div>
+        <div>
+          {note.createdAt.toLocaleString("ja-JP", {
+            timeZone: "Asia/Tokyo",
+          })}
+        </div>
         <Link href={`/notes/${note.id}/edit`}>編集</Link>
         <DeleteNoteButton id={id} />
       </div>
