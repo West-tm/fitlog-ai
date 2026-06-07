@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormSchema, FormValues } from "@/app/notes/[id]/edit/schema";
 import { Note } from "@prisma/client";
-import { updateNote } from "@/app/notes/[id]/edit/acitons";
+import { updateNote } from "@/app/notes/[id]/edit/actions";
 
 type EditNoteFormProps = {
   note: Note;

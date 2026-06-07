@@ -3,11 +3,11 @@
 import deleteNote from "@/app/notes/[id]/actions";
 import { useTransition } from "react";
 
-type DeleteNoteButtonPorps = {
+type DeleteNoteButtonProps = {
   id: string;
 };
 
-export default function DeleteNoteButton({ id }: DeleteNoteButtonPorps) {
+export default function DeleteNoteButton({ id }: DeleteNoteButtonProps) {
   const [isPending, startTransition] = useTransition();
 
   const deleteNoteHandler = () => {
