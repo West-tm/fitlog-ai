@@ -27,6 +27,9 @@ export default async function Header() {
           <Link href={"/prompts"} className="hover:cursor-pointer">
             指示文一覧
           </Link>
+          <Link href={"/notes"} className="hover:cursor-pointer">
+            ノート一覧
+          </Link>
           <SignoutButton />
         </div>
       )}
