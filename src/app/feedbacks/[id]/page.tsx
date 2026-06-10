@@ -3,9 +3,9 @@ import { prisma } from "@/lib/prisma/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 
-export default async function FeedbackPage(
-  Props: PageProps<"/feedbacks/[id]">,
-) {
+export default async function FeedbackPage({
+  params,
+}: PageProps<"/feedbacks/[id]">) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -13,7 +13,7 @@ export default async function FeedbackPage(
 
   if (!user) redirect("/auth/signin");
 
-  const { id } = await Props.params;
+  const { id } = await params;
   const feedback = await prisma.feedback.findUnique({
     where: { id, userId: user.id },
   });

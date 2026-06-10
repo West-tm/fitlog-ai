@@ -4,9 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-export default async function PromptPage(
-  promptPageProps: PageProps<"/prompts/[id]">,
-) {
+export default async function PromptPage({
+  params,
+}: PageProps<"/prompts/[id]">) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -14,7 +14,7 @@ export default async function PromptPage(
 
   if (!user) redirect("/auth/signin");
 
-  const { id } = await promptPageProps.params;
+  const { id } = await params;
   const prompt = await prisma.prompt.findUnique({
     where: { id, authorId: user.id },
   });

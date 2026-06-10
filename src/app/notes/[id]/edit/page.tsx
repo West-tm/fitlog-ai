@@ -3,9 +3,9 @@ import { redirect } from "next/navigation";
 import { getNote } from "./actions";
 import EditNoteFrom from "@/components/notes/edit-note-form";
 
-export default async function EditNotePage(
-  editNotePageProps: PageProps<"/notes/[id]/edit">,
-) {
+export default async function EditNotePage({
+  params,
+}: PageProps<"/notes/[id]/edit">) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -13,7 +13,7 @@ export default async function EditNotePage(
 
   if (!user) redirect("/auth/signin");
 
-  const { id } = await editNotePageProps.params;
+  const { id } = await params;
   const note = await getNote(id);
 
   return (

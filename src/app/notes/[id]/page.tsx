@@ -4,9 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-export default async function NotePage(
-  NotePageProps: PageProps<"/notes/[id]">,
-) {
+export default async function NotePage({ params }: PageProps<"/notes/[id]">) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -14,7 +12,7 @@ export default async function NotePage(
 
   if (!user) redirect("/auth/signin");
 
-  const { id } = await NotePageProps.params;
+  const { id } = await params;
   const note = await prisma.note.findUnique({
     where: { id, authorId: user.id },
   });
