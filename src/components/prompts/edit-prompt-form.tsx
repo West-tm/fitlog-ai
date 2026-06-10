@@ -3,11 +3,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Prompt } from "@prisma/client";
-import { updatePrompt } from "@/app/prompts/[id]/edit/actions";
 import {
   updatePromptSchema,
   UpdatePromptValues,
 } from "@/lib/validations/prompts";
+import { updatePrompt } from "@/app/actions/prompts";
 
 type Props = {
   prompt: Prompt;

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { getNote } from "./actions";
 import EditNoteFrom from "@/components/notes/edit-note-form";
+import { getNote } from "@/app/actions/notes";
 
 export default async function EditNotePage({
   params,

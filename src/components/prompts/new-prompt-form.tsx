@@ -6,7 +6,7 @@ import {
   createPromptSchema,
   CreatePromptValues,
 } from "@/lib/validations/prompts";
-import createPrompt from "@/app/prompts/new/actions";
+import { createPrompt } from "@/app/actions/prompts";
 
 export default function NewPromptForm() {
   const {

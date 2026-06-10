@@ -3,8 +3,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Note } from "@prisma/client";
-import { updateNote } from "@/app/notes/[id]/edit/actions";
 import { updateNoteSchema, UpdateNoteValues } from "@/lib/validations/notes";
+import { updateNote } from "@/app/actions/notes";
 
 type Props = {
   note: Note;

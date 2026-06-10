@@ -1,8 +1,8 @@
+import { getPrompt } from "@/app/actions/prompts";
 import EditPromptForm from "@/components/prompts/edit-prompt-form";
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { getPrompt } from "./actions";
 
 export default async function EditPromptPage({
   params,
