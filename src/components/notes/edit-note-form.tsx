@@ -6,11 +6,11 @@ import { FormSchema, FormValues } from "@/app/notes/[id]/edit/schema";
 import { Note } from "@prisma/client";
 import { updateNote } from "@/app/notes/[id]/edit/actions";
 
-type EditNoteFormProps = {
+type Props = {
   note: Note;
 };
 
-export default function EditNoteFrom({ note }: EditNoteFormProps) {
+export default function EditNoteFrom({ note }: Props) {
   const {
     register,
     handleSubmit,

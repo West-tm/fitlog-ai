@@ -6,11 +6,11 @@ import { FormSchema, FormValues } from "@/app/prompts/[id]/edit/schema";
 import { Prompt } from "@prisma/client";
 import { updatePrompt } from "@/app/prompts/[id]/edit/actions";
 
-type EditPromptFormProps = {
+type Props = {
   prompt: Prompt;
 };
 
-export default function EditPromptForm({ prompt }: EditPromptFormProps) {
+export default function EditPromptForm({ prompt }: Props) {
   const {
     register,
     handleSubmit,

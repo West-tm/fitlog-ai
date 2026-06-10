@@ -3,11 +3,11 @@
 import { deletePrompt } from "@/app/prompts/[id]/action";
 import { useTransition } from "react";
 
-type DeletePromptButtonProps = {
+type Props = {
   id: string;
 };
 
-export default function DeletePromptButton({ id }: DeletePromptButtonProps) {
+export default function DeletePromptButton({ id }: Props) {
   const [isPending, startTransition] = useTransition();
 
   const deletePromptHandler = () => {
