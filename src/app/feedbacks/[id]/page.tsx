@@ -1,3 +1,4 @@
+import DeleteFeedbackButton from "@/components/feedbacks/delete-feedback-button";
 import { prisma } from "@/lib/prisma/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
@@ -33,6 +34,8 @@ export default async function FeedbackPage(
           timeZone: "Asia/Tokyo",
         })}
       </div>
+
+      <DeleteFeedbackButton id={id} />
     </>
   );
 }

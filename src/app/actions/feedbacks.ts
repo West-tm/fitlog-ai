@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CreateNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 export async function generateFeedback(value: CreateNoteValues) {
   const supabase = await createClient();
@@ -75,6 +76,43 @@ export async function generateFeedback(value: CreateNoteValues) {
 
     return {
       error: "AI生成に失敗しました。しばらくしてから再度お試しください。",
+    };
+  }
+
+  revalidatePath("/feedbacks");
+  redirect("/feedbacks");
+}
+
+export async function deleteFeedback(id: string) {
+  const parseId = z.uuid().safeParse(id);
+  if (!parseId.success) {
+    return {
+      error: "不正なフィードバックIDです。",
+    };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/auth/signin");
+
+  try {
+    const result = await prisma.feedback.deleteMany({
+      where: { id, userId: user.id },
+    });
+
+    if (result.count === 0) {
+      return {
+        error: "削除対象のフィードバックが見つかりません。",
+      };
+    }
+  } catch (error) {
+    console.error("削除に失敗しました:", error);
+
+    return {
+      error: "削除に失敗しました。もう一度お試しください。",
     };
   }
 
