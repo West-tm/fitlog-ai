@@ -35,7 +35,7 @@ export default function EditPromptForm({ prompt }: EditPromptFormProps) {
           placeholder="ここに指示文を入力"
           {...register("content")}
           disabled={isSubmitting}
-        ></textarea>
+        />
       </div>
       {errors.content && (
         <p className="text-red-500">{errors.content.message}</p>
