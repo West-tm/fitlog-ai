@@ -1,18 +1,13 @@
 "use server";
 
 import { prisma } from "@/lib/prisma/prisma";
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { updateNoteSchema, UpdateNoteValues } from "@/lib/validations/notes";
+import { getUser } from "@/lib/auth/get-user";
 
 export async function getNote(id: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   const note = await prisma.note.findUnique({
     where: { id, authorId: user.id },
@@ -26,12 +21,7 @@ export async function getNote(id: string) {
 }
 
 export async function updateNote(value: UpdateNoteValues) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   const result = updateNoteSchema.safeParse(value);
 
@@ -55,12 +45,7 @@ export async function updateNote(value: UpdateNoteValues) {
 }
 
 export async function deleteNote(id: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   try {
     const result = await prisma.note.deleteMany({

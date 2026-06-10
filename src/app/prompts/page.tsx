@@ -1,15 +1,9 @@
 import { prisma } from "@/lib/prisma/prisma";
-import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { getUser } from "@/lib/auth/get-user";
 
 export default async function PromptsPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   const prompts = await prisma.prompt.findMany({
     where: {

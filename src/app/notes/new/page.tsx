@@ -1,15 +1,9 @@
 import NewNoteForm from "@/components/notes/new-note-form";
 import { prisma } from "@/lib/prisma/prisma";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { getUser } from "@/lib/auth/get-user";
 
 export default async function NewNotePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   const prompts = await prisma.prompt.findMany({
     where: {

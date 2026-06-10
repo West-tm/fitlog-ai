@@ -1,15 +1,9 @@
 import { prisma } from "@/lib/prisma/prisma";
-import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/auth/get-user";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 export default async function NotesPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   const notes = await prisma.note.findMany({
     where: {

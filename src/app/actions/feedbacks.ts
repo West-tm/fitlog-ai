@@ -1,20 +1,15 @@
 "use server";
 
+import { getUser } from "@/lib/auth/get-user";
 import { genai } from "@/lib/gemini/gemini";
 import { prisma } from "@/lib/prisma/prisma";
-import { createClient } from "@/lib/supabase/server";
 import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
 export async function generateFeedback(value: CreateNoteValues) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   const result = createNoteSchema.safeParse(value);
 
@@ -91,12 +86,7 @@ export async function deleteFeedback(id: string) {
     };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   try {
     const result = await prisma.feedback.deleteMany({

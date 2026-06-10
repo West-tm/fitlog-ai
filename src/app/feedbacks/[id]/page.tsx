@@ -1,17 +1,12 @@
 import DeleteFeedbackButton from "@/components/feedbacks/delete-feedback-button";
 import { prisma } from "@/lib/prisma/prisma";
-import { createClient } from "@/lib/supabase/server";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { getUser } from "@/lib/auth/get-user";
 
 export default async function FeedbackPage({
   params,
 }: PageProps<"/feedbacks/[id]">) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   const { id } = await params;
   const feedback = await prisma.feedback.findUnique({

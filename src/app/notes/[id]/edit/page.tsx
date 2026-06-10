@@ -1,17 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import EditNoteFrom from "@/components/notes/edit-note-form";
 import { getNote } from "@/app/actions/notes";
+import { getUser } from "@/lib/auth/get-user";
 
 export default async function EditNotePage({
   params,
 }: PageProps<"/notes/[id]/edit">) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  await getUser();
 
   const { id } = await params;
   const note = await getNote(id);

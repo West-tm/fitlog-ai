@@ -1,6 +1,5 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -10,14 +9,10 @@ import {
   updatePromptSchema,
   UpdatePromptValues,
 } from "@/lib/validations/prompts";
+import { getUser } from "@/lib/auth/get-user";
 
 export async function createPrompt(value: CreatePromptValues) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   const result = createPromptSchema.safeParse(value);
 
@@ -37,12 +32,7 @@ export async function createPrompt(value: CreatePromptValues) {
 }
 
 export async function getPrompt(id: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   const prompt = await prisma.prompt.findUnique({
     where: { id, authorId: user.id },
@@ -56,12 +46,7 @@ export async function getPrompt(id: string) {
 }
 
 export async function updatePrompt(value: UpdatePromptValues) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   const result = updatePromptSchema.safeParse(value);
 
@@ -85,12 +70,7 @@ export async function updatePrompt(value: UpdatePromptValues) {
 }
 
 export async function deletePrompt(id: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   try {
     const result = await prisma.prompt.deleteMany({

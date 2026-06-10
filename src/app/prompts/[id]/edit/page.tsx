@@ -1,18 +1,11 @@
 import { getPrompt } from "@/app/actions/prompts";
 import EditPromptForm from "@/components/prompts/edit-prompt-form";
-
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { getUser } from "@/lib/auth/get-user";
 
 export default async function EditPromptPage({
   params,
 }: PageProps<"/prompts/[id]/edit">) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  await getUser();
 
   const { id } = await params;
   const prompt = await getPrompt(id);
