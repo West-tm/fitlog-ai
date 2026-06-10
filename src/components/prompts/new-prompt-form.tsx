@@ -2,7 +2,10 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormValues, FormSchema } from "@/app/prompts/new/schema";
+import {
+  createPromptSchema,
+  CreatePromptValues,
+} from "@/lib/validations/prompts";
 import createPrompt from "@/app/prompts/new/actions";
 
 export default function NewPromptForm() {
@@ -10,13 +13,13 @@ export default function NewPromptForm() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(FormSchema),
+  } = useForm<CreatePromptValues>({
+    resolver: zodResolver(createPromptSchema),
     defaultValues: { content: "" },
     mode: "onBlur",
   });
 
-  const onSubmit = async (value: FormValues) => {
+  const onSubmit = async (value: CreatePromptValues) => {
     await createPrompt(value);
   };
 

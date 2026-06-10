@@ -3,8 +3,11 @@
 import { prisma } from "@/lib/prisma/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { FormSchema, FormValues } from "./schema";
 import { revalidatePath } from "next/cache";
+import {
+  updatePromptSchema,
+  UpdatePromptValues,
+} from "@/lib/validations/prompts";
 
 export async function getPrompt(id: string) {
   const supabase = await createClient();
@@ -25,7 +28,7 @@ export async function getPrompt(id: string) {
   return prompt;
 }
 
-export async function updatePrompt(value: FormValues) {
+export async function updatePrompt(value: UpdatePromptValues) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -33,7 +36,7 @@ export async function updatePrompt(value: FormValues) {
 
   if (!user) redirect("/auth/signin");
 
-  const result = FormSchema.safeParse(value);
+  const result = updatePromptSchema.safeParse(value);
 
   if (!result.success) {
     throw new Error("入力内容を確認してください。");

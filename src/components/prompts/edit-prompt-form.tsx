@@ -2,9 +2,12 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormSchema, FormValues } from "@/app/prompts/[id]/edit/schema";
 import { Prompt } from "@prisma/client";
 import { updatePrompt } from "@/app/prompts/[id]/edit/actions";
+import {
+  updatePromptSchema,
+  UpdatePromptValues,
+} from "@/lib/validations/prompts";
 
 type Props = {
   prompt: Prompt;
@@ -15,13 +18,13 @@ export default function EditPromptForm({ prompt }: Props) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(FormSchema),
+  } = useForm<UpdatePromptValues>({
+    resolver: zodResolver(updatePromptSchema),
     defaultValues: { id: prompt.id, content: prompt.content },
     mode: "onBlur",
   });
 
-  const onSubmit = async (value: FormValues) => {
+  const onSubmit = async (value: UpdatePromptValues) => {
     await updatePrompt(value);
   };
 

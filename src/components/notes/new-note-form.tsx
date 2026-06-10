@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
+import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
 import { generateFeedback } from "@/app/actions/feedbacks";
 import { Prompt } from "@prisma/client";
 
@@ -17,7 +17,7 @@ export default function NewNoteForm({ prompts }: Props) {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<CreateNoteValues>({
-    resolver: zodResolver(CreateNoteSchema),
+    resolver: zodResolver(createNoteSchema),
     defaultValues: { content: "", promptId: "" },
     mode: "onBlur",
   });

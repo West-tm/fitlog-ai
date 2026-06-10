@@ -2,9 +2,9 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormSchema, FormValues } from "@/app/notes/[id]/edit/schema";
 import { Note } from "@prisma/client";
 import { updateNote } from "@/app/notes/[id]/edit/actions";
+import { updateNoteSchema, UpdateNoteValues } from "@/lib/validations/notes";
 
 type Props = {
   note: Note;
@@ -15,13 +15,13 @@ export default function EditNoteFrom({ note }: Props) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(FormSchema),
+  } = useForm<UpdateNoteValues>({
+    resolver: zodResolver(updateNoteSchema),
     defaultValues: { id: note.id, content: note.content },
     mode: "onBlur",
   });
 
-  const onSubmit = async (value: FormValues) => {
+  const onSubmit = async (value: UpdateNoteValues) => {
     await updateNote(value);
   };
 

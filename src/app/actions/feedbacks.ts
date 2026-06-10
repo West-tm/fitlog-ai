@@ -3,7 +3,7 @@
 import { genai } from "@/lib/gemini/gemini";
 import { prisma } from "@/lib/prisma/prisma";
 import { createClient } from "@/lib/supabase/server";
-import { CreateNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
+import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -16,7 +16,7 @@ export async function generateFeedback(value: CreateNoteValues) {
 
   if (!user) redirect("/auth/signin");
 
-  const result = CreateNoteSchema.safeParse(value);
+  const result = createNoteSchema.safeParse(value);
 
   if (!result.success) {
     return { error: "入力内容を確認してください。" };
