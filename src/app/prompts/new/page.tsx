@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-import CreatePromptForm from "@/components/prompts/new-prompt-form";
+import NewPromptForm from "@/components/prompts/new-prompt-form";
 
 export default async function NewPromptPage() {
   const supabase = await createClient();
@@ -14,7 +14,7 @@ export default async function NewPromptPage() {
   return (
     <>
       <div>指示文の新規作成</div>
-      <CreatePromptForm />
+      <NewPromptForm />
     </>
   );
 }
