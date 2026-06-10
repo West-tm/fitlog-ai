@@ -30,6 +30,9 @@ export default async function Header() {
           <Link href={"/notes"} className="hover:cursor-pointer">
             ノート一覧
           </Link>
+          <Link href={"/feedbacks"} className="hover:cursor-pointer">
+            フィードバック一覧
+          </Link>
           <SignoutButton />
         </div>
       )}
