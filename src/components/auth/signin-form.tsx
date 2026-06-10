@@ -84,8 +84,8 @@ export function SigninForm({
                 )}
               </Field>
               <Field>
-                {formState.serverError && (
-                  <FieldError>{formState.serverError}</FieldError>
+                {formState.formError && (
+                  <FieldError>{formState.formError}</FieldError>
                 )}
                 <Button type="submit" disabled={isPending}>
                   {isPending && <Spinner />}

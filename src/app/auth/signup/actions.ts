@@ -22,7 +22,7 @@ export async function signupAction(
 
   if (!result.success) {
     return {
-      values,
+      values: { email: values.email },
       success: false,
       errors: z.flattenError(result.error).fieldErrors,
     };
@@ -33,10 +33,17 @@ export async function signupAction(
   const { error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
+    console.warn("サインアップに失敗しました:", {
+      message: error.message,
+      status: error.status,
+      code: error.code,
+    });
+
     return {
-      values,
+      values: { email },
       success: false,
-      serverError: "サーバーエラーです。",
+      formError:
+        "登録に失敗しました。\n入力内容を確認してもう一度お試しください。",
     };
   }
 

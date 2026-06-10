@@ -92,8 +92,10 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </Field>
             <FieldGroup>
               <Field>
-                {formState.serverError && (
-                  <FieldError>{formState.serverError}</FieldError>
+                {formState.formError && (
+                  <FieldError className="whitespace-pre-line">
+                    {formState.formError}
+                  </FieldError>
                 )}
                 <Button type="submit" disabled={isPending}>
                   {isPending && <Spinner />}
