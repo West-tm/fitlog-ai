@@ -1,18 +1,14 @@
 import { notFound } from "next/navigation";
 
+import { getFeedback } from "@/app/actions/feedbacks";
 import DeleteFeedbackButton from "@/components/feedbacks/delete-feedback-button";
-import { getUser } from "@/lib/auth/get-user";
-import { prisma } from "@/lib/prisma/prisma";
 
 export default async function FeedbackPage({
   params,
 }: PageProps<"/feedbacks/[id]">) {
-  const user = await getUser();
-
   const { id } = await params;
-  const feedback = await prisma.feedback.findUnique({
-    where: { id, userId: user.id },
-  });
+
+  const feedback = await getFeedback(id);
 
   if (!feedback) {
     notFound();
