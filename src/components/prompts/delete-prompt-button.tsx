@@ -1,7 +1,8 @@
 "use client";
 
-import { deletePrompt } from "@/app/actions/prompts";
 import { useTransition } from "react";
+
+import { deletePrompt } from "@/app/actions/prompts";
 
 type Props = {
   id: string;

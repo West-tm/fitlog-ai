@@ -1,13 +1,14 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Prompt } from "@prisma/client";
+import { useForm } from "react-hook-form";
+
+import { updatePrompt } from "@/app/actions/prompts";
 import {
   updatePromptSchema,
   UpdatePromptValues,
 } from "@/lib/validations/prompts";
-import { updatePrompt } from "@/app/actions/prompts";
 
 type Props = {
   prompt: Prompt;
@@ -17,6 +18,7 @@ export default function EditPromptForm({ prompt }: Props) {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<UpdatePromptValues>({
     resolver: zodResolver(updatePromptSchema),
@@ -25,7 +27,10 @@ export default function EditPromptForm({ prompt }: Props) {
   });
 
   const onSubmit = async (value: UpdatePromptValues) => {
-    await updatePrompt(value);
+    const result = await updatePrompt(value);
+    if (result.error) {
+      setError("root", { message: result.error });
+    }
   };
 
   return (
@@ -50,6 +55,7 @@ export default function EditPromptForm({ prompt }: Props) {
       >
         {isSubmitting ? "編集中・・・" : "+ 編集する"}
       </button>
+      {errors.root && <p className="text-red-500">{errors.root.message}</p>}
     </form>
   );
 }

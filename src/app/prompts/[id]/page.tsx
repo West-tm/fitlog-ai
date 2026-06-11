@@ -1,18 +1,14 @@
-import DeletePromptButton from "@/components/prompts/delete-prompt-button";
-import { prisma } from "@/lib/prisma/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getUser } from "@/lib/auth/get-user";
+
+import { getPrompt } from "@/app/actions/prompts";
+import DeletePromptButton from "@/components/prompts/delete-prompt-button";
 
 export default async function PromptPage({
   params,
 }: PageProps<"/prompts/[id]">) {
-  const user = await getUser();
-
   const { id } = await params;
-  const prompt = await prisma.prompt.findUnique({
-    where: { id, authorId: user.id },
-  });
+  const prompt = await getPrompt(id);
 
   if (!prompt) {
     notFound();

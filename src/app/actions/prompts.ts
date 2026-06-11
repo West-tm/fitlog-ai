@@ -1,15 +1,16 @@
 "use server";
 
-import { prisma } from "@/lib/prisma/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+
+import { getUser } from "@/lib/auth/get-user";
+import { prisma } from "@/lib/prisma/prisma";
 import {
   createPromptSchema,
   CreatePromptValues,
   updatePromptSchema,
   UpdatePromptValues,
 } from "@/lib/validations/prompts";
-import { getUser } from "@/lib/auth/get-user";
 
 export async function createPrompt(value: CreatePromptValues) {
   const user = await getUser();
@@ -17,7 +18,7 @@ export async function createPrompt(value: CreatePromptValues) {
   const result = createPromptSchema.safeParse(value);
 
   if (!result.success) {
-    throw new Error("入力内容を確認してください。");
+    return { error: "入力内容を確認してください。" };
   }
 
   await prisma.prompt.create({
@@ -34,13 +35,9 @@ export async function createPrompt(value: CreatePromptValues) {
 export async function getPrompt(id: string) {
   const user = await getUser();
 
-  const prompt = await prisma.prompt.findUnique({
+  const prompt = await prisma.prompt.findFirst({
     where: { id, authorId: user.id },
   });
-
-  if (!prompt) {
-    throw new Error("指示文が見つかりません");
-  }
 
   return prompt;
 }
@@ -51,7 +48,7 @@ export async function updatePrompt(value: UpdatePromptValues) {
   const result = updatePromptSchema.safeParse(value);
 
   if (!result.success) {
-    throw new Error("入力内容を確認してください。");
+    return { error: "入力内容を確認してください。" };
   }
 
   const updateResult = await prisma.prompt.updateMany({
@@ -62,7 +59,7 @@ export async function updatePrompt(value: UpdatePromptValues) {
   });
 
   if (updateResult.count === 0) {
-    throw new Error("更新対象の指示文が見つかりません。");
+    return { error: "更新対象の指示文が見つかりません。" };
   }
 
   revalidatePath("/prompts");
@@ -72,21 +69,13 @@ export async function updatePrompt(value: UpdatePromptValues) {
 export async function deletePrompt(id: string) {
   const user = await getUser();
 
-  try {
-    const result = await prisma.prompt.deleteMany({
-      where: { id, authorId: user.id },
-    });
+  const result = await prisma.prompt.deleteMany({
+    where: { id, authorId: user.id },
+  });
 
-    if (result.count === 0) {
-      return {
-        error: "削除対象の指示文が見つかりません。",
-      };
-    }
-  } catch (error) {
-    console.error("削除に失敗しました:", error);
-
+  if (result.count === 0) {
     return {
-      error: "削除に失敗しました。もう一度お試しください。",
+      error: "削除対象の指示文が見つかりません。",
     };
   }
 

@@ -1,17 +1,19 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
+import { createPrompt } from "@/app/actions/prompts";
 import {
   createPromptSchema,
   CreatePromptValues,
 } from "@/lib/validations/prompts";
-import { createPrompt } from "@/app/actions/prompts";
 
 export default function NewPromptForm() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<CreatePromptValues>({
     resolver: zodResolver(createPromptSchema),
@@ -20,7 +22,10 @@ export default function NewPromptForm() {
   });
 
   const onSubmit = async (value: CreatePromptValues) => {
-    await createPrompt(value);
+    const result = await createPrompt(value);
+    if (result.error) {
+      setError("root", { message: result.error });
+    }
   };
 
   return (
@@ -40,6 +45,7 @@ export default function NewPromptForm() {
       <button className="bg-blue-200" type="submit" disabled={isSubmitting}>
         {isSubmitting ? "作成中・・・" : "+ 新規作成"}
       </button>
+      {errors.root && <p className="text-red-500">{errors.root.message}</p>}
     </form>
   );
 }
