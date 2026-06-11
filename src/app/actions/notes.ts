@@ -10,13 +10,9 @@ import { updateNoteSchema, UpdateNoteValues } from "@/lib/validations/notes";
 export async function getNote(id: string) {
   const user = await getUser();
 
-  const note = await prisma.note.findUnique({
+  const note = await prisma.note.findFirst({
     where: { id, authorId: user.id },
   });
-
-  if (!note) {
-    throw new Error("ノートが見つかりません");
-  }
 
   return note;
 }
@@ -27,7 +23,9 @@ export async function updateNote(value: UpdateNoteValues) {
   const result = updateNoteSchema.safeParse(value);
 
   if (!result.success) {
-    throw new Error("入力内容を確認してください。");
+    return {
+      error: "入力内容を確認してください。",
+    };
   }
 
   const updateResult = await prisma.note.updateMany({
@@ -38,7 +36,9 @@ export async function updateNote(value: UpdateNoteValues) {
   });
 
   if (updateResult.count === 0) {
-    throw new Error("更新対象のノートが見つかりません。");
+    return {
+      error: "更新対象のノートが見つかりません。",
+    };
   }
 
   revalidatePath("/notes");
@@ -48,21 +48,13 @@ export async function updateNote(value: UpdateNoteValues) {
 export async function deleteNote(id: string) {
   const user = await getUser();
 
-  try {
-    const result = await prisma.note.deleteMany({
-      where: { id, authorId: user.id },
-    });
+  const result = await prisma.note.deleteMany({
+    where: { id, authorId: user.id },
+  });
 
-    if (result.count === 0) {
-      return {
-        error: "削除対象のノートが見つかりません。",
-      };
-    }
-  } catch (error) {
-    console.error("削除に失敗しました:", error);
-
+  if (result.count === 0) {
     return {
-      error: "削除に失敗しました。もう一度お試しください。",
+      error: "削除対象のノートが見つかりません。",
     };
   }
 

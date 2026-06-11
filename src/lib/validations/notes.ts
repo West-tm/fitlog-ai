@@ -16,7 +16,7 @@ export type CreateNoteValues = z.infer<typeof createNoteSchema>;
 
 export const updateNoteSchema = z.object({
   id: z.uuid(),
-  content: z.string().min(4, "ノートは4文字以上で入力してください"),
+  content: z.string().trim().min(4, "ノートは4文字以上で入力してください"),
 });
 
 export type UpdateNoteValues = z.infer<typeof updateNoteSchema>;

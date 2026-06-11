@@ -19,7 +19,7 @@ export default function NewNoteForm({ prompts }: Props) {
     formState: { errors, isSubmitting },
   } = useForm<CreateNoteValues>({
     resolver: zodResolver(createNoteSchema),
-    defaultValues: { content: "", promptId: "" },
+    defaultValues: { content: "", promptId: "", useGoogleSearch: false },
     mode: "onBlur",
   });
 

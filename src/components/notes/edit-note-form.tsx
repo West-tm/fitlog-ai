@@ -15,6 +15,7 @@ export default function EditNoteFrom({ note }: Props) {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<UpdateNoteValues>({
     resolver: zodResolver(updateNoteSchema),
@@ -23,7 +24,10 @@ export default function EditNoteFrom({ note }: Props) {
   });
 
   const onSubmit = async (value: UpdateNoteValues) => {
-    await updateNote(value);
+    const result = await updateNote(value);
+    if (result.error) {
+      setError("root", { message: result.error });
+    }
   };
 
   return (
@@ -48,6 +52,7 @@ export default function EditNoteFrom({ note }: Props) {
       >
         {isSubmitting ? "編集中・・・" : "+ 編集する"}
       </button>
+      {errors.root && <p className="text-red-500">{errors.root.message}</p>}
     </form>
   );
 }

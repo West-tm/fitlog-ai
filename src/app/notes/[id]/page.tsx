@@ -1,17 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { getNote } from "@/app/actions/notes";
 import DeleteNoteButton from "@/components/notes/delete-note-button";
-import { getUser } from "@/lib/auth/get-user";
-import { prisma } from "@/lib/prisma/prisma";
 
 export default async function NotePage({ params }: PageProps<"/notes/[id]">) {
-  const user = await getUser();
-
   const { id } = await params;
-  const note = await prisma.note.findUnique({
-    where: { id, authorId: user.id },
-  });
+  const note = await getNote(id);
 
   if (!note) {
     notFound();
