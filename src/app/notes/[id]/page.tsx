@@ -1,8 +1,9 @@
-import DeleteNoteButton from "@/components/notes/delete-note-button";
-import { prisma } from "@/lib/prisma/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+import DeleteNoteButton from "@/components/notes/delete-note-button";
 import { getUser } from "@/lib/auth/get-user";
+import { prisma } from "@/lib/prisma/prisma";
 
 export default async function NotePage({ params }: PageProps<"/notes/[id]">) {
   const user = await getUser();

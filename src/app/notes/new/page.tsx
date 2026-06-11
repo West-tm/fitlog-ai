@@ -1,6 +1,6 @@
 import NewNoteForm from "@/components/notes/new-note-form";
-import { prisma } from "@/lib/prisma/prisma";
 import { getUser } from "@/lib/auth/get-user";
+import { prisma } from "@/lib/prisma/prisma";
 
 export default async function NewNotePage() {
   const user = await getUser();

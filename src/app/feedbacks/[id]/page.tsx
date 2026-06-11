@@ -1,7 +1,8 @@
-import DeleteFeedbackButton from "@/components/feedbacks/delete-feedback-button";
-import { prisma } from "@/lib/prisma/prisma";
 import { notFound } from "next/navigation";
+
+import DeleteFeedbackButton from "@/components/feedbacks/delete-feedback-button";
 import { getUser } from "@/lib/auth/get-user";
+import { prisma } from "@/lib/prisma/prisma";
 
 export default async function FeedbackPage({
   params,

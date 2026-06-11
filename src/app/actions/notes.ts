@@ -1,10 +1,11 @@
 "use server";
 
-import { prisma } from "@/lib/prisma/prisma";
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { updateNoteSchema, UpdateNoteValues } from "@/lib/validations/notes";
+import { redirect } from "next/navigation";
+
 import { getUser } from "@/lib/auth/get-user";
+import { prisma } from "@/lib/prisma/prisma";
+import { updateNoteSchema, UpdateNoteValues } from "@/lib/validations/notes";
 
 export async function getNote(id: string) {
   const user = await getUser();

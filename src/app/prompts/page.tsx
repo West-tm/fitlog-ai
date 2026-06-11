@@ -1,6 +1,7 @@
-import { prisma } from "@/lib/prisma/prisma";
 import Link from "next/link";
+
 import { getUser } from "@/lib/auth/get-user";
+import { prisma } from "@/lib/prisma/prisma";
 
 export default async function PromptsPage() {
   const user = await getUser();

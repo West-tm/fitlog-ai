@@ -1,7 +1,8 @@
 "use client";
 
-import { deleteNote } from "@/app/actions/notes";
 import { useTransition } from "react";
+
+import { deleteNote } from "@/app/actions/notes";
 
 type Props = {
   id: string;

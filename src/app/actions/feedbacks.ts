@@ -1,12 +1,13 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { z } from "zod";
+
 import { getUser } from "@/lib/auth/get-user";
 import { genai } from "@/lib/gemini/gemini";
 import { prisma } from "@/lib/prisma/prisma";
 import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { z } from "zod";
 
 export async function generateFeedback(value: CreateNoteValues) {
   const user = await getUser();

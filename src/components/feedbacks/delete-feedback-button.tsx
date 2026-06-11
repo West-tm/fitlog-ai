@@ -1,7 +1,8 @@
 "use client";
 
-import { deleteFeedback } from "@/app/actions/feedbacks";
 import { useTransition } from "react";
+
+import { deleteFeedback } from "@/app/actions/feedbacks";
 
 type Props = {
   id: string;

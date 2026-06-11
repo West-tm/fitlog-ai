@@ -1,10 +1,11 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
-import { generateFeedback } from "@/app/actions/feedbacks";
 import { Prompt } from "@prisma/client";
+import { useForm } from "react-hook-form";
+
+import { generateFeedback } from "@/app/actions/feedbacks";
+import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
 
 type Props = {
   prompts: Prompt[];

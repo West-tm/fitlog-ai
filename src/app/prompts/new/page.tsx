@@ -1,5 +1,5 @@
-import { getUser } from "@/lib/auth/get-user";
 import NewPromptForm from "@/components/prompts/new-prompt-form";
+import { getUser } from "@/lib/auth/get-user";
 
 export default async function NewPromptPage() {
   await getUser();

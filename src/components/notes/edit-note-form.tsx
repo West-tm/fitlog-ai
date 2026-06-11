@@ -1,10 +1,11 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Note } from "@prisma/client";
-import { updateNoteSchema, UpdateNoteValues } from "@/lib/validations/notes";
+import { useForm } from "react-hook-form";
+
 import { updateNote } from "@/app/actions/notes";
+import { updateNoteSchema, UpdateNoteValues } from "@/lib/validations/notes";
 
 type Props = {
   note: Note;
