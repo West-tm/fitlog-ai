@@ -9,6 +9,10 @@ import {
   CreatePromptValues,
 } from "@/lib/validations/prompts";
 
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
+
 export default function NewPromptForm() {
   const {
     register,
@@ -29,10 +33,12 @@ export default function NewPromptForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex flex-col">
-        <textarea
-          className="w-1/8 border"
+    <form className="max-w-2xl space-y-4" onSubmit={handleSubmit(onSubmit)}>
+      <div className="space-y-2">
+        <Label htmlFor="content">指示文</Label>
+
+        <Textarea
+          className="min-h-40"
           id="content"
           placeholder="ここに指示文を入力"
           {...register("content")}
@@ -40,12 +46,12 @@ export default function NewPromptForm() {
         />
       </div>
       {errors.content && (
-        <p className="text-red-500">{errors.content.message}</p>
+        <p className="text-destructive">{errors.content.message}</p>
       )}
-      <button className="bg-blue-200" type="submit" disabled={isSubmitting}>
+      <Button className="cursor-pointer" type="submit" disabled={isSubmitting}>
         {isSubmitting ? "作成中・・・" : "+ 新規作成"}
-      </button>
-      {errors.root && <p className="text-red-500">{errors.root.message}</p>}
+      </Button>
+      {errors.root && <p className="text-destructive">{errors.root.message}</p>}
     </form>
   );
 }

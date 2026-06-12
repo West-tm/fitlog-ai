@@ -1,5 +1,14 @@
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getUser } from "@/lib/auth/get-user";
 import { prisma } from "@/lib/prisma/prisma";
 
@@ -16,27 +25,45 @@ export default async function PromptsPage() {
   });
 
   return (
-    <>
-      <Link className="bg-blue-200" href={"/prompts/new"}>
-        + 新規作成
-      </Link>
-
-      <p>指示文の一覧</p>
-      <div className="flex gap-3 mt-5">
-        <div className="w-1/8">指示文</div>
-        <div>作成日時</div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-xl font-semibold">指示文の一覧</h1>
+        <Button asChild>
+          <Link href="/prompts/new">+ 新規作成</Link>
+        </Button>
       </div>
-      {prompts.map((prompt) => (
-        <div className="flex gap-3" key={prompt.id}>
-          <div className="w-1/8">{prompt.content}</div>
-          <div>
-            {prompt.createdAt.toLocaleString("ja-JP", {
-              timeZone: "Asia/Tokyo",
-            })}
-          </div>
-          <Link href={`/prompts/${prompt.id}`}>詳細</Link>
-        </div>
-      ))}
-    </>
+
+      <Table className="w-full table-fixed">
+        <TableHeader>
+          <TableRow>
+            <TableHead>指示文</TableHead>
+            <TableHead className="hidden w-44 sm:table-cell">
+              作成日時
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
+          {prompts.map((prompt) => (
+            <TableRow key={prompt.id}>
+              <TableCell className="wrap-anywhere whitespace-normal">
+                <Link
+                  href={`/prompts/${prompt.id}`}
+                  className="block hover:underline"
+                >
+                  {prompt.content}
+                </Link>
+              </TableCell>
+
+              <TableCell className="hidden w-44 text-muted-foreground sm:table-cell">
+                {prompt.createdAt.toLocaleString("ja-JP", {
+                  timeZone: "Asia/Tokyo",
+                })}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

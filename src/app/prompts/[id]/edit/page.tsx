@@ -14,9 +14,9 @@ export default async function EditPromptPage({
   }
 
   return (
-    <>
-      <div>指示文の編集</div>
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold">指示文の編集</h1>
       <EditPromptForm prompt={prompt} />
-    </>
+    </div>
   );
 }

@@ -10,6 +10,10 @@ import {
   UpdatePromptValues,
 } from "@/lib/validations/prompts";
 
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
+
 type Props = {
   prompt: Prompt;
 };
@@ -34,11 +38,13 @@ export default function EditPromptForm({ prompt }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form className="max-w-2xl space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <input type="hidden" {...register("id")} />
-      <div className="flex flex-col">
-        <textarea
-          className="w-1/8 border"
+      <div className="space-y-2">
+        <Label htmlFor="content">指示文</Label>
+
+        <Textarea
+          className="min-h-40"
           id="content"
           placeholder="ここに指示文を入力"
           {...register("content")}
@@ -46,16 +52,13 @@ export default function EditPromptForm({ prompt }: Props) {
         />
       </div>
       {errors.content && (
-        <p className="text-red-500">{errors.content.message}</p>
+        <p className="text-destructive">{errors.content.message}</p>
       )}
-      <button
-        className="bg-blue-200 cursor-pointer"
-        type="submit"
-        disabled={isSubmitting}
-      >
+
+      <Button className="cursor-pointer" type="submit" disabled={isSubmitting}>
         {isSubmitting ? "編集中・・・" : "+ 編集する"}
-      </button>
-      {errors.root && <p className="text-red-500">{errors.root.message}</p>}
+      </Button>
+      {errors.root && <p className="text-destructive">{errors.root.message}</p>}
     </form>
   );
 }
