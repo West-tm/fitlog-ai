@@ -20,9 +20,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className={cn("font-sans", geist.variable)}>
-      <body>
+      <body className="flex min-h-svh flex-col">
         <Header />
-        {children}
+        <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 py-6 sm:px-6 lg:px-8">
+          {children}
+        </main>
       </body>
     </html>
   );
