@@ -6,7 +6,10 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function signout() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 export async function signoutAndRedirect() {
