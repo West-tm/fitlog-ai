@@ -2,7 +2,10 @@
 
 import { Menu } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { startTransition, useState } from "react";
 
+import { signout } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -13,7 +16,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
-import SignoutButton from "./signout-button";
 
 type Props = {
   isSignedIn: boolean;
@@ -21,8 +23,21 @@ type Props = {
 };
 
 export function MobileNav({ isSignedIn, navItems }: Props) {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  const handleSignout = () => {
+    startTransition(async () => {
+      await signout();
+
+      setOpen(false);
+      router.push("/auth/signin");
+      router.refresh();
+    });
+  };
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" size="icon" aria-label="メニューを開く">
           <Menu />
@@ -42,7 +57,15 @@ export function MobileNav({ isSignedIn, navItems }: Props) {
             </SheetClose>
           ))}
 
-          {isSignedIn && <SignoutButton />}
+          {isSignedIn && (
+            <Button
+              variant="ghost"
+              className="w-full justify-start"
+              onClick={handleSignout}
+            >
+              ログアウト
+            </Button>
+          )}
         </nav>
       </SheetContent>
     </Sheet>

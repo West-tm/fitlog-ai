@@ -1,10 +1,11 @@
+import { LogOut } from "lucide-react";
 import Link from "next/link";
 
+import { signoutAndRedirect } from "@/app/actions/auth";
 import { createClient } from "@/lib/supabase/server";
 
 import { Button } from "../ui/button";
 import { MobileNav } from "./mobile-nav";
-import SignoutButton from "./signout-button";
 
 const publicNavItems = [
   { href: "/auth/signup", label: "新規登録" },
@@ -39,8 +40,16 @@ export default async function Header() {
             </Button>
           ))}
 
-          {user && <SignoutButton />}
+          {user && (
+            <form action={signoutAndRedirect}>
+              <Button variant="ghost" className="w-full justify-start">
+                <LogOut />
+                ログアウト
+              </Button>
+            </form>
+          )}
         </nav>
+
         <div className="md:hidden">
           <MobileNav navItems={navItems} isSignedIn={!!user} />
         </div>
