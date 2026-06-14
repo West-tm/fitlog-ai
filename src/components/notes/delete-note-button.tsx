@@ -4,6 +4,8 @@ import { useTransition } from "react";
 
 import { deleteNote } from "@/app/actions/notes";
 
+import { Button } from "../ui/button";
+
 type Props = {
   id: string;
 };
@@ -26,12 +28,13 @@ export default function DeleteNoteButton({ id }: Props) {
   };
 
   return (
-    <button
+    <Button
+      variant="destructive"
       className="hover:cursor-pointer"
       onClick={deleteNoteHandler}
       disabled={isPending}
     >
       {isPending ? "削除中..." : "削除"}
-    </button>
+    </Button>
   );
 }

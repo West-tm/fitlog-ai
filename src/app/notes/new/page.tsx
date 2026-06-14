@@ -15,9 +15,9 @@ export default async function NewNotePage() {
   });
 
   return (
-    <>
-      <div>ノートの新規作成</div>
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold">ノートの新規作成</h1>
       <NewNoteForm prompts={prompts} />
-    </>
+    </div>
   );
 }
