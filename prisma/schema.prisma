@@ -49,6 +49,6 @@ model Feedback {
   prompt         Prompt?  @relation(fields: [promptId], references: [id])
   promptId       String?
   promptSnapshot String
-  note           Note     @relation(fields: [noteId], references: [id])
+  note           Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
   noteId         String
 }
