@@ -29,40 +29,46 @@ export async function generateFeedback(value: CreateNoteValues) {
     ? { tools: [{ googleSearch: {} }] }
     : undefined;
 
-  const response = await genai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: `
+  try {
+    const response = await genai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: `
     #指示
     ${prompt.content}
     #ノート
     ${result.data.content}
     `.trim(),
-    config,
-  });
+      config,
+    });
 
-  const feedbackContent = response.text?.trim();
+    const feedbackContent = response.text?.trim();
 
-  if (!feedbackContent) {
-    return { error: "AIから回答を取得できませんでした。" };
+    if (!feedbackContent) {
+      return { error: "AIから回答を取得できませんでした。" };
+    }
+
+    await prisma.$transaction(async (tx) => {
+      const note = await tx.note.create({
+        data: {
+          content: result.data.content,
+          authorId: user.id,
+        },
+      });
+      await tx.feedback.create({
+        data: {
+          userId: user.id,
+          noteId: note.id,
+          promptId: prompt.id,
+          promptSnapshot: prompt.content,
+          content: feedbackContent,
+        },
+      });
+    });
+  } catch {
+    return {
+      error: "AI回答の作成に失敗しました。時間をおいて再度お試しください。",
+    };
   }
-
-  await prisma.$transaction(async (tx) => {
-    const note = await tx.note.create({
-      data: {
-        content: result.data.content,
-        authorId: user.id,
-      },
-    });
-    await tx.feedback.create({
-      data: {
-        userId: user.id,
-        noteId: note.id,
-        promptId: prompt.id,
-        promptSnapshot: prompt.content,
-        content: feedbackContent,
-      },
-    });
-  });
 
   revalidatePath("/feedbacks");
   redirect("/feedbacks");
