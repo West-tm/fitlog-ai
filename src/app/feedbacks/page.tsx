@@ -1,5 +1,13 @@
 import Link from "next/link";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getUser } from "@/lib/auth/get-user";
 import { prisma } from "@/lib/prisma/prisma";
 
@@ -16,24 +24,40 @@ export default async function FeedbacksPage() {
   });
 
   return (
-    <>
-      <div>フィードバックの一覧</div>
-      <br />
-      {feedbacks.map((feedback) => (
-        <div
-          className="grid grid-cols-[1fr_180px_60px] gap-3 mb-5"
-          key={feedback.id}
-        >
-          <div>フィードバック：{feedback.content}</div>
-          <div>
-            作成日時：
-            {feedback.createdAt.toLocaleString("ja-JP", {
-              timeZone: "Asia/Tokyo",
-            })}
-          </div>
-          <Link href={`/feedbacks/${feedback.id}`}>詳細</Link>
-        </div>
-      ))}
-    </>
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold">フィードバックの一覧</h1>
+
+      <Table className="w-full table-fixed">
+        <TableHeader>
+          <TableRow>
+            <TableHead>フィードバック</TableHead>
+            <TableHead className="hidden w-44 sm:table-cell">
+              作成日時
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
+          {feedbacks.map((feedback) => (
+            <TableRow key={feedback.id}>
+              <TableCell className="wrap-anywhere whitespace-normal">
+                <Link
+                  href={`/feedbacks/${feedback.id}`}
+                  className="block hover:underline"
+                >
+                  {feedback.content}
+                </Link>
+              </TableCell>
+
+              <TableCell className="hidden w-44 text-muted-foreground sm:table-cell">
+                {feedback.createdAt.toLocaleString("ja-JP", {
+                  timeZone: "Asia/Tokyo",
+                })}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

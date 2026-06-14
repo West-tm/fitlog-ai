@@ -4,6 +4,8 @@ import { useTransition } from "react";
 
 import { deleteFeedback } from "@/app/actions/feedbacks";
 
+import { Button } from "../ui/button";
+
 type Props = {
   id: string;
 };
@@ -26,12 +28,13 @@ export default function DeleteFeedbackButton({ id }: Props) {
   };
 
   return (
-    <button
-      className="bg-red-500 px-3 py-1 rounded text-white hover:cursor-pointer"
+    <Button
+      variant="destructive"
+      className="hover:cursor-pointer"
       onClick={deleteFeedbackHandler}
       disabled={isPending}
     >
       {isPending ? "削除中..." : "削除"}
-    </button>
+    </Button>
   );
 }

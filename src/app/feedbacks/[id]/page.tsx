@@ -15,19 +15,26 @@ export default async function FeedbackPage({
   }
 
   return (
-    <>
-      <div>フィードバック詳細</div>
-      <br />
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold">フィードバックの詳細</h1>
 
-      <div>フィードバック：{feedback.content}</div>
-      <div>
-        作成日時：
-        {feedback.createdAt.toLocaleString("ja-JP", {
-          timeZone: "Asia/Tokyo",
-        })}
-      </div>
+      <dl className="space-y-4">
+        <div className="space-y-1">
+          <dt className="text-muted-foreground">フィードバック</dt>
+          <dd className="wrap-anywhere">{feedback.content}</dd>
+        </div>
+
+        <div className="space-y-1">
+          <dt className="text-muted-foreground">作成日時</dt>
+          <dd>
+            {feedback.createdAt.toLocaleString("ja-JP", {
+              timeZone: "Asia/Tokyo",
+            })}
+          </dd>
+        </div>
+      </dl>
 
       <DeleteFeedbackButton id={id} />
-    </>
+    </div>
   );
 }
