@@ -58,6 +58,7 @@ export async function generateFeedback(value: CreateNoteValues) {
         userId: user.id,
         noteId: note.id,
         promptId: prompt.id,
+        promptSnapshot: prompt.content,
         content: feedbackContent,
       },
     });
