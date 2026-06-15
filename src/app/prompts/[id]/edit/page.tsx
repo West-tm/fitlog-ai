@@ -1,26 +1,22 @@
+import { notFound } from "next/navigation";
+
+import { getPrompt } from "@/app/actions/prompts";
 import EditPromptForm from "@/components/prompts/edit-prompt-form";
 
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-import { getPrompt } from "./actions";
-
-export default async function EditPromptPage(
-  editPromptPageProps: PageProps<"/prompts/[id]/edit">,
-) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
-
-  const { id } = await editPromptPageProps.params;
+export default async function EditPromptPage({
+  params,
+}: PageProps<"/prompts/[id]/edit">) {
+  const { id } = await params;
   const prompt = await getPrompt(id);
 
+  if (!prompt) {
+    notFound();
+  }
+
   return (
-    <>
-      <div>指示文の編集</div>
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold">指示文の編集</h1>
       <EditPromptForm prompt={prompt} />
-    </>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const CreateNoteSchema = z.object({
+export const createNoteSchema = z.object({
   content: z.string().trim().min(4, {
     error: "ノートは4文字以上で入力してください",
   }),
@@ -12,4 +12,11 @@ export const CreateNoteSchema = z.object({
   }),
 });
 
-export type CreateNoteValues = z.infer<typeof CreateNoteSchema>;
+export type CreateNoteValues = z.infer<typeof createNoteSchema>;
+
+export const updateNoteSchema = z.object({
+  id: z.uuid(),
+  content: z.string().trim().min(4, "ノートは4文字以上で入力してください"),
+});
+
+export type UpdateNoteValues = z.infer<typeof updateNoteSchema>;

@@ -1,19 +1,13 @@
 import NewNoteForm from "@/components/notes/new-note-form";
+import { getUser } from "@/lib/auth/get-user";
 import { prisma } from "@/lib/prisma/prisma";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 
 export default async function NewNotePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
+  const user = await getUser();
 
   const prompts = await prisma.prompt.findMany({
     where: {
-      authorId: user.id,
+      userId: user.id,
     },
     orderBy: {
       createdAt: "desc",
@@ -21,9 +15,9 @@ export default async function NewNotePage() {
   });
 
   return (
-    <>
-      <div>ノートの新規作成</div>
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold">ノートの新規作成</h1>
       <NewNoteForm prompts={prompts} />
-    </>
+    </div>
   );
 }

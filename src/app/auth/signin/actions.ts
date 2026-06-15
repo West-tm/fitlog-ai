@@ -1,9 +1,11 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+
+import { createClient } from "@/lib/supabase/server";
+
 import { signinActionSchema, SigninActionState } from "./schema";
 
 export async function signinAction(
@@ -19,7 +21,7 @@ export async function signinAction(
 
   if (!result.success) {
     return {
-      values,
+      values: { email: values.email.trim() },
       success: false,
       errors: z.flattenError(result.error).fieldErrors,
     };
@@ -29,10 +31,16 @@ export async function signinAction(
   const { error } = await supabase.auth.signInWithPassword(result.data);
 
   if (error) {
+    console.warn("サインインに失敗しました:", {
+      message: error.message,
+      status: error.status,
+      code: error.code,
+    });
+
     return {
-      values,
+      values: { email: result.data.email },
       success: false,
-      serverError: "メールアドレスまたはパスワードが正しくありません。",
+      formError: "メールアドレスまたはパスワードが正しくありません。",
     };
   }
 

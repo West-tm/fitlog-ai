@@ -1,5 +1,11 @@
 "use client";
 
+import Form from "next/form";
+import Link from "next/link";
+import { useActionState } from "react";
+
+import { signupAction } from "@/app/auth/signup/actions";
+import { type SignupActionState } from "@/app/auth/signup/schema";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,14 +22,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import Form from "next/form";
 
-import { useActionState } from "react";
-
-import { signupAction } from "@/app/auth/signup/actions";
-import { type SignupActionState } from "@/app/auth/signup/schema";
-
-import Link from "next/link";
 import { Spinner } from "../ui/spinner";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
@@ -93,8 +92,10 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </Field>
             <FieldGroup>
               <Field>
-                {formState.serverError && (
-                  <FieldError>{formState.serverError}</FieldError>
+                {formState.formError && (
+                  <FieldError className="whitespace-pre-line">
+                    {formState.formError}
+                  </FieldError>
                 )}
                 <Button type="submit" disabled={isPending}>
                   {isPending && <Spinner />}

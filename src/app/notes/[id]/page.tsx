@@ -1,46 +1,44 @@
-import DeleteNoteButton from "@/components/notes/delete-note-button";
-import { prisma } from "@/lib/prisma/prisma";
-import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
-export default async function NotePage(
-  NotePageProps: PageProps<"/notes/[id]">,
-) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+import { getNote } from "@/app/actions/notes";
+import DeleteNoteButton from "@/components/notes/delete-note-button";
+import { Button } from "@/components/ui/button";
 
-  if (!user) redirect("/auth/signin");
-
-  const { id } = await NotePageProps.params;
-  const note = await prisma.note.findUnique({
-    where: { id, authorId: user.id },
-  });
+export default async function NotePage({ params }: PageProps<"/notes/[id]">) {
+  const { id } = await params;
+  const note = await getNote(id);
 
   if (!note) {
     notFound();
   }
 
   return (
-    <>
-      <p>ノートの詳細</p>
-      <div className="flex gap-3 mt-5">
-        <div className="w-1/8">ノート</div>
-        <div>作成日時</div>
-      </div>
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold">ノートの詳細</h1>
 
-      <div className="flex gap-3" key={note.id}>
-        <div className="w-1/8">{note.content}</div>
-        <div>
-          {note.createdAt.toLocaleString("ja-JP", {
-            timeZone: "Asia/Tokyo",
-          })}
+      <dl className="space-y-4">
+        <div className="space-y-1">
+          <dt className="text-muted-foreground">ノート</dt>
+          <dd className="wrap-anywhere">{note.content}</dd>
         </div>
-        <Link href={`/notes/${note.id}/edit`}>編集</Link>
+
+        <div className="space-y-1">
+          <dt className="text-muted-foreground">作成日時</dt>
+          <dd>
+            {note.createdAt.toLocaleString("ja-JP", {
+              timeZone: "Asia/Tokyo",
+            })}
+          </dd>
+        </div>
+      </dl>
+
+      <div className="flex gap-3">
+        <Button asChild>
+          <Link href={`/notes/${note.id}/edit`}>編集</Link>
+        </Button>
         <DeleteNoteButton id={id} />
       </div>
-    </>
+    </div>
   );
 }

@@ -1,10 +1,29 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
-import { generateFeedback } from "@/app/actions/feedbacks";
 import { Prompt } from "@prisma/client";
+import { Controller, useForm } from "react-hook-form";
+
+import { generateFeedback } from "@/app/actions/feedbacks";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
+
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 
 type Props = {
   prompts: Prompt[];
@@ -16,9 +35,10 @@ export default function NewNoteForm({ prompts }: Props) {
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
+    control,
   } = useForm<CreateNoteValues>({
-    resolver: zodResolver(CreateNoteSchema),
-    defaultValues: { content: "", promptId: "" },
+    resolver: zodResolver(createNoteSchema),
+    defaultValues: { content: "", promptId: "", useGoogleSearch: false },
     mode: "onBlur",
   });
 
@@ -33,57 +53,93 @@ export default function NewNoteForm({ prompts }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex flex-col">
-        <label htmlFor="promptId">指示文：</label>
-        <select
-          className="mb-5"
-          id="promptId"
-          {...register("promptId")}
-          disabled={isSubmitting}
-        >
-          <option value="">指示文を選択してください</option>
+    <form className="max-w-2xl space-y-4" onSubmit={handleSubmit(onSubmit)}>
+      <Controller
+        name="promptId"
+        control={control}
+        render={({ field, fieldState }) => (
+          <Field>
+            <FieldLabel htmlFor="promptId">指示文</FieldLabel>
+            <FieldDescription>
+              最適な結果を得るには、ノートに適した指示文を選択してください
+            </FieldDescription>
 
-          {prompts.map((prompt) => (
-            <option key={prompt.id} value={prompt.id}>
-              {prompt.content}
-            </option>
-          ))}
-        </select>
-        {errors.promptId && (
-          <p className="text-red-500">{errors.promptId.message}</p>
+            <Select
+              value={field.value}
+              onValueChange={field.onChange}
+              disabled={isSubmitting}
+            >
+              <SelectTrigger
+                id="promptId"
+                className="w-full **:data-[slot=select-value]:truncate"
+              >
+                <SelectValue placeholder="指示文を選択" />
+              </SelectTrigger>
+
+              <SelectContent
+                position="popper"
+                sideOffset={4}
+                className="w-(--radix-select-trigger-width)"
+              >
+                {prompts.map((prompt) => (
+                  <SelectItem
+                    key={prompt.id}
+                    value={prompt.id}
+                    className="wrap-anywhere"
+                  >
+                    {prompt.content}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
         )}
-      </div>
+      />
 
-      <div className="flex flex-col">
-        <label htmlFor="content">ノート内容：</label>
-        <textarea
-          className="w-1/8 border"
+      <div className="space-y-2">
+        <Label htmlFor="content">ノート内容</Label>
+        <Textarea
+          className="min-h-40"
           id="content"
           placeholder="ここにノートを入力"
           {...register("content")}
           disabled={isSubmitting}
         />
         {errors.content && (
-          <p className="text-red-500">{errors.content.message}</p>
+          <p className="text-destructive">{errors.content.message}</p>
         )}
       </div>
 
-      <div>
-        <label htmlFor="useGoogleSearch">
-          <input
-            id="useGoogleSearch"
-            type="checkbox"
-            {...register("useGoogleSearch")}
-          />
-          外部検索を使用する
-        </label>
-      </div>
+      <Controller
+        name="useGoogleSearch"
+        control={control}
+        render={({ field, fieldState }) => (
+          <Field>
+            <div className="flex gap-1">
+              <Checkbox
+                id="useGoogleSearch"
+                checked={field.value}
+                onCheckedChange={(checked) => field.onChange(checked === true)}
+                disabled={isSubmitting}
+              />
+              <FieldLabel htmlFor="useGoogleSearch">外部検索の許可</FieldLabel>
+            </div>
 
-      <button className="bg-blue-200" type="submit" disabled={isSubmitting}>
+            <FieldDescription>
+              許可すると、必要に応じてAIがGoogle検索を使用するようになります
+            </FieldDescription>
+
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
+        )}
+      />
+
+      <Button className="cursor-pointer" type="submit" disabled={isSubmitting}>
         {isSubmitting ? "作成中・・・" : "+ AI回答作成"}
-      </button>
-      {errors.root && <p className="text-red-500">{errors.root.message}</p>}
+      </Button>
+      {errors.root && <p className="text-destructive">{errors.root.message}</p>}
     </form>
   );
 }

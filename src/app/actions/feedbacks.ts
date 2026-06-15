@@ -1,33 +1,25 @@
 "use server";
 
-import { genai } from "@/lib/gemini/gemini";
-import { prisma } from "@/lib/prisma/prisma";
-import { createClient } from "@/lib/supabase/server";
-import { CreateNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { z } from "zod";
+
+import { getUser } from "@/lib/auth/get-user";
+import { genai } from "@/lib/gemini/gemini";
+import { prisma } from "@/lib/prisma/prisma";
+import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
+
+import { getPrompt } from "./prompts";
 
 export async function generateFeedback(value: CreateNoteValues) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUser();
 
-  if (!user) redirect("/auth/signin");
-
-  const result = CreateNoteSchema.safeParse(value);
+  const result = createNoteSchema.safeParse(value);
 
   if (!result.success) {
     return { error: "入力内容を確認してください。" };
   }
 
-  const prompt = await prisma.prompt.findFirst({
-    where: {
-      id: result.data.promptId,
-      authorId: user.id,
-    },
-  });
+  const prompt = await getPrompt(result.data.promptId);
 
   if (!prompt) {
     return { error: "指示文が見つかりません。" };
@@ -59,7 +51,7 @@ export async function generateFeedback(value: CreateNoteValues) {
       const note = await tx.note.create({
         data: {
           content: result.data.content,
-          authorId: user.id,
+          userId: user.id,
         },
       });
       await tx.feedback.create({
@@ -67,15 +59,14 @@ export async function generateFeedback(value: CreateNoteValues) {
           userId: user.id,
           noteId: note.id,
           promptId: prompt.id,
+          promptSnapshot: prompt.content,
           content: feedbackContent,
         },
       });
     });
-  } catch (error) {
-    console.error(error);
-
+  } catch {
     return {
-      error: "AI生成に失敗しました。しばらくしてから再度お試しください。",
+      error: "AI回答の作成に失敗しました。時間をおいて再度お試しください。",
     };
   }
 
@@ -83,36 +74,26 @@ export async function generateFeedback(value: CreateNoteValues) {
   redirect("/feedbacks");
 }
 
+export async function getFeedback(id: string) {
+  const user = await getUser();
+
+  const feedback = await prisma.feedback.findFirst({
+    where: { id, userId: user.id },
+  });
+
+  return feedback;
+}
+
 export async function deleteFeedback(id: string) {
-  const parseId = z.uuid().safeParse(id);
-  if (!parseId.success) {
+  const user = await getUser();
+
+  const result = await prisma.feedback.deleteMany({
+    where: { id, userId: user.id },
+  });
+
+  if (result.count === 0) {
     return {
-      error: "不正なフィードバックIDです。",
-    };
-  }
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth/signin");
-
-  try {
-    const result = await prisma.feedback.deleteMany({
-      where: { id, userId: user.id },
-    });
-
-    if (result.count === 0) {
-      return {
-        error: "削除対象のフィードバックが見つかりません。",
-      };
-    }
-  } catch (error) {
-    console.error("削除に失敗しました:", error);
-
-    return {
-      error: "削除に失敗しました。もう一度お試しください。",
+      error: "削除対象のフィードバックが見つかりません。",
     };
   }
 

@@ -1,42 +1,57 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormValues, FormSchema } from "@/app/prompts/new/schema";
-import createPrompt from "@/app/prompts/new/actions";
+import { useForm } from "react-hook-form";
+
+import { createPrompt } from "@/app/actions/prompts";
+import {
+  createPromptSchema,
+  CreatePromptValues,
+} from "@/lib/validations/prompts";
+
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 
 export default function NewPromptForm() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(FormSchema),
+  } = useForm<CreatePromptValues>({
+    resolver: zodResolver(createPromptSchema),
     defaultValues: { content: "" },
     mode: "onBlur",
   });
 
-  const onSubmit = async (value: FormValues) => {
-    await createPrompt(value);
+  const onSubmit = async (value: CreatePromptValues) => {
+    const result = await createPrompt(value);
+    if (result.error) {
+      setError("root", { message: result.error });
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex flex-col">
-        <textarea
-          className="w-1/8 border"
+    <form className="max-w-2xl space-y-4" onSubmit={handleSubmit(onSubmit)}>
+      <div className="space-y-2">
+        <Label htmlFor="content">指示文</Label>
+
+        <Textarea
+          className="min-h-40"
           id="content"
           placeholder="ここに指示文を入力"
           {...register("content")}
           disabled={isSubmitting}
-        ></textarea>
+        />
       </div>
       {errors.content && (
-        <p className="text-red-500">{errors.content.message}</p>
+        <p className="text-destructive">{errors.content.message}</p>
       )}
-      <button className="bg-blue-200" type="submit" disabled={isSubmitting}>
+      <Button className="cursor-pointer" type="submit" disabled={isSubmitting}>
         {isSubmitting ? "作成中・・・" : "+ 新規作成"}
-      </button>
+      </Button>
+      {errors.root && <p className="text-destructive">{errors.root.message}</p>}
     </form>
   );
 }

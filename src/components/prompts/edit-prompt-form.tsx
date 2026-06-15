@@ -1,52 +1,64 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormSchema, FormValues } from "@/app/prompts/[id]/edit/schema";
 import { Prompt } from "@prisma/client";
-import { updatePrompt } from "@/app/prompts/[id]/edit/actions";
+import { useForm } from "react-hook-form";
 
-type EditPromptFormProps = {
+import { updatePrompt } from "@/app/actions/prompts";
+import {
+  updatePromptSchema,
+  UpdatePromptValues,
+} from "@/lib/validations/prompts";
+
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
+
+type Props = {
   prompt: Prompt;
 };
 
-export default function EditPromptForm({ prompt }: EditPromptFormProps) {
+export default function EditPromptForm({ prompt }: Props) {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(FormSchema),
+  } = useForm<UpdatePromptValues>({
+    resolver: zodResolver(updatePromptSchema),
     defaultValues: { id: prompt.id, content: prompt.content },
     mode: "onBlur",
   });
 
-  const onSubmit = async (value: FormValues) => {
-    await updatePrompt(value);
+  const onSubmit = async (value: UpdatePromptValues) => {
+    const result = await updatePrompt(value);
+    if (result.error) {
+      setError("root", { message: result.error });
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form className="max-w-2xl space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <input type="hidden" {...register("id")} />
-      <div className="flex flex-col">
-        <textarea
-          className="w-1/8 border"
+      <div className="space-y-2">
+        <Label htmlFor="content">指示文</Label>
+
+        <Textarea
+          className="min-h-40"
           id="content"
           placeholder="ここに指示文を入力"
           {...register("content")}
           disabled={isSubmitting}
-        ></textarea>
+        />
       </div>
       {errors.content && (
-        <p className="text-red-500">{errors.content.message}</p>
+        <p className="text-destructive">{errors.content.message}</p>
       )}
-      <button
-        className="bg-blue-200 cursor-pointer"
-        type="submit"
-        disabled={isSubmitting}
-      >
+
+      <Button className="cursor-pointer" type="submit" disabled={isSubmitting}>
         {isSubmitting ? "編集中・・・" : "+ 編集する"}
-      </button>
+      </Button>
+      {errors.root && <p className="text-destructive">{errors.root.message}</p>}
     </form>
   );
 }

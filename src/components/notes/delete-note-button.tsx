@@ -1,13 +1,16 @@
 "use client";
 
-import deleteNote from "@/app/notes/[id]/actions";
 import { useTransition } from "react";
 
-type DeleteNoteButtonProps = {
+import { deleteNote } from "@/app/actions/notes";
+
+import { Button } from "../ui/button";
+
+type Props = {
   id: string;
 };
 
-export default function DeleteNoteButton({ id }: DeleteNoteButtonProps) {
+export default function DeleteNoteButton({ id }: Props) {
   const [isPending, startTransition] = useTransition();
 
   const deleteNoteHandler = () => {
@@ -25,12 +28,13 @@ export default function DeleteNoteButton({ id }: DeleteNoteButtonProps) {
   };
 
   return (
-    <button
+    <Button
+      variant="destructive"
       className="hover:cursor-pointer"
       onClick={deleteNoteHandler}
       disabled={isPending}
     >
       {isPending ? "削除中..." : "削除"}
-    </button>
+    </Button>
   );
 }

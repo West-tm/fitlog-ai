@@ -1,13 +1,16 @@
 "use client";
 
-import { deletePrompt } from "@/app/prompts/[id]/action";
 import { useTransition } from "react";
 
-type DeletePromptButtonProps = {
+import { deletePrompt } from "@/app/actions/prompts";
+
+import { Button } from "../ui/button";
+
+type Props = {
   id: string;
 };
 
-export default function DeletePromptButton({ id }: DeletePromptButtonProps) {
+export default function DeletePromptButton({ id }: Props) {
   const [isPending, startTransition] = useTransition();
 
   const deletePromptHandler = () => {
@@ -25,12 +28,13 @@ export default function DeletePromptButton({ id }: DeletePromptButtonProps) {
   };
 
   return (
-    <button
+    <Button
+      variant="destructive"
       className="hover:cursor-pointer"
       onClick={deletePromptHandler}
       disabled={isPending}
     >
       {isPending ? "削除中..." : "削除"}
-    </button>
+    </Button>
   );
 }
