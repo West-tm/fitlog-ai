@@ -59,5 +59,6 @@ export async function deleteNote(id: string) {
   }
 
   revalidatePath("/notes");
+  revalidatePath("/feedbacks");
   redirect("/notes");
 }

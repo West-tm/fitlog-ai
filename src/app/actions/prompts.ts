@@ -80,5 +80,6 @@ export async function deletePrompt(id: string) {
   }
 
   revalidatePath("/prompts");
+  revalidatePath("/feedbacks");
   redirect("/prompts");
 }
