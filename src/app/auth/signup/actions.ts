@@ -22,7 +22,7 @@ export async function signupAction(
 
   if (!result.success) {
     return {
-      values: { email: values.email },
+      values: { email: values.email.trim() },
       success: false,
       errors: z.flattenError(result.error).fieldErrors,
     };
