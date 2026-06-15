@@ -1,5 +1,7 @@
 import "./globals.css";
 
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 
@@ -25,6 +27,8 @@ export default function RootLayout({
         <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 py-6 sm:px-6 lg:px-8">
           {children}
         </main>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
