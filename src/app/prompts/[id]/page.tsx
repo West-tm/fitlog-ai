@@ -36,7 +36,7 @@ export default async function PromptPage({
       </dl>
 
       <div className="flex gap-3">
-        <Button>
+        <Button asChild>
           <Link href={`/prompts/${prompt.id}/edit`}>編集</Link>
         </Button>
         <DeletePromptButton id={id} />
