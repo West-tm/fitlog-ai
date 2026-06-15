@@ -7,7 +7,7 @@ export default async function NewNotePage() {
 
   const prompts = await prisma.prompt.findMany({
     where: {
-      authorId: user.id,
+      userId: user.id,
     },
     orderBy: {
       createdAt: "desc",

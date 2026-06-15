@@ -11,7 +11,7 @@ export async function getNote(id: string) {
   const user = await getUser();
 
   const note = await prisma.note.findFirst({
-    where: { id, authorId: user.id },
+    where: { id, userId: user.id },
   });
 
   return note;
@@ -29,7 +29,7 @@ export async function updateNote(value: UpdateNoteValues) {
   }
 
   const updateResult = await prisma.note.updateMany({
-    where: { id: result.data.id, authorId: user.id },
+    where: { id: result.data.id, userId: user.id },
     data: {
       content: result.data.content,
     },
@@ -49,7 +49,7 @@ export async function deleteNote(id: string) {
   const user = await getUser();
 
   const result = await prisma.note.deleteMany({
-    where: { id, authorId: user.id },
+    where: { id, userId: user.id },
   });
 
   if (result.count === 0) {

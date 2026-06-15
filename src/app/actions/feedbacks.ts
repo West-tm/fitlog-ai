@@ -51,7 +51,7 @@ export async function generateFeedback(value: CreateNoteValues) {
       const note = await tx.note.create({
         data: {
           content: result.data.content,
-          authorId: user.id,
+          userId: user.id,
         },
       });
       await tx.feedback.create({

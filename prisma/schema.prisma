@@ -24,8 +24,8 @@ model Prompt {
   content   String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  author    User       @relation(fields: [authorId], references: [id])
-  authorId  String
+  user      User       @relation(fields: [userId], references: [id])
+  userId    String
   feedbacks Feedback[]
 }
 
@@ -34,8 +34,8 @@ model Note {
   content   String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  author    User       @relation(fields: [authorId], references: [id])
-  authorId  String
+  user      User       @relation(fields: [userId], references: [id])
+  userId    String
   feedbacks Feedback[]
 }
 

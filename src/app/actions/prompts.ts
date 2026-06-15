@@ -24,7 +24,7 @@ export async function createPrompt(value: CreatePromptValues) {
   await prisma.prompt.create({
     data: {
       content: result.data.content,
-      authorId: user.id,
+      userId: user.id,
     },
   });
 
@@ -36,7 +36,7 @@ export async function getPrompt(id: string) {
   const user = await getUser();
 
   const prompt = await prisma.prompt.findFirst({
-    where: { id, authorId: user.id },
+    where: { id, userId: user.id },
   });
 
   return prompt;
@@ -52,7 +52,7 @@ export async function updatePrompt(value: UpdatePromptValues) {
   }
 
   const updateResult = await prisma.prompt.updateMany({
-    where: { id: result.data.id, authorId: user.id },
+    where: { id: result.data.id, userId: user.id },
     data: {
       content: result.data.content,
     },
@@ -70,7 +70,7 @@ export async function deletePrompt(id: string) {
   const user = await getUser();
 
   const result = await prisma.prompt.deleteMany({
-    where: { id, authorId: user.id },
+    where: { id, userId: user.id },
   });
 
   if (result.count === 0) {

@@ -17,7 +17,7 @@ export default async function PromptsPage() {
 
   const prompts = await prisma.prompt.findMany({
     where: {
-      authorId: user.id,
+      userId: user.id,
     },
     orderBy: {
       createdAt: "desc",

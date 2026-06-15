@@ -17,7 +17,7 @@ export default async function NotesPage() {
 
   const notes = await prisma.note.findMany({
     where: {
-      authorId: user.id,
+      userId: user.id,
     },
     orderBy: {
       createdAt: "desc",
