@@ -60,7 +60,7 @@
 
 ## ER図
 
-````mermaid
+```mermaid
 erDiagram
   User ||--o{ Prompt : creates
   User ||--o{ Note : creates
@@ -100,6 +100,7 @@ erDiagram
     String promptSnapshot
     String noteId FK
   }
+```
 
 ---
 
@@ -132,10 +133,20 @@ git clone https://github.com/West-tm/fitlog-ai.git
 cd fitlog-ai
 npm install
 cp .env.example .env.local
-# .env.local に各種キーを設定
+```
+
+`.env.local` に以下の環境変数を設定してください。
+
+- `DATABASE_URL`
+- `DIRECT_URL`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `GEMINI_API_KEY`
+
+```bash
 npx prisma generate
 npm run dev
-````
+```
 
 Windows PowerShell の場合:
 
