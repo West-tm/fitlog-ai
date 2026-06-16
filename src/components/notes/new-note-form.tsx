@@ -2,7 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Prompt } from "@prisma/client";
-import { Controller, useForm } from "react-hook-form";
+import { ChevronDownIcon } from "lucide-react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 
 import { generateFeedback } from "@/app/actions/feedbacks";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,6 +23,11 @@ import {
 import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
 
 import { Button } from "../ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 
@@ -51,6 +57,13 @@ export default function NewNoteForm({ prompts }: Props) {
       });
     }
   };
+
+  const selectedPromptId = useWatch({
+    control: control,
+    name: "promptId",
+  });
+
+  const selectPrompt = prompts.find((prompt) => prompt.id === selectedPromptId);
 
   return (
     <form className="max-w-2xl space-y-4" onSubmit={handleSubmit(onSubmit)}>
@@ -87,7 +100,7 @@ export default function NewNoteForm({ prompts }: Props) {
                     value={prompt.id}
                     className="wrap-anywhere"
                   >
-                    {prompt.content}
+                    {prompt.title}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -97,6 +110,20 @@ export default function NewNoteForm({ prompts }: Props) {
           </Field>
         )}
       />
+
+      <Collapsible className="mb-6 rounded-md data-[state=open]:bg-muted">
+        <CollapsibleTrigger asChild>
+          <Button type="button" variant="ghost" className="group">
+            指示文の詳細
+            <ChevronDownIcon className="ml-auto group-data-[state=open]:rotate-180" />
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="flex flex-col items-start gap-2 p-2.5 pt-0 text-sm">
+          <div>
+            {selectPrompt ? selectPrompt.content : "指示文は未選択です"}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       <div className="space-y-2">
         <Label htmlFor="content">ノート内容</Label>

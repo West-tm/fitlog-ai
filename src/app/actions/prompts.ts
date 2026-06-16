@@ -23,6 +23,7 @@ export async function createPrompt(value: CreatePromptValues) {
 
   await prisma.prompt.create({
     data: {
+      title: result.data.title,
       content: result.data.content,
       userId: user.id,
     },
@@ -54,6 +55,7 @@ export async function updatePrompt(value: UpdatePromptValues) {
   const updateResult = await prisma.prompt.updateMany({
     where: { id: result.data.id, userId: user.id },
     data: {
+      title: result.data.title,
       content: result.data.content,
     },
   });

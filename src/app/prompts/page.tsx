@@ -36,7 +36,8 @@ export default async function PromptsPage() {
       <Table className="w-full table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead>指示文</TableHead>
+            <TableHead className="w-44">タイトル</TableHead>
+            <TableHead className="hidden sm:table-cell">指示文</TableHead>
             <TableHead className="hidden w-44 sm:table-cell">
               作成日時
             </TableHead>
@@ -46,16 +47,20 @@ export default async function PromptsPage() {
         <TableBody>
           {prompts.map((prompt) => (
             <TableRow key={prompt.id}>
-              <TableCell className="wrap-anywhere whitespace-normal">
+              <TableCell>
                 <Link
                   href={`/prompts/${prompt.id}`}
                   className="block hover:underline"
                 >
-                  {prompt.content}
+                  {prompt.title}
                 </Link>
               </TableCell>
 
-              <TableCell className="hidden w-44 text-muted-foreground sm:table-cell">
+              <TableCell className="hidden wrap-anywhere whitespace-normal sm:table-cell">
+                {prompt.content}
+              </TableCell>
+
+              <TableCell className="hidden text-muted-foreground sm:table-cell">
                 {prompt.createdAt.toLocaleString("ja-JP", {
                   timeZone: "Asia/Tokyo",
                 })}
