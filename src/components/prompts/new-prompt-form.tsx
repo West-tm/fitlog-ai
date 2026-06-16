@@ -10,6 +10,7 @@ import {
 } from "@/lib/validations/prompts";
 
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 
@@ -35,8 +36,20 @@ export default function NewPromptForm() {
   return (
     <form className="max-w-2xl space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-2">
-        <Label htmlFor="content">指示文</Label>
+        <Label htmlFor="title">タイトル</Label>
+        <Input
+          id="title"
+          placeholder="ここにタイトルを入力"
+          {...register("title")}
+          disabled={isSubmitting}
+        />
+      </div>
+      {errors.title && (
+        <p className="text-destructive">{errors.title.message}</p>
+      )}
 
+      <div className="space-y-2">
+        <Label htmlFor="content">指示文</Label>
         <Textarea
           className="min-h-40"
           id="content"

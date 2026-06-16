@@ -21,6 +21,11 @@ export default async function PromptPage({
 
       <dl className="space-y-4">
         <div className="space-y-1">
+          <dt className="text-muted-foreground">タイトル</dt>
+          <dd className="wrap-anywhere">{prompt.title}</dd>
+        </div>
+
+        <div className="space-y-1">
           <dt className="text-muted-foreground">指示文</dt>
           <dd className="wrap-anywhere">{prompt.content}</dd>
         </div>
