@@ -5,6 +5,7 @@ export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
+  const supabaseAuthHeaders = new Headers();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,21 +25,51 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options),
           );
-          Object.entries(headers).forEach(([key, value]) =>
-            supabaseResponse.headers.set(key, value),
-          );
+          Object.entries(headers).forEach(([key, value]) => {
+            supabaseResponse.headers.set(key, value);
+            supabaseAuthHeaders.set(key, value);
+          });
         },
       },
     },
   );
 
-  // Do not run code between createServerClient and
-  // supabase.auth.getClaims(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
+  // createServerClient と getClaims の間に処理を挟まない
+  const { data } = await supabase.auth.getClaims();
 
-  // IMPORTANT: If you remove getClaims() and you use server-side rendering
-  // with the Supabase client, your users may be randomly logged out.
-  await supabase.auth.getClaims();
+  const user = data?.claims;
+  const pathname = request.nextUrl.pathname;
+
+  const authRoutes = ["/auth/signin", "/auth/signup"];
+  const isAuthRoute = authRoutes.some((route) => pathname.includes(route));
+  const isPublicRoute = pathname === "/";
+
+  // redirect時もSupabaseが更新したCookieを引き継ぐ
+  const redirectWithCookies = (path: string) => {
+    const url = request.nextUrl.clone();
+    url.pathname = path;
+    url.search = "";
+
+    const redirectResponse = NextResponse.redirect(url);
+
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie);
+    });
+
+    supabaseAuthHeaders.forEach((value, key) => {
+      redirectResponse.headers.set(key, value);
+    });
+
+    return redirectResponse;
+  };
+
+  if (!user && !isAuthRoute && !isPublicRoute) {
+    return redirectWithCookies("/auth/signin");
+  }
+
+  if (user && isAuthRoute) {
+    return redirectWithCookies("/dashboard");
+  }
 
   return supabaseResponse;
 }
