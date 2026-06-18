@@ -14,7 +14,6 @@ const publicNavItems = [
 
 const privateNavItems = [
   { href: "/prompts", label: "指示文一覧" },
-  { href: "/notes", label: "ノート一覧" },
   { href: "/feedbacks", label: "フィードバック一覧" },
 ];
 

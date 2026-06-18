@@ -43,6 +43,21 @@ export async function getPrompt(id: string) {
   return prompt;
 }
 
+export async function getPrompts() {
+  const user = await getUser();
+
+  const prompts = await prisma.prompt.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return prompts;
+}
+
 export async function updatePrompt(value: UpdatePromptValues) {
   const user = await getUser();
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -25,7 +26,12 @@ export default async function FeedbacksPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold">フィードバックの一覧</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-xl font-semibold">フィードバックの一覧</h1>
+        <Button asChild>
+          <Link href="/feedbacks/new">+ 新規作成</Link>
+        </Button>
+      </div>
 
       <Table className="w-full table-fixed">
         <TableHeader>

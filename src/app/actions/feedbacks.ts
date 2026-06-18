@@ -5,7 +5,12 @@ import { redirect } from "next/navigation";
 
 import { getUser } from "@/lib/auth/get-user";
 import { prisma } from "@/lib/prisma/prisma";
-import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
+import {
+  createNoteSchema,
+  CreateNoteValues,
+  UpdateNoteSchema,
+  updateNoteValues,
+} from "@/lib/validations/notes";
 
 import { geminiGenerateContent } from "./gemini";
 import { getPrompt } from "./prompts";
@@ -35,14 +40,14 @@ export async function generateFeedback(value: CreateNoteValues) {
     return { error: generateResult.error };
   }
 
-  await prisma.$transaction(async (tx) => {
+  const feedback = await prisma.$transaction(async (tx) => {
     const note = await tx.note.create({
       data: {
         content: result.data.content,
         userId: user.id,
       },
     });
-    await tx.feedback.create({
+    const feedback = await tx.feedback.create({
       data: {
         userId: user.id,
         noteId: note.id,
@@ -51,10 +56,12 @@ export async function generateFeedback(value: CreateNoteValues) {
         content: generateResult.content,
       },
     });
+
+    return feedback;
   });
 
   revalidatePath("/feedbacks");
-  redirect("/feedbacks");
+  redirect(`/feedbacks/${feedback.id}`);
 }
 
 export async function getFeedback(id: string) {
@@ -65,6 +72,57 @@ export async function getFeedback(id: string) {
   });
 
   return feedback;
+}
+
+export async function updateFeedback(value: UpdateNoteSchema) {
+  const result = updateNoteValues.safeParse(value);
+
+  if (!result.success) {
+    return { error: "入力内容を確認してください。" };
+  }
+
+  const prompt = await getPrompt(result.data.promptId);
+
+  if (!prompt) {
+    return { error: "指示文が見つかりません。" };
+  }
+
+  const feedback = await getFeedback(result.data.feedbackId);
+
+  if (!feedback) {
+    return { error: "フィードバックが見つかりません。" };
+  }
+
+  const generateResult = await geminiGenerateContent(
+    prompt.content,
+    result.data.content,
+    result.data.useGoogleSearch,
+  );
+
+  if (!generateResult.ok) {
+    return { error: generateResult.error };
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.note.update({
+      where: { id: feedback.noteId },
+      data: {
+        content: result.data.content,
+      },
+    });
+
+    await tx.feedback.update({
+      where: { id: feedback.id },
+      data: {
+        promptId: prompt.id,
+        content: generateResult.content,
+        promptSnapshot: prompt.content,
+      },
+    });
+  });
+
+  revalidatePath("/feedbacks");
+  redirect(`/feedbacks/${feedback.id}`);
 }
 
 export async function deleteFeedback(id: string) {
