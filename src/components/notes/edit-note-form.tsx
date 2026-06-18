@@ -2,7 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Feedback, Note, Prompt } from "@prisma/client";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, Sparkles } from "lucide-react";
+import { useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 
 import { updateFeedback } from "@/app/actions/feedbacks";
@@ -29,6 +30,7 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 import { Label } from "../ui/label";
+import { Spinner } from "../ui/spinner";
 import { Textarea } from "../ui/textarea";
 
 type Props = {
@@ -61,13 +63,27 @@ export default function EditNoteFrom({
     mode: "onBlur",
   });
 
+  const submitLockRef = useRef(false);
+  const [isSubmitLocked, setIsSubmitLocked] = useState(false);
+
+  const isPending = isSubmitting || isSubmitLocked;
+
+  const handleFormSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+    void handleSubmit(onSubmit)(event);
+  };
+
   const onSubmit = async (value: UpdateNoteSchema) => {
+    if (submitLockRef.current) return;
+
+    submitLockRef.current = true;
+    setIsSubmitLocked(true);
+
     const result = await updateFeedback(value);
 
     if (result.error) {
-      setError("root", {
-        message: result.error,
-      });
+      setError("root", { message: result.error });
+      submitLockRef.current = false;
+      setIsSubmitLocked(false);
     }
   };
 
@@ -79,7 +95,7 @@ export default function EditNoteFrom({
   const selectPrompt = prompts.find((prompt) => prompt.id === selectedPromptId);
 
   return (
-    <form className="max-w-2xl space-y-4" onSubmit={handleSubmit(onSubmit)}>
+    <form className="max-w-2xl space-y-4" onSubmit={handleFormSubmit}>
       <Controller
         name="promptId"
         control={control}
@@ -93,7 +109,7 @@ export default function EditNoteFrom({
             <Select
               value={field.value}
               onValueChange={field.onChange}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               <SelectTrigger
                 id="promptId"
@@ -145,7 +161,7 @@ export default function EditNoteFrom({
           id="content"
           placeholder="ここにノートを入力"
           {...register("content")}
-          disabled={isSubmitting}
+          disabled={isPending}
         />
         {errors.content && (
           <p className="text-destructive">{errors.content.message}</p>
@@ -162,7 +178,7 @@ export default function EditNoteFrom({
                 id="useGoogleSearch"
                 checked={field.value}
                 onCheckedChange={(checked) => field.onChange(checked === true)}
-                disabled={isSubmitting}
+                disabled={isPending}
               />
               <FieldLabel htmlFor="useGoogleSearch">外部検索の許可</FieldLabel>
             </div>
@@ -176,8 +192,9 @@ export default function EditNoteFrom({
         )}
       />
 
-      <Button className="cursor-pointer" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "作成中・・・" : "+ AI回答作成"}
+      <Button className="cursor-pointer" type="submit" disabled={isPending}>
+        {isPending ? <Spinner /> : <Sparkles />}
+        {isPending ? "再生成中" : "AI回答を再生成"}
       </Button>
       {errors.root && <p className="text-destructive">{errors.root.message}</p>}
     </form>

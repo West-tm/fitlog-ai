@@ -19,9 +19,13 @@ import { PromptTemplate, promptTemplates } from "@/lib/prompt-templates";
 
 type Props = {
   setValueTemplate: (template: PromptTemplate) => void;
+  disabled?: boolean;
 };
 
-export function PromptTemplatePicker({ setValueTemplate }: Props) {
+export function PromptTemplatePicker({
+  setValueTemplate,
+  disabled = false,
+}: Props) {
   const [open, setOpen] = useState(false);
 
   const handleSelectTemplate = (ctemplate: PromptTemplate) => {
@@ -61,6 +65,7 @@ export function PromptTemplatePicker({ setValueTemplate }: Props) {
                   type="button"
                   size="sm"
                   onClick={() => handleSelectTemplate(template)}
+                  disabled={disabled}
                 >
                   このテンプレートを使う
                 </Button>

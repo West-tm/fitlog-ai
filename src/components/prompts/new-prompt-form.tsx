@@ -1,6 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus } from "lucide-react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { createPrompt } from "@/app/actions/prompts";
@@ -13,6 +15,7 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { Spinner } from "../ui/spinner";
 import { Textarea } from "../ui/textarea";
 import { PromptTemplatePicker } from "./prompt-template-picker";
 
@@ -29,10 +32,27 @@ export default function NewPromptForm() {
     mode: "onBlur",
   });
 
+  const submitLockRef = useRef(false);
+  const [isSubmitLocked, setIsSubmitLocked] = useState(false);
+
+  const isPending = isSubmitting || isSubmitLocked;
+
+  const handleFormSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+    void handleSubmit(onSubmit)(event);
+  };
+
   const onSubmit = async (value: CreatePromptValues) => {
+    if (submitLockRef.current) return;
+
+    submitLockRef.current = true;
+    setIsSubmitLocked(true);
+
     const result = await createPrompt(value);
+
     if (result.error) {
       setError("root", { message: result.error });
+      submitLockRef.current = false;
+      setIsSubmitLocked(false);
     }
   };
 
@@ -50,16 +70,19 @@ export default function NewPromptForm() {
 
   return (
     <div className="max-w-2xl space-y-4">
-      <PromptTemplatePicker setValueTemplate={setValueTemplate} />
+      <PromptTemplatePicker
+        setValueTemplate={setValueTemplate}
+        disabled={isPending}
+      />
 
-      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+      <form className="space-y-4" onSubmit={handleFormSubmit}>
         <div className="space-y-2">
           <Label htmlFor="title">タイトル</Label>
           <Input
             id="title"
             placeholder="ここにタイトルを入力"
             {...register("title")}
-            disabled={isSubmitting}
+            disabled={isPending}
           />
         </div>
         {errors.title && (
@@ -73,18 +96,15 @@ export default function NewPromptForm() {
             id="content"
             placeholder="ここに指示文を入力"
             {...register("content")}
-            disabled={isSubmitting}
+            disabled={isPending}
           />
         </div>
         {errors.content && (
           <p className="text-destructive">{errors.content.message}</p>
         )}
-        <Button
-          className="cursor-pointer"
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "作成中・・・" : "+ 新規作成"}
+        <Button className="cursor-pointer" type="submit" disabled={isPending}>
+          {isPending ? <Spinner /> : <Plus />}
+          {isPending ? "作成中" : "新規作成"}
         </Button>
         {errors.root && (
           <p className="text-destructive">{errors.root.message}</p>
