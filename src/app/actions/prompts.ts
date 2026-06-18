@@ -21,7 +21,7 @@ export async function createPrompt(value: CreatePromptValues) {
     return { error: "入力内容を確認してください。" };
   }
 
-  await prisma.prompt.create({
+  const prompt = await prisma.prompt.create({
     data: {
       title: result.data.title,
       content: result.data.content,
@@ -30,7 +30,7 @@ export async function createPrompt(value: CreatePromptValues) {
   });
 
   revalidatePath("/prompts");
-  redirect("/prompts");
+  redirect(`/prompts/${prompt.id}`);
 }
 
 export async function getPrompt(id: string) {
@@ -80,7 +80,7 @@ export async function updatePrompt(value: UpdatePromptValues) {
   }
 
   revalidatePath("/prompts");
-  redirect("/prompts");
+  redirect(`/prompts/${result.data.id}`);
 }
 
 export async function deletePrompt(id: string) {
