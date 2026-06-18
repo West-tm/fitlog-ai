@@ -4,10 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getUser } from "@/lib/auth/get-user";
-import { genai } from "@/lib/gemini/gemini";
 import { prisma } from "@/lib/prisma/prisma";
 import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
 
+import { geminiGenerateContent } from "./gemini";
 import { getPrompt } from "./prompts";
 
 export async function generateFeedback(value: CreateNoteValues) {
@@ -25,50 +25,33 @@ export async function generateFeedback(value: CreateNoteValues) {
     return { error: "指示文が見つかりません。" };
   }
 
-  const config = result.data.useGoogleSearch
-    ? { tools: [{ googleSearch: {} }] }
-    : undefined;
+  const generateResult = await geminiGenerateContent(
+    prompt.content,
+    result.data.content,
+    result.data.useGoogleSearch,
+  );
 
-  try {
-    const response = await genai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: `
-    #指示
-    ${prompt.content}
-    #ノート
-    ${result.data.content}
-    `.trim(),
-      config,
-    });
-
-    const feedbackContent = response.text?.trim();
-
-    if (!feedbackContent) {
-      return { error: "AIから回答を取得できませんでした。" };
-    }
-
-    await prisma.$transaction(async (tx) => {
-      const note = await tx.note.create({
-        data: {
-          content: result.data.content,
-          userId: user.id,
-        },
-      });
-      await tx.feedback.create({
-        data: {
-          userId: user.id,
-          noteId: note.id,
-          promptId: prompt.id,
-          promptSnapshot: prompt.content,
-          content: feedbackContent,
-        },
-      });
-    });
-  } catch {
-    return {
-      error: "AI回答の作成に失敗しました。時間をおいて再度お試しください。",
-    };
+  if (!generateResult.ok) {
+    return { error: generateResult.error };
   }
+
+  await prisma.$transaction(async (tx) => {
+    const note = await tx.note.create({
+      data: {
+        content: result.data.content,
+        userId: user.id,
+      },
+    });
+    await tx.feedback.create({
+      data: {
+        userId: user.id,
+        noteId: note.id,
+        promptId: prompt.id,
+        promptSnapshot: prompt.content,
+        content: generateResult.content,
+      },
+    });
+  });
 
   revalidatePath("/feedbacks");
   redirect("/feedbacks");
