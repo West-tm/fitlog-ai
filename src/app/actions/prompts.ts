@@ -39,10 +39,18 @@ export async function getPrompt(id: string) {
 
   const prompt = await prisma.prompt.findFirst({
     where: { id, userId: user.id },
+    include: {
+      _count: {
+        select: {
+          feedbacks: true,
+        },
+      },
+    },
   });
 
   return prompt;
 }
+
 export async function getPromptbyFeedback(feedback: Feedback) {
   if (feedback.promptId) {
     const prompt = await getPrompt(feedback.promptId);
@@ -69,6 +77,13 @@ export async function getPrompts() {
     },
     orderBy: {
       createdAt: "desc",
+    },
+    include: {
+      _count: {
+        select: {
+          feedbacks: true,
+        },
+      },
     },
   });
 
