@@ -1,18 +1,8 @@
+import { getPrompts } from "@/app/actions/prompts";
 import NewNoteForm from "@/components/notes/new-note-form";
-import { getUser } from "@/lib/auth/get-user";
-import { prisma } from "@/lib/prisma/prisma";
 
 export default async function CreateFeedbackPage() {
-  const user = await getUser();
-
-  const prompts = await prisma.prompt.findMany({
-    where: {
-      userId: user.id,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  const prompts = await getPrompts();
 
   return (
     <div className="space-y-6">

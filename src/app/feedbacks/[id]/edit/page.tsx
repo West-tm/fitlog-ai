@@ -1,27 +1,9 @@
-import { Feedback } from "@prisma/client";
 import { notFound } from "next/navigation";
 
 import { getFeedback } from "@/app/actions/feedbacks";
 import { getNote } from "@/app/actions/notes";
-import { getPrompt, getPrompts } from "@/app/actions/prompts";
+import { getPromptbyFeedback, getPrompts } from "@/app/actions/prompts";
 import EditNoteFrom from "@/components/notes/edit-note-form";
-
-const setPrompt = async (feedback: Feedback) => {
-  if (feedback.promptId) {
-    const prompt = await getPrompt(feedback.promptId);
-    if (prompt) {
-      return prompt;
-    }
-  }
-  return {
-    id: "",
-    content: feedback.promptSnapshot,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    userId: "",
-    title: "削除済みの指示文",
-  };
-};
 
 export default async function EditFeedbackPage({
   params,
@@ -33,7 +15,7 @@ export default async function EditFeedbackPage({
     notFound();
   }
 
-  const prompt = await setPrompt(feedback);
+  const prompt = await getPromptbyFeedback(feedback);
 
   const note = await getNote(feedback.noteId);
   if (!note) {

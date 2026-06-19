@@ -1,5 +1,6 @@
 "use server";
 
+import { Feedback } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -41,6 +42,22 @@ export async function getPrompt(id: string) {
   });
 
   return prompt;
+}
+export async function getPromptbyFeedback(feedback: Feedback) {
+  if (feedback.promptId) {
+    const prompt = await getPrompt(feedback.promptId);
+    if (prompt) {
+      return prompt;
+    }
+  }
+  return {
+    id: "",
+    content: feedback.promptSnapshot,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    userId: "",
+    title: "削除済みの指示文",
+  };
 }
 
 export async function getPrompts() {

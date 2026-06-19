@@ -1,28 +1,11 @@
-import { Feedback } from "@prisma/client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getFeedback } from "@/app/actions/feedbacks";
 import { getNote } from "@/app/actions/notes";
-import { getPrompt } from "@/app/actions/prompts";
+import { getPromptbyFeedback } from "@/app/actions/prompts";
 import DeleteNoteButton from "@/components/notes/delete-note-button";
 import { Button } from "@/components/ui/button";
-
-const setPrompt = async (feedback: Feedback) => {
-  if (feedback.promptId) {
-    const prompt = await getPrompt(feedback.promptId);
-    if (prompt) {
-      return {
-        title: prompt.title,
-        content: prompt.content,
-      };
-    }
-  }
-  return {
-    title: "削除済みの指示文",
-    content: feedback.promptSnapshot,
-  };
-};
 
 export default async function FeedbackPage({
   params,
@@ -39,7 +22,7 @@ export default async function FeedbackPage({
     notFound();
   }
 
-  const { title, content } = await setPrompt(feedback);
+  const { title, content } = await getPromptbyFeedback(feedback);
 
   return (
     <div className="space-y-6">

@@ -74,6 +74,21 @@ export async function getFeedback(id: string) {
   return feedback;
 }
 
+export async function getFeedbacks() {
+  const user = await getUser();
+
+  const feedbacks = await prisma.feedback.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return feedbacks;
+}
+
 export async function updateFeedback(value: UpdateNoteSchema) {
   const result = updateNoteValues.safeParse(value);
 

@@ -9,20 +9,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getUser } from "@/lib/auth/get-user";
-import { prisma } from "@/lib/prisma/prisma";
+
+import { getFeedbacks } from "../actions/feedbacks";
 
 export default async function FeedbacksPage() {
-  const user = await getUser();
-
-  const feedbacks = await prisma.feedback.findMany({
-    where: {
-      userId: user.id,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  const feedbacks = await getFeedbacks();
 
   return (
     <div className="space-y-6">
