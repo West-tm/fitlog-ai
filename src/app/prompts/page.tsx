@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,9 @@ export default async function PromptsPage() {
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-xl font-semibold">指示文の一覧</h1>
         <Button asChild>
-          <Link href="/prompts/new">+ 新規作成</Link>
+          <Link href="/prompts/new">
+            <Plus /> 新規作成
+          </Link>
         </Button>
       </div>
 

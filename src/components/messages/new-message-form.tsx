@@ -184,7 +184,7 @@ export default function NewMessageForm({ prompts }: Props) {
 
       <Button className="cursor-pointer" type="submit" disabled={isPending}>
         {isPending ? <Spinner /> : <Sparkles />}
-        {isPending ? "生成中" : "AI回答生成"}
+        {isPending ? "分析中" : "AI分析開始"}
       </Button>
       {errors.root && <p className="text-destructive">{errors.root.message}</p>}
     </form>

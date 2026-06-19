@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Prompt } from "@prisma/client";
-import { Pencil } from "lucide-react";
+import { Save } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -96,8 +96,8 @@ export default function EditPromptForm({ prompt }: Props) {
       )}
 
       <Button className="cursor-pointer" type="submit" disabled={isPending}>
-        {isPending ? <Spinner /> : <Pencil />}
-        {isPending ? "編集中" : "編集"}
+        {isPending ? <Spinner /> : <Save />}
+        {isPending ? "保存中" : "保存"}
       </Button>
       {errors.root && <p className="text-destructive">{errors.root.message}</p>}
     </form>

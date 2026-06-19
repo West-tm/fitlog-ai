@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,10 @@ export default async function FeedbacksPage() {
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-xl font-semibold">フィードバックの一覧</h1>
         <Button asChild>
-          <Link href="/feedbacks/new">+ 新規作成</Link>
+          <Link href="/feedbacks/new">
+            <Plus />
+            新規作成
+          </Link>
         </Button>
       </div>
 

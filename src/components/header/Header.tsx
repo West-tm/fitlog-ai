@@ -13,8 +13,8 @@ const publicNavItems = [
 ];
 
 const privateNavItems = [
-  { href: "/prompts", label: "指示文一覧" },
-  { href: "/feedbacks", label: "フィードバック一覧" },
+  { href: "/prompts", label: "指示文" },
+  { href: "/feedbacks", label: "フィードバック" },
 ];
 
 export default async function Header() {

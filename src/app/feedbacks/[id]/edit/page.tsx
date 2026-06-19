@@ -26,7 +26,7 @@ export default async function EditFeedbackPage({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold">フィードバックの再生成</h1>
+      <h1 className="text-xl font-semibold">フィードバックの編集</h1>
       <EditMessageFrom
         prompts={prompts}
         prompt={prompt}

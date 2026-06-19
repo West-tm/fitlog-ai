@@ -1,3 +1,4 @@
+import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -42,12 +43,14 @@ export default async function FeedbackPage({
         <CardHeader>
           <CardTitle>フィードバック</CardTitle>
           <CardDescription>
-            フィードバックの確認・再生成・削除が行えます。
+            フィードバックの確認・編集・削除が行えます。
           </CardDescription>
 
           <CardAction className="space-x-2">
             <Button asChild>
-              <Link href={`/feedbacks/${feedback.id}/edit`}>再生成</Link>
+              <Link href={`/feedbacks/${feedback.id}/edit`}>
+                <Pencil /> 編集
+              </Link>
             </Button>
             <DeleteMessageButton id={message.id} />
           </CardAction>

@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
+import { Save } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -103,8 +103,8 @@ export default function NewPromptForm() {
           <p className="text-destructive">{errors.content.message}</p>
         )}
         <Button className="cursor-pointer" type="submit" disabled={isPending}>
-          {isPending ? <Spinner /> : <Plus />}
-          {isPending ? "作成中" : "新規作成"}
+          {isPending ? <Spinner /> : <Save />}
+          {isPending ? "保存中" : "保存"}
         </Button>
         {errors.root && (
           <p className="text-destructive">{errors.root.message}</p>

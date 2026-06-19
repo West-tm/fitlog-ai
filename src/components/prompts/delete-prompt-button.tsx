@@ -1,10 +1,12 @@
 "use client";
 
+import { Trash2 } from "lucide-react";
 import { useTransition } from "react";
 
 import { deletePrompt } from "@/app/actions/prompts";
 
 import { Button } from "../ui/button";
+import { Spinner } from "../ui/spinner";
 
 type Props = {
   id: string;
@@ -34,7 +36,8 @@ export default function DeletePromptButton({ id }: Props) {
       onClick={deletePromptHandler}
       disabled={isPending}
     >
-      {isPending ? "削除中..." : "削除"}
+      {isPending ? <Spinner /> : <Trash2 />}
+      {isPending ? "削除中" : "削除"}
     </Button>
   );
 }

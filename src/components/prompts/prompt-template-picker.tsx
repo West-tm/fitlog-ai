@@ -67,7 +67,7 @@ export function PromptTemplatePicker({
                   onClick={() => handleSelectTemplate(template)}
                   disabled={disabled}
                 >
-                  このテンプレートを使う
+                  このテンプレートを使用
                 </Button>
               </AccordionContent>
             </AccordionItem>

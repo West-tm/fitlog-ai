@@ -1,3 +1,4 @@
+import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -39,6 +40,8 @@ export default async function PromptPage({
 
   return (
     <div className="space-y-6">
+      <h1 className="text-xl font-semibold">指示文の詳細</h1>
+
       <Card>
         <CardHeader>
           <CardTitle>指示文</CardTitle>
@@ -47,7 +50,10 @@ export default async function PromptPage({
           </CardDescription>
           <CardAction className="space-x-2">
             <Button asChild>
-              <Link href={`/prompts/${prompt.id}/edit`}>編集</Link>
+              <Link href={`/prompts/${prompt.id}/edit`}>
+                <Pencil />
+                編集
+              </Link>
             </Button>
             <DeletePromptButton id={id} />
           </CardAction>
