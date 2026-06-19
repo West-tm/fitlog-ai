@@ -194,7 +194,7 @@ export default function EditNoteFrom({
 
       <Button className="cursor-pointer" type="submit" disabled={isPending}>
         {isPending ? <Spinner /> : <Sparkles />}
-        {isPending ? "再生成中" : "AI回答を再生成"}
+        {isPending ? "再生成中" : "再生成"}
       </Button>
       {errors.root && <p className="text-destructive">{errors.root.message}</p>}
     </form>

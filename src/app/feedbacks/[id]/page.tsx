@@ -5,7 +5,17 @@ import { getFeedback } from "@/app/actions/feedbacks";
 import { getNote } from "@/app/actions/notes";
 import { getPromptbyFeedback } from "@/app/actions/prompts";
 import DeleteNoteButton from "@/components/notes/delete-note-button";
+import PromptContentCollapsible from "@/components/prompts/prompt-content-collapsible";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export default async function FeedbackPage({
   params,
@@ -22,64 +32,92 @@ export default async function FeedbackPage({
     notFound();
   }
 
-  const { title, content } = await getPromptbyFeedback(feedback);
+  const prompt = await getPromptbyFeedback(feedback);
 
   return (
     <div className="space-y-6">
-      <div className="space-y-6">
-        <h1 className="text-xl font-semibold">ノートの詳細</h1>
-
-        <dl className="space-y-1">
-          <div className="space-y-1">
-            <dt className="text-muted-foreground">タイトル</dt>
-            <dd className="wrap-anywhere">{title}</dd>
-          </div>
-
-          <div className="space-y-1">
-            <dt className="text-muted-foreground">指示文</dt>
-            <dd className="wrap-anywhere">{content}</dd>
-          </div>
-
-          <div className="space-y-1">
-            <dt className="text-muted-foreground">ノート</dt>
-            <dd className="wrap-anywhere">{note.content}</dd>
-          </div>
-
-          <div className="space-y-1">
-            <dt className="text-muted-foreground">作成日時</dt>
-            <dd>
-              {note.createdAt.toLocaleString("ja-JP", {
-                timeZone: "Asia/Tokyo",
-              })}
-            </dd>
-          </div>
-        </dl>
-
-        <div className="flex gap-3">
-          <Button asChild>
-            <Link href={`/feedbacks/${feedback.id}/edit`}>編集</Link>
-          </Button>
-          <DeleteNoteButton id={note.id} />
-        </div>
-      </div>
-
       <h1 className="text-xl font-semibold">フィードバックの詳細</h1>
 
-      <dl className="space-y-4">
-        <div className="space-y-1">
-          <dt className="text-muted-foreground">フィードバック</dt>
-          <dd className="wrap-anywhere">{feedback.content}</dd>
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>フィードバック</CardTitle>
+          <CardDescription>
+            フィードバックの確認・再生成・削除が行えます。
+          </CardDescription>
 
-        <div className="space-y-1">
-          <dt className="text-muted-foreground">作成日時</dt>
-          <dd>
-            {feedback.createdAt.toLocaleString("ja-JP", {
-              timeZone: "Asia/Tokyo",
-            })}
-          </dd>
-        </div>
-      </dl>
+          <CardAction className="space-x-2">
+            <Button asChild>
+              <Link href={`/feedbacks/${feedback.id}/edit`}>再生成</Link>
+            </Button>
+            <DeleteNoteButton id={note.id} />
+          </CardAction>
+        </CardHeader>
+
+        <Separator />
+
+        <CardContent className="space-y-6">
+          <section className="space-y-2 rounded-md bg-muted p-3">
+            <h2 className="text-base font-semibold text-muted-foreground">
+              入力内容
+            </h2>
+
+            <Separator />
+
+            <div className="space-y-1">
+              <p className="text-muted-foreground">指示文</p>
+              <p className="wrap-anywhere">{prompt.title}</p>
+            </div>
+
+            <PromptContentCollapsible
+              promptContent={prompt.content}
+              isOpen={false}
+            />
+
+            <Separator />
+
+            <div className="space-y-1">
+              <p className="text-muted-foreground">ノート</p>
+              <p className="wrap-anywhere">{note.content}</p>
+            </div>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-base font-semibold text-muted-foreground">
+              AIフィードバック
+            </h2>
+
+            <Separator />
+
+            <p className="leading-7 wrap-anywhere whitespace-pre-wrap">
+              {feedback.content}
+            </p>
+          </section>
+
+          <Separator />
+
+          <section className="flex gap-4">
+            <div className="space-y-1">
+              <p className="text-muted-foreground">更新日時</p>
+              <p>
+                {feedback.updatedAt.toLocaleString("ja-JP", {
+                  timeZone: "Asia/Tokyo",
+                })}
+              </p>
+            </div>
+
+            <Separator orientation="vertical" />
+
+            <div className="space-y-1">
+              <p className="text-muted-foreground">作成日時</p>
+              <p>
+                {feedback.createdAt.toLocaleString("ja-JP", {
+                  timeZone: "Asia/Tokyo",
+                })}
+              </p>
+            </div>
+          </section>
+        </CardContent>
+      </Card>
     </div>
   );
 }

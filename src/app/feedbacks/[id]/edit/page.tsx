@@ -33,24 +33,6 @@ export default async function EditFeedbackPage({
         note={note}
         feedback={feedback}
       />
-
-      <h1 className="text-xl font-semibold">フィードバックの詳細</h1>
-
-      <dl className="space-y-4">
-        <div className="space-y-1">
-          <dt className="text-muted-foreground">フィードバック</dt>
-          <dd className="wrap-anywhere">{feedback.content}</dd>
-        </div>
-
-        <div className="space-y-1">
-          <dt className="text-muted-foreground">作成日時</dt>
-          <dd>
-            {feedback.createdAt.toLocaleString("ja-JP", {
-              timeZone: "Asia/Tokyo",
-            })}
-          </dd>
-        </div>
-      </dl>
     </div>
   );
 }
