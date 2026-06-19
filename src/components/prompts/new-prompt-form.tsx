@@ -69,7 +69,7 @@ export default function NewPromptForm() {
   };
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="space-y-4">
       <PromptTemplatePicker
         setValueTemplate={setValueTemplate}
         disabled={isPending}

@@ -82,7 +82,7 @@ export default function NewNoteForm({ prompts }: Props) {
   const selectPrompt = prompts.find((prompt) => prompt.id === selectedPromptId);
 
   return (
-    <form className="max-w-2xl space-y-4" onSubmit={handleFormSubmit}>
+    <form className="space-y-4" onSubmit={handleFormSubmit}>
       <Controller
         name="promptId"
         control={control}

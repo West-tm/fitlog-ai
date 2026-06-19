@@ -63,7 +63,7 @@ export default function EditPromptForm({ prompt }: Props) {
   };
 
   return (
-    <form className="max-w-2xl space-y-4" onSubmit={handleFormSubmit}>
+    <form className="space-y-4" onSubmit={handleFormSubmit}>
       <input type="hidden" {...register("id")} />
 
       <div className="space-y-2">
