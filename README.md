@@ -35,7 +35,7 @@
 
 1. サインアップ、またはデモアカウントでログイン
 2. 「指示文一覧」→「新規作成」から指示文を保存（例：「増量中なので強気な提案を」）
-3. 「ノート一覧」→「新規作成」からテキストを入力し、AI 回答を生成
+3. 「フィードバック作成」からメッセージを入力し、AI 回答を生成
 4. 生成されたフィードバックが保存され、「フィードバック一覧」と「フィードバック詳細」から確認できる
 
 ---
@@ -45,13 +45,13 @@
 ### v0.1（現在）
 
 - 認証：ログイン・サインアップ・ログアウト
-- ノート管理：テキスト形式で記録・編集・削除
+- メッセージ管理：テキスト形式で記録・編集・削除
 - 指示文管理：AI 回答生成時に使用する指示文の作成・選択・編集・削除
-- AI 連携：指示文＋ノートを Gemini API に送信してフィードバックを取得・保存・削除
+- AI 連携：指示文＋メッセージを Gemini API に送信してフィードバックを取得・保存・削除
 
 ### v1.0（予定）
 
-- Fitbit API 連携（体重推移・睡眠・歩数・消費カロリーの自動取得）
+- Google Health API 連携（体重推移・睡眠・歩数・消費カロリーの自動取得）
 - Web ダッシュボード（Recharts でグラフ表示）
 - 筋トレ管理（Markdown 記録・ボリューム推移グラフ）
 - データ CSV / Markdown エクスポート
@@ -63,11 +63,11 @@
 ```mermaid
 erDiagram
   User ||--o{ Prompt : creates
-  User ||--o{ Note : creates
+  User ||--o{ Message : creates
   User ||--o{ Feedback : creates
 
   Prompt o|--o{ Feedback : used_for
-  Note ||--o{ Feedback : generates
+  Message ||--o{ Feedback : generates
 
   User {
     String id PK
@@ -76,13 +76,14 @@ erDiagram
 
   Prompt {
     String id PK
+    String title
     String content
     DateTime createdAt
     DateTime updatedAt
     String userId FK
   }
 
-  Note {
+  Message {
     String id PK
     String content
     DateTime createdAt
@@ -98,7 +99,7 @@ erDiagram
     String userId FK
     String promptId FK
     String promptSnapshot
-    String noteId FK
+    String messageId FK
   }
 ```
 
@@ -119,10 +120,10 @@ erDiagram
 
 ## 外部 API
 
-| API                            | 用途                                         |
-| ------------------------------ | -------------------------------------------- |
-| Gemini API（gemini-2.5-flash） | 指示文とノートを元に AI フィードバックを生成 |
-| Fitbit API（v1.0〜）           | 体重・睡眠・活動データの自動取得             |
+| API                            | 用途                                             |
+| ------------------------------ | ------------------------------------------------ |
+| Gemini API（gemini-2.5-flash） | 指示文とメッセージを元に AI フィードバックを生成 |
+| Google Health API（v1.0〜）    | 体重・睡眠・活動データの自動取得                 |
 
 ---
 

@@ -6,26 +6,26 @@ import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth/get-user";
 import { prisma } from "@/lib/prisma/prisma";
 
-export async function getNote(id: string) {
+export async function getMessage(id: string) {
   const user = await getUser();
 
-  const note = await prisma.note.findFirst({
+  const message = await prisma.message.findFirst({
     where: { id, userId: user.id },
   });
 
-  return note;
+  return message;
 }
 
-export async function deleteNote(id: string) {
+export async function deleteMessage(id: string) {
   const user = await getUser();
 
-  const result = await prisma.note.deleteMany({
+  const result = await prisma.message.deleteMany({
     where: { id, userId: user.id },
   });
 
   if (result.count === 0) {
     return {
-      error: "削除対象のノートが見つかりません。",
+      error: "削除対象のメッセージが見つかりません。",
     };
   }
 

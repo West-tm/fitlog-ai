@@ -6,7 +6,7 @@ type GeminiGenerateContentResult =
 
 export async function geminiGenerateContent(
   promptContent: string,
-  noteContent: string,
+  messageContent: string,
   isUseGoogleSearch: boolean,
 ): Promise<GeminiGenerateContentResult> {
   const config = isUseGoogleSearch
@@ -19,8 +19,8 @@ export async function geminiGenerateContent(
       contents: `
         #指示
         ${promptContent}
-        #ノート
-        ${noteContent}
+        #メッセージ
+        ${messageContent}
         `.trim(),
       config,
     });

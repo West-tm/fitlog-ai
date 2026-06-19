@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Feedback, Note, Prompt } from "@prisma/client";
+import { Feedback, Message, Prompt } from "@prisma/client";
 import { ChevronDownIcon, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -21,7 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UpdateNoteSchema, updateNoteValues } from "@/lib/validations/notes";
+import {
+  UpdateMessageSchema,
+  updateMessageValues,
+} from "@/lib/validations/messages";
 
 import { Button } from "../ui/button";
 import {
@@ -36,14 +39,14 @@ import { Textarea } from "../ui/textarea";
 type Props = {
   prompts: Prompt[];
   prompt: Prompt;
-  note: Note;
+  message: Message;
   feedback: Feedback;
 };
 
-export default function EditNoteFrom({
+export default function EditMessageFrom({
   prompts,
   prompt,
-  note,
+  message,
   feedback,
 }: Props) {
   const {
@@ -52,10 +55,10 @@ export default function EditNoteFrom({
     setError,
     formState: { errors, isSubmitting },
     control,
-  } = useForm<UpdateNoteSchema>({
-    resolver: zodResolver(updateNoteValues),
+  } = useForm<UpdateMessageSchema>({
+    resolver: zodResolver(updateMessageValues),
     defaultValues: {
-      content: note.content,
+      content: message.content,
       promptId: prompt.id,
       useGoogleSearch: false,
       feedbackId: feedback.id,
@@ -72,7 +75,7 @@ export default function EditNoteFrom({
     void handleSubmit(onSubmit)(event);
   };
 
-  const onSubmit = async (value: UpdateNoteSchema) => {
+  const onSubmit = async (value: UpdateMessageSchema) => {
     if (submitLockRef.current) return;
 
     submitLockRef.current = true;
@@ -103,7 +106,7 @@ export default function EditNoteFrom({
           <Field>
             <FieldLabel htmlFor="promptId">指示文</FieldLabel>
             <FieldDescription>
-              最適な結果を得るには、ノートに適した指示文を選択してください
+              最適な結果を得るには、メッセージに適した指示文を選択してください
             </FieldDescription>
 
             <Select
@@ -155,11 +158,11 @@ export default function EditNoteFrom({
       </Collapsible>
 
       <div className="space-y-2">
-        <Label htmlFor="content">ノート内容</Label>
+        <Label htmlFor="content">メッセージ内容</Label>
         <Textarea
           className="min-h-40"
           id="content"
-          placeholder="ここにノートを入力"
+          placeholder="ここにメッセージを入力"
           {...register("content")}
           disabled={isPending}
         />

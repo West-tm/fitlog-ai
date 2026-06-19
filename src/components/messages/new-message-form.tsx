@@ -21,7 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
+import {
+  createMessageSchema,
+  CreateMessageValues,
+} from "@/lib/validations/messages";
 
 import { Button } from "../ui/button";
 import {
@@ -37,15 +40,15 @@ type Props = {
   prompts: Prompt[];
 };
 
-export default function NewNoteForm({ prompts }: Props) {
+export default function NewMessageForm({ prompts }: Props) {
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
     control,
-  } = useForm<CreateNoteValues>({
-    resolver: zodResolver(createNoteSchema),
+  } = useForm<CreateMessageValues>({
+    resolver: zodResolver(createMessageSchema),
     defaultValues: { content: "", promptId: "", useGoogleSearch: false },
     mode: "onBlur",
   });
@@ -59,7 +62,7 @@ export default function NewNoteForm({ prompts }: Props) {
     void handleSubmit(onSubmit)(event);
   };
 
-  const onSubmit = async (value: CreateNoteValues) => {
+  const onSubmit = async (value: CreateMessageValues) => {
     if (submitLockRef.current) return;
 
     submitLockRef.current = true;
@@ -90,7 +93,7 @@ export default function NewNoteForm({ prompts }: Props) {
           <Field>
             <FieldLabel htmlFor="promptId">指示文</FieldLabel>
             <FieldDescription>
-              最適な結果を得るには、ノートに適した指示文を選択してください
+              最適な結果を得るには、メッセージに適した指示文を選択してください
             </FieldDescription>
 
             <Select
@@ -142,11 +145,11 @@ export default function NewNoteForm({ prompts }: Props) {
       </Collapsible>
 
       <div className="space-y-2">
-        <Label htmlFor="content">ノート内容</Label>
+        <Label htmlFor="content">メッセージ内容</Label>
         <Textarea
           className="min-h-40"
           id="content"
-          placeholder="ここにノートを入力"
+          placeholder="ここにメッセージを入力"
           {...register("content")}
           disabled={isPending}
         />

@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 
 import { getFeedback } from "@/app/actions/feedbacks";
-import { getNote } from "@/app/actions/notes";
+import { getMessage } from "@/app/actions/messages";
 import { getPromptbyFeedback, getPrompts } from "@/app/actions/prompts";
-import EditNoteFrom from "@/components/notes/edit-note-form";
+import EditMessageFrom from "@/components/messages/edit-message-form";
 
 export default async function EditFeedbackPage({
   params,
@@ -17,8 +17,8 @@ export default async function EditFeedbackPage({
 
   const prompt = await getPromptbyFeedback(feedback);
 
-  const note = await getNote(feedback.noteId);
-  if (!note) {
+  const message = await getMessage(feedback.messageId);
+  if (!message) {
     notFound();
   }
 
@@ -27,10 +27,10 @@ export default async function EditFeedbackPage({
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-semibold">フィードバックの再生成</h1>
-      <EditNoteFrom
+      <EditMessageFrom
         prompts={prompts}
         prompt={prompt}
-        note={note}
+        message={message}
         feedback={feedback}
       />
     </div>

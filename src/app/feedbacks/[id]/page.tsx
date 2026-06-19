@@ -2,9 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getFeedback } from "@/app/actions/feedbacks";
-import { getNote } from "@/app/actions/notes";
+import { getMessage } from "@/app/actions/messages";
 import { getPromptbyFeedback } from "@/app/actions/prompts";
-import DeleteNoteButton from "@/components/notes/delete-note-button";
+import DeleteMessageButton from "@/components/messages/delete-message-button";
 import PromptContentCollapsible from "@/components/prompts/prompt-content-collapsible";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,8 +27,8 @@ export default async function FeedbackPage({
     notFound();
   }
 
-  const note = await getNote(feedback.noteId);
-  if (!note) {
+  const message = await getMessage(feedback.messageId);
+  if (!message) {
     notFound();
   }
 
@@ -49,7 +49,7 @@ export default async function FeedbackPage({
             <Button asChild>
               <Link href={`/feedbacks/${feedback.id}/edit`}>再生成</Link>
             </Button>
-            <DeleteNoteButton id={note.id} />
+            <DeleteMessageButton id={message.id} />
           </CardAction>
         </CardHeader>
 
@@ -76,8 +76,8 @@ export default async function FeedbackPage({
             <Separator />
 
             <div className="space-y-1">
-              <p className="text-muted-foreground">ノート</p>
-              <p className="wrap-anywhere">{note.content}</p>
+              <p className="text-muted-foreground">メッセージ</p>
+              <p className="wrap-anywhere">{message.content}</p>
             </div>
           </section>
 

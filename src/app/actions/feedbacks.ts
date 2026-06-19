@@ -6,19 +6,19 @@ import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth/get-user";
 import { prisma } from "@/lib/prisma/prisma";
 import {
-  createNoteSchema,
-  CreateNoteValues,
-  UpdateNoteSchema,
-  updateNoteValues,
-} from "@/lib/validations/notes";
+  createMessageSchema,
+  CreateMessageValues,
+  UpdateMessageSchema,
+  updateMessageValues,
+} from "@/lib/validations/messages";
 
 import { geminiGenerateContent } from "./gemini";
 import { getPrompt } from "./prompts";
 
-export async function generateFeedback(value: CreateNoteValues) {
+export async function generateFeedback(value: CreateMessageValues) {
   const user = await getUser();
 
-  const result = createNoteSchema.safeParse(value);
+  const result = createMessageSchema.safeParse(value);
 
   if (!result.success) {
     return { error: "入力内容を確認してください。" };
@@ -41,7 +41,7 @@ export async function generateFeedback(value: CreateNoteValues) {
   }
 
   const feedback = await prisma.$transaction(async (tx) => {
-    const note = await tx.note.create({
+    const message = await tx.message.create({
       data: {
         content: result.data.content,
         userId: user.id,
@@ -50,7 +50,7 @@ export async function generateFeedback(value: CreateNoteValues) {
     const feedback = await tx.feedback.create({
       data: {
         userId: user.id,
-        noteId: note.id,
+        messageId: message.id,
         promptId: prompt.id,
         promptSnapshot: prompt.content,
         content: generateResult.content,
@@ -105,8 +105,8 @@ export async function getFeedbacksByPromptId(promptId: string) {
   return feedbacks;
 }
 
-export async function updateFeedback(value: UpdateNoteSchema) {
-  const result = updateNoteValues.safeParse(value);
+export async function updateFeedback(value: UpdateMessageSchema) {
+  const result = updateMessageValues.safeParse(value);
 
   if (!result.success) {
     return { error: "入力内容を確認してください。" };
@@ -135,8 +135,8 @@ export async function updateFeedback(value: UpdateNoteSchema) {
   }
 
   await prisma.$transaction(async (tx) => {
-    await tx.note.update({
-      where: { id: feedback.noteId },
+    await tx.message.update({
+      where: { id: feedback.messageId },
       data: {
         content: result.data.content,
       },
