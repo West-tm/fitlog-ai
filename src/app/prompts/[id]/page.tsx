@@ -116,8 +116,8 @@ export default async function PromptPage({
 
         <TableBody>
           {feedbacks.map((feedback) => (
-            <TableRow key={feedback.id} className="max-h-1">
-              <TableCell className="w-44 max-w-44 overflow-hidden">
+            <TableRow key={feedback.id}>
+              <TableCell>
                 <Link
                   href={`/feedbacks/${feedback.id}`}
                   className="block truncate hover:underline"

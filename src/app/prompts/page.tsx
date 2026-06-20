@@ -56,8 +56,8 @@ export default async function PromptsPage({ searchParams }: Props) {
 
         <TableBody>
           {prompts.map((prompt) => (
-            <TableRow key={prompt.id} className="max-h-1">
-              <TableCell className="overflow-hidden">
+            <TableRow key={prompt.id}>
+              <TableCell>
                 <Link
                   href={`/prompts/${prompt.id}`}
                   className="block truncate hover:underline"
