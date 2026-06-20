@@ -27,9 +27,9 @@ Fitbit連携・筋トレ管理・ダッシュボードを備えた本格ヘル�
 
 ```
 users        : id, updated_at
-prompts      : id, user_id, content, created_at, updated_at
-notes        : id, user_id, content, created_at, updated_at
-feedbacks    : id, prompt_id, note_id, content, created_at, updated_at
+prompts      : id, user_id, title, content, created_at, updated_at
+messages     : id, user_id, content, created_at, updated_at
+feedbacks    : id, user_id, prompt_id, message_id, prompt_snapshot, content, created_at, updated_at
 ```
 
 v1.0以降で `body_logs` / `sleep_logs` / `activity_logs` / `workout_logs` を追加予定。
@@ -99,10 +99,10 @@ v1.0以降で `body_logs` / `sleep_logs` / `activity_logs` / `workout_logs` を�
 
 ## AI ルール
 
-- Gemini API（`@google/generative-ai`）を使う
+- Gemini API（`@google/genai`）を使う
 - APIキーは環境変数 `GEMINI_API_KEY` から取得する
 - AI呼び出しは Server Actions または Route Handlers で行う（クライアントから直接呼ばない）
-- プロンプト（`prompts`テーブル）とログ（`notes`テーブル）を組み合わせてAPIに投げる
+- プロンプト（`prompts`テーブル）とメッセージ（`messages`テーブル）を組み合わせてAPIに投げる
 - レスポンスは `feedbacks` テーブルに保存する
 - エラーハンドリングを丁寧に行い、ユーザーにわかりやすいメッセージを返す
 
@@ -121,7 +121,7 @@ v1.0以降で `body_logs` / `sleep_logs` / `activity_logs` / `workout_logs` を�
 ### v0.1（Cランク・現在のターゲット）
 
 - [ ] 認証（ログイン・サインアップ・ログアウト）
-- [ ] ログのCRUD（`notes`テーブル）
+- [ ] メッセージのCRUD（`messages`テーブル）
 - [ ] プロンプト管理（`prompts`テーブル）
 - [ ] AIフィードバック生成・保存（`feedbacks`テーブル）
 - [ ] Cursor rules 設定
@@ -130,7 +130,7 @@ v1.0以降で `body_logs` / `sleep_logs` / `activity_logs` / `workout_logs` を�
 
 ### v1.0（Bランク・今後）
 
-- [ ] Fitbit API 連携
+- [ ] Google Health API 連携
 - [ ] Recharts ダッシュボード
 - [ ] 筋トレ管理（Markdown記録・react-markdown表示）
 - [ ] データ CSV / Markdown エクスポート

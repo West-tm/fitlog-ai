@@ -1,16 +1,18 @@
 import { z } from "zod";
 
-export const createPromptSchema = z.object({
-  title: z.string().trim().min(1, "タイトルは1文字以上で入力してください"),
-  content: z.string().trim().min(4, "指示文は4文字以上で入力してください"),
+export const promptFormSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(1, "タイトルを入力してください")
+    .max(50, "タイトルは50文字以下で入力してください"),
+  content: z.string().trim().min(1, "指示文を入力してください"),
 });
 
-export type CreatePromptValues = z.infer<typeof createPromptSchema>;
+export type PromptFormValues = z.infer<typeof promptFormSchema>;
 
-export const updatePromptSchema = z.object({
+export const createPromptSchema = promptFormSchema;
+
+export const updatePromptSchema = createPromptSchema.extend({
   id: z.uuid(),
-  title: z.string().trim().min(1, "タイトルは1文字以上で入力してください"),
-  content: z.string().trim().min(4, "指示文は4文字以上で入力してください"),
 });
-
-export type UpdatePromptValues = z.infer<typeof updatePromptSchema>;

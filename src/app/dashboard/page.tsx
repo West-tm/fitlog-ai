@@ -1,12 +1,9 @@
+import { redirect } from "next/navigation";
+
 import { getUser } from "@/lib/auth/get-user";
 
 export default async function Dashboardpage() {
-  const user = await getUser();
-
-  return (
-    <>
-      <div>Dashboardpage</div>
-      <div>メールアドレス：{user.email}</div>
-    </>
-  );
+  // 今後実装予定
+  await getUser();
+  redirect("/prompts");
 }

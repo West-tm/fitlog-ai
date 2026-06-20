@@ -4,16 +4,20 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getUser } from "@/lib/auth/get-user";
-import { genai } from "@/lib/gemini/gemini";
 import { prisma } from "@/lib/prisma/prisma";
-import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
+import {
+  createMessageSchema,
+  MessageFormValues,
+  updateMessageSchema,
+} from "@/lib/validations/messages";
 
+import { geminiGenerateContent } from "./gemini";
 import { getPrompt } from "./prompts";
 
-export async function generateFeedback(value: CreateNoteValues) {
+export async function generateFeedback(values: MessageFormValues) {
   const user = await getUser();
 
-  const result = createNoteSchema.safeParse(value);
+  const result = createMessageSchema.safeParse(values);
 
   if (!result.success) {
     return { error: "入力内容を確認してください。" };
@@ -25,53 +29,38 @@ export async function generateFeedback(value: CreateNoteValues) {
     return { error: "指示文が見つかりません。" };
   }
 
-  const config = result.data.useGoogleSearch
-    ? { tools: [{ googleSearch: {} }] }
-    : undefined;
+  const generateResult = await geminiGenerateContent(
+    prompt.content,
+    result.data.content,
+    result.data.useGoogleSearch,
+  );
 
-  try {
-    const response = await genai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: `
-    #指示
-    ${prompt.content}
-    #ノート
-    ${result.data.content}
-    `.trim(),
-      config,
-    });
-
-    const feedbackContent = response.text?.trim();
-
-    if (!feedbackContent) {
-      return { error: "AIから回答を取得できませんでした。" };
-    }
-
-    await prisma.$transaction(async (tx) => {
-      const note = await tx.note.create({
-        data: {
-          content: result.data.content,
-          userId: user.id,
-        },
-      });
-      await tx.feedback.create({
-        data: {
-          userId: user.id,
-          noteId: note.id,
-          promptId: prompt.id,
-          promptSnapshot: prompt.content,
-          content: feedbackContent,
-        },
-      });
-    });
-  } catch {
-    return {
-      error: "AI回答の作成に失敗しました。時間をおいて再度お試しください。",
-    };
+  if (!generateResult.ok) {
+    return { error: generateResult.error };
   }
 
+  const feedback = await prisma.$transaction(async (tx) => {
+    const message = await tx.message.create({
+      data: {
+        content: result.data.content,
+        userId: user.id,
+      },
+    });
+    const feedback = await tx.feedback.create({
+      data: {
+        userId: user.id,
+        messageId: message.id,
+        promptId: prompt.id,
+        promptSnapshot: prompt.content,
+        content: generateResult.content,
+      },
+    });
+
+    return feedback;
+  });
+
   revalidatePath("/feedbacks");
-  redirect("/feedbacks");
+  redirect(`/feedbacks/${feedback.id}`);
 }
 
 export async function getFeedback(id: string) {
@@ -84,6 +73,91 @@ export async function getFeedback(id: string) {
   return feedback;
 }
 
+export async function getFeedbacks() {
+  const user = await getUser();
+
+  const feedbacks = await prisma.feedback.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return feedbacks;
+}
+
+export async function getFeedbacksByPromptId(promptId: string) {
+  const user = await getUser();
+
+  const feedbacks = await prisma.feedback.findMany({
+    where: {
+      userId: user.id,
+      promptId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return feedbacks;
+}
+
+export async function updateFeedback(
+  feedbackId: string,
+  values: MessageFormValues,
+) {
+  const result = updateMessageSchema.safeParse({ ...values, feedbackId });
+
+  if (!result.success) {
+    return { error: "入力内容を確認してください。" };
+  }
+
+  const prompt = await getPrompt(result.data.promptId);
+
+  if (!prompt) {
+    return { error: "指示文が見つかりません。" };
+  }
+
+  const feedback = await getFeedback(result.data.feedbackId);
+
+  if (!feedback) {
+    return { error: "AI回答が見つかりません。" };
+  }
+
+  const generateResult = await geminiGenerateContent(
+    prompt.content,
+    result.data.content,
+    result.data.useGoogleSearch,
+  );
+
+  if (!generateResult.ok) {
+    return { error: generateResult.error };
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.message.update({
+      where: { id: feedback.messageId },
+      data: {
+        content: result.data.content,
+      },
+    });
+
+    await tx.feedback.update({
+      where: { id: feedback.id },
+      data: {
+        promptId: prompt.id,
+        content: generateResult.content,
+        promptSnapshot: prompt.content,
+      },
+    });
+  });
+
+  revalidatePath("/feedbacks");
+  redirect(`/feedbacks/${feedback.id}`);
+}
+
 export async function deleteFeedback(id: string) {
   const user = await getUser();
 
@@ -93,7 +167,7 @@ export async function deleteFeedback(id: string) {
 
   if (result.count === 0) {
     return {
-      error: "削除対象のフィードバックが見つかりません。",
+      error: "削除対象のAI回答が見つかりません。",
     };
   }
 

@@ -2,10 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Prompt } from "@prisma/client";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, Sparkles } from "lucide-react";
+import { useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 
-import { generateFeedback } from "@/app/actions/feedbacks";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
@@ -20,7 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createNoteSchema, CreateNoteValues } from "@/lib/validations/notes";
+import {
+  createMessageSchema,
+  MessageFormValues,
+} from "@/lib/validations/messages";
 
 import { Button } from "../ui/button";
 import {
@@ -29,32 +32,54 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 import { Label } from "../ui/label";
+import { Spinner } from "../ui/spinner";
 import { Textarea } from "../ui/textarea";
 
 type Props = {
   prompts: Prompt[];
+  onSubmitAction: (values: MessageFormValues) => Promise<{ error: string }>;
+  defaultValues?: MessageFormValues;
 };
 
-export default function NewNoteForm({ prompts }: Props) {
+export default function MessageForm({
+  prompts,
+  onSubmitAction,
+  defaultValues = { content: "", promptId: "", useGoogleSearch: false },
+}: Props) {
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
     control,
-  } = useForm<CreateNoteValues>({
-    resolver: zodResolver(createNoteSchema),
-    defaultValues: { content: "", promptId: "", useGoogleSearch: false },
+  } = useForm<MessageFormValues>({
+    resolver: zodResolver(createMessageSchema),
+    defaultValues,
     mode: "onBlur",
   });
 
-  const onSubmit = async (value: CreateNoteValues) => {
-    const result = await generateFeedback(value);
+  const submitLockRef = useRef(false);
+  const [isSubmitLocked, setIsSubmitLocked] = useState(false);
+
+  const isPending = isSubmitting || isSubmitLocked;
+
+  // refガードをレンダー中に評価しないよう、handleSubmitはsubmit時に実行する
+  const handleFormSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+    void handleSubmit(onSubmit)(event);
+  };
+
+  const onSubmit = async (value: MessageFormValues) => {
+    if (submitLockRef.current) return;
+
+    submitLockRef.current = true;
+    setIsSubmitLocked(true);
+
+    const result = await onSubmitAction(value);
 
     if (result.error) {
-      setError("root", {
-        message: result.error,
-      });
+      setError("root", { message: result.error });
+      submitLockRef.current = false;
+      setIsSubmitLocked(false);
     }
   };
 
@@ -65,8 +90,13 @@ export default function NewNoteForm({ prompts }: Props) {
 
   const selectPrompt = prompts.find((prompt) => prompt.id === selectedPromptId);
 
+  const isDeletedPrompt = defaultValues.content && !defaultValues.promptId;
+  const promptPlaceholder = isDeletedPrompt
+    ? "指示文は削除済みです。今回使用する指示文を選択してください。"
+    : "指示文を選択";
+
   return (
-    <form className="max-w-2xl space-y-4" onSubmit={handleSubmit(onSubmit)}>
+    <form className="space-y-4" onSubmit={handleFormSubmit}>
       <Controller
         name="promptId"
         control={control}
@@ -74,19 +104,19 @@ export default function NewNoteForm({ prompts }: Props) {
           <Field>
             <FieldLabel htmlFor="promptId">指示文</FieldLabel>
             <FieldDescription>
-              最適な結果を得るには、ノートに適した指示文を選択してください
+              最適な結果を得るには、メッセージに適した指示文を選択してください
             </FieldDescription>
 
             <Select
               value={field.value}
               onValueChange={field.onChange}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               <SelectTrigger
                 id="promptId"
                 className="w-full **:data-[slot=select-value]:truncate"
               >
-                <SelectValue placeholder="指示文を選択" />
+                <SelectValue placeholder={promptPlaceholder} />
               </SelectTrigger>
 
               <SelectContent
@@ -126,13 +156,13 @@ export default function NewNoteForm({ prompts }: Props) {
       </Collapsible>
 
       <div className="space-y-2">
-        <Label htmlFor="content">ノート内容</Label>
+        <Label htmlFor="content">メッセージ</Label>
         <Textarea
           className="min-h-40"
           id="content"
-          placeholder="ここにノートを入力"
+          placeholder="ここにメッセージを入力"
           {...register("content")}
-          disabled={isSubmitting}
+          disabled={isPending}
         />
         {errors.content && (
           <p className="text-destructive">{errors.content.message}</p>
@@ -149,7 +179,7 @@ export default function NewNoteForm({ prompts }: Props) {
                 id="useGoogleSearch"
                 checked={field.value}
                 onCheckedChange={(checked) => field.onChange(checked === true)}
-                disabled={isSubmitting}
+                disabled={isPending}
               />
               <FieldLabel htmlFor="useGoogleSearch">外部検索の許可</FieldLabel>
             </div>
@@ -163,8 +193,9 @@ export default function NewNoteForm({ prompts }: Props) {
         )}
       />
 
-      <Button className="cursor-pointer" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "作成中・・・" : "+ AI回答作成"}
+      <Button className="cursor-pointer" type="submit" disabled={isPending}>
+        {isPending ? <Spinner /> : <Sparkles />}
+        {isPending ? "分析中" : "AI回答を生成"}
       </Button>
       {errors.root && <p className="text-destructive">{errors.root.message}</p>}
     </form>

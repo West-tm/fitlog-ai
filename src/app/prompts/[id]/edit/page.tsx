@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
-import { getPrompt } from "@/app/actions/prompts";
-import EditPromptForm from "@/components/prompts/edit-prompt-form";
+import { getPrompt, updatePrompt } from "@/app/actions/prompts";
+import PromptForm from "@/components/prompts/prompt-form";
 
 export default async function EditPromptPage({
   params,
@@ -13,10 +13,15 @@ export default async function EditPromptPage({
     notFound();
   }
 
+  const updatePromptAction = updatePrompt.bind(null, id);
+
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-semibold">指示文の編集</h1>
-      <EditPromptForm prompt={prompt} />
+      <PromptForm
+        onSubmitAction={updatePromptAction}
+        defaultValues={{ title: prompt.title, content: prompt.content }}
+      />
     </div>
   );
 }

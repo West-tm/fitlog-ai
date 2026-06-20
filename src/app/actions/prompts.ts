@@ -7,21 +7,20 @@ import { getUser } from "@/lib/auth/get-user";
 import { prisma } from "@/lib/prisma/prisma";
 import {
   createPromptSchema,
-  CreatePromptValues,
+  PromptFormValues,
   updatePromptSchema,
-  UpdatePromptValues,
 } from "@/lib/validations/prompts";
 
-export async function createPrompt(value: CreatePromptValues) {
+export async function createPrompt(values: PromptFormValues) {
   const user = await getUser();
 
-  const result = createPromptSchema.safeParse(value);
+  const result = createPromptSchema.safeParse(values);
 
   if (!result.success) {
     return { error: "入力内容を確認してください。" };
   }
 
-  await prisma.prompt.create({
+  const prompt = await prisma.prompt.create({
     data: {
       title: result.data.title,
       content: result.data.content,
@@ -30,7 +29,7 @@ export async function createPrompt(value: CreatePromptValues) {
   });
 
   revalidatePath("/prompts");
-  redirect("/prompts");
+  redirect(`/prompts/${prompt.id}`);
 }
 
 export async function getPrompt(id: string) {
@@ -43,10 +42,64 @@ export async function getPrompt(id: string) {
   return prompt;
 }
 
-export async function updatePrompt(value: UpdatePromptValues) {
+export async function getPromptWithFeedbackCount(id: string) {
   const user = await getUser();
 
-  const result = updatePromptSchema.safeParse(value);
+  const prompt = await prisma.prompt.findFirst({
+    where: { id, userId: user.id },
+    include: {
+      _count: {
+        select: {
+          feedbacks: true,
+        },
+      },
+    },
+  });
+
+  return prompt;
+}
+
+export async function getPrompts() {
+  const user = await getUser();
+
+  const prompts = await prisma.prompt.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return prompts;
+}
+
+export async function getPromptsWithFeedbackCount() {
+  const user = await getUser();
+
+  const prompts = await prisma.prompt.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      _count: {
+        select: {
+          feedbacks: true,
+        },
+      },
+    },
+  });
+
+  return prompts;
+}
+
+export async function updatePrompt(id: string, values: PromptFormValues) {
+  const user = await getUser();
+
+  const result = updatePromptSchema.safeParse({ ...values, id });
 
   if (!result.success) {
     return { error: "入力内容を確認してください。" };
@@ -65,7 +118,7 @@ export async function updatePrompt(value: UpdatePromptValues) {
   }
 
   revalidatePath("/prompts");
-  redirect("/prompts");
+  redirect(`/prompts/${result.data.id}`);
 }
 
 export async function deletePrompt(id: string) {

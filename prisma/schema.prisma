@@ -15,7 +15,7 @@ model User {
   id        String     @id @default(uuid())
   updatedAt DateTime   @updatedAt
   prompts   Prompt[]
-  notes     Note[]
+  messages  Message[]
   feedbacks Feedback[]
 }
 
@@ -30,7 +30,7 @@ model Prompt {
   feedbacks Feedback[]
 }
 
-model Note {
+model Message {
   id        String     @id @default(uuid())
   content   String
   createdAt DateTime   @default(now())
@@ -50,6 +50,6 @@ model Feedback {
   prompt         Prompt?  @relation(fields: [promptId], references: [id])
   promptId       String?
   promptSnapshot String
-  note           Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
-  noteId         String
+  message        Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId      String
 }
