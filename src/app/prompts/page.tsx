@@ -10,14 +10,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PROMPT_REQUIRED_NOTICE } from "@/lib/notice";
 
 import { getPromptsWithFeedbackCount } from "../actions/prompts";
 
-export default async function PromptsPage() {
+type Props = {
+  searchParams: Promise<{
+    notice?: string | string[];
+  }>;
+};
+
+export default async function PromptsPage({ searchParams }: Props) {
+  const { notice } = await searchParams;
+  const currentNotice = Array.isArray(notice) ? notice[0] : notice;
+  const isPromptRequiredNotice = currentNotice === PROMPT_REQUIRED_NOTICE;
+
   const prompts = await getPromptsWithFeedbackCount();
 
   return (
     <div className="space-y-6">
+      {isPromptRequiredNotice && (
+        <div className="text-destructive">
+          AI回答を作成・編集するには、先に指示文を作成してください。
+        </div>
+      )}
+
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-xl font-semibold">指示文 一覧</h1>
         <Button asChild>
