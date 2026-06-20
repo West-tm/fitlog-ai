@@ -7,15 +7,14 @@ import { getUser } from "@/lib/auth/get-user";
 import { prisma } from "@/lib/prisma/prisma";
 import {
   createPromptSchema,
-  CreatePromptValues,
+  PromptFormValues,
   updatePromptSchema,
-  UpdatePromptValues,
 } from "@/lib/validations/prompts";
 
-export async function createPrompt(value: CreatePromptValues) {
+export async function createPrompt(values: PromptFormValues) {
   const user = await getUser();
 
-  const result = createPromptSchema.safeParse(value);
+  const result = createPromptSchema.safeParse(values);
 
   if (!result.success) {
     return { error: "入力内容を確認してください。" };
@@ -97,10 +96,10 @@ export async function getPromptsWithFeedbackCount() {
   return prompts;
 }
 
-export async function updatePrompt(value: UpdatePromptValues) {
+export async function updatePrompt(id: string, values: PromptFormValues) {
   const user = await getUser();
 
-  const result = updatePromptSchema.safeParse(value);
+  const result = updatePromptSchema.safeParse({ ...values, id });
 
   if (!result.success) {
     return { error: "入力内容を確認してください。" };

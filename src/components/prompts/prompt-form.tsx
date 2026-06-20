@@ -5,12 +5,8 @@ import { Save } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
-import { createPrompt } from "@/app/actions/prompts";
 import { PromptTemplate } from "@/lib/prompt-templates";
-import {
-  createPromptSchema,
-  CreatePromptValues,
-} from "@/lib/validations/prompts";
+import { promptFormSchema, PromptFormValues } from "@/lib/validations/prompts";
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -19,16 +15,26 @@ import { Spinner } from "../ui/spinner";
 import { Textarea } from "../ui/textarea";
 import { PromptTemplatePicker } from "./prompt-template-picker";
 
-export default function NewPromptForm() {
+type Props = {
+  onSubmitAction: (values: PromptFormValues) => Promise<{ error: string }>;
+  defaultValues?: PromptFormValues;
+  showTemplatePicker?: boolean;
+};
+
+export default function PromptForm({
+  onSubmitAction,
+  defaultValues = { title: "", content: "" },
+  showTemplatePicker = false,
+}: Props) {
   const {
     register,
     handleSubmit,
     setError,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<CreatePromptValues>({
-    resolver: zodResolver(createPromptSchema),
-    defaultValues: { content: "" },
+  } = useForm<PromptFormValues>({
+    resolver: zodResolver(promptFormSchema),
+    defaultValues,
     mode: "onBlur",
   });
 
@@ -37,17 +43,18 @@ export default function NewPromptForm() {
 
   const isPending = isSubmitting || isSubmitLocked;
 
+  // refガードをレンダー中に評価しないよう、handleSubmitはsubmit時に実行する
   const handleFormSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
     void handleSubmit(onSubmit)(event);
   };
 
-  const onSubmit = async (value: CreatePromptValues) => {
+  const onSubmit = async (values: PromptFormValues) => {
     if (submitLockRef.current) return;
 
     submitLockRef.current = true;
     setIsSubmitLocked(true);
 
-    const result = await createPrompt(value);
+    const result = await onSubmitAction(values);
 
     if (result.error) {
       setError("root", { message: result.error });
@@ -70,10 +77,12 @@ export default function NewPromptForm() {
 
   return (
     <div className="space-y-4">
-      <PromptTemplatePicker
-        setValueTemplate={setValueTemplate}
-        disabled={isPending}
-      />
+      {showTemplatePicker && (
+        <PromptTemplatePicker
+          setValueTemplate={setValueTemplate}
+          disabled={isPending}
+        />
+      )}
 
       <form className="space-y-4" onSubmit={handleFormSubmit}>
         <div className="space-y-2">
