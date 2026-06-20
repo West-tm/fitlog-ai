@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 
 import { getFeedback } from "@/app/actions/feedbacks";
 import { getMessage } from "@/app/actions/messages";
-import { getPromptbyFeedback } from "@/app/actions/prompts";
+import { getPrompt } from "@/app/actions/prompts";
 import DeleteMessageButton from "@/components/messages/delete-message-button";
 import PromptContentCollapsible from "@/components/prompts/prompt-content-collapsible";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,9 @@ export default async function FeedbackPage({
     notFound();
   }
 
-  const prompt = await getPromptbyFeedback(feedback);
+  const promptTitle =
+    (feedback.promptId && (await getPrompt(feedback.promptId))?.title) ??
+    "削除済みの指示文";
 
   return (
     <div className="space-y-6">
@@ -68,11 +70,11 @@ export default async function FeedbackPage({
 
             <div className="space-y-1">
               <p className="text-muted-foreground">指示文</p>
-              <p className="wrap-anywhere">{prompt.title}</p>
+              <p className="wrap-anywhere">{promptTitle}</p>
             </div>
 
             <PromptContentCollapsible
-              promptContent={prompt.content}
+              promptContent={feedback.promptSnapshot}
               isOpen={false}
             />
 

@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { getFeedback } from "@/app/actions/feedbacks";
 import { getMessage } from "@/app/actions/messages";
-import { getPromptbyFeedback, getPrompts } from "@/app/actions/prompts";
+import { getPrompts } from "@/app/actions/prompts";
 import EditMessageFrom from "@/components/messages/edit-message-form";
 
 export default async function EditFeedbackPage({
@@ -14,8 +14,6 @@ export default async function EditFeedbackPage({
   if (!feedback) {
     notFound();
   }
-
-  const prompt = await getPromptbyFeedback(feedback);
 
   const message = await getMessage(feedback.messageId);
   if (!message) {
@@ -29,7 +27,6 @@ export default async function EditFeedbackPage({
       <h1 className="text-xl font-semibold">フィードバックの編集</h1>
       <EditMessageFrom
         prompts={prompts}
-        prompt={prompt}
         message={message}
         feedback={feedback}
       />

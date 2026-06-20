@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getFeedbacksByPromptId } from "@/app/actions/feedbacks";
-import { getPrompt } from "@/app/actions/prompts";
+import { getPromptWithFeedbackCount } from "@/app/actions/prompts";
 import DeletePromptButton from "@/components/prompts/delete-prompt-button";
 import PromptContentCollapsible from "@/components/prompts/prompt-content-collapsible";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ export default async function PromptPage({
   params,
 }: PageProps<"/prompts/[id]">) {
   const { id } = await params;
-  const prompt = await getPrompt(id);
+  const prompt = await getPromptWithFeedbackCount(id);
 
   if (!prompt) {
     notFound();

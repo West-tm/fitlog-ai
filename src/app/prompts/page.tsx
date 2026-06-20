@@ -11,10 +11,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { getPrompts } from "../actions/prompts";
+import { getPromptsWithFeedbackCount } from "../actions/prompts";
 
 export default async function PromptsPage() {
-  const prompts = await getPrompts();
+  const prompts = await getPromptsWithFeedbackCount();
 
   return (
     <div className="space-y-6">

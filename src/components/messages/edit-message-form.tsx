@@ -38,17 +38,11 @@ import { Textarea } from "../ui/textarea";
 
 type Props = {
   prompts: Prompt[];
-  prompt: Prompt;
   message: Message;
   feedback: Feedback;
 };
 
-export default function EditMessageFrom({
-  prompts,
-  prompt,
-  message,
-  feedback,
-}: Props) {
+export default function EditMessageFrom({ prompts, message, feedback }: Props) {
   const {
     register,
     handleSubmit,
@@ -59,7 +53,7 @@ export default function EditMessageFrom({
     resolver: zodResolver(updateMessageValues),
     defaultValues: {
       content: message.content,
-      promptId: prompt.id,
+      promptId: feedback.promptId || undefined,
       useGoogleSearch: false,
       feedbackId: feedback.id,
     },

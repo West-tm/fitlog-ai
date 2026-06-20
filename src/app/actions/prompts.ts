@@ -1,6 +1,5 @@
 "use server";
 
-import { Feedback } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -39,6 +38,16 @@ export async function getPrompt(id: string) {
 
   const prompt = await prisma.prompt.findFirst({
     where: { id, userId: user.id },
+  });
+
+  return prompt;
+}
+
+export async function getPromptWithFeedbackCount(id: string) {
+  const user = await getUser();
+
+  const prompt = await prisma.prompt.findFirst({
+    where: { id, userId: user.id },
     include: {
       _count: {
         select: {
@@ -51,24 +60,22 @@ export async function getPrompt(id: string) {
   return prompt;
 }
 
-export async function getPromptbyFeedback(feedback: Feedback) {
-  if (feedback.promptId) {
-    const prompt = await getPrompt(feedback.promptId);
-    if (prompt) {
-      return prompt;
-    }
-  }
-  return {
-    id: "",
-    content: feedback.promptSnapshot,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    userId: "",
-    title: "削除済みの指示文",
-  };
+export async function getPrompts() {
+  const user = await getUser();
+
+  const prompts = await prisma.prompt.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return prompts;
 }
 
-export async function getPrompts() {
+export async function getPromptsWithFeedbackCount() {
   const user = await getUser();
 
   const prompts = await prisma.prompt.findMany({
