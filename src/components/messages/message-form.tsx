@@ -156,7 +156,7 @@ export default function MessageForm({
       </Collapsible>
 
       <div className="space-y-2">
-        <Label htmlFor="content">メッセージ内容</Label>
+        <Label htmlFor="content">メッセージ</Label>
         <Textarea
           className="min-h-40"
           id="content"
@@ -195,7 +195,7 @@ export default function MessageForm({
 
       <Button className="cursor-pointer" type="submit" disabled={isPending}>
         {isPending ? <Spinner /> : <Sparkles />}
-        {isPending ? "分析中" : "AI分析開始"}
+        {isPending ? "分析中" : "AI回答を生成"}
       </Button>
       {errors.root && <p className="text-destructive">{errors.root.message}</p>}
     </form>

@@ -104,10 +104,11 @@ export default async function PromptPage({
         </CardFooter>
       </Card>
 
+      <h2 className="text-lg font-semibold">この指示文で作成したAI回答</h2>
       <Table className="w-full table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead>フィードバック</TableHead>
+            <TableHead>AI回答</TableHead>
             <TableHead className="hidden w-24 sm:table-cell">更新日</TableHead>
             <TableHead className="hidden w-24 sm:table-cell">作成日</TableHead>
           </TableRow>

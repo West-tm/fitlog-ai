@@ -123,7 +123,7 @@ export async function updateFeedback(
   const feedback = await getFeedback(result.data.feedbackId);
 
   if (!feedback) {
-    return { error: "フィードバックが見つかりません。" };
+    return { error: "AI回答が見つかりません。" };
   }
 
   const generateResult = await geminiGenerateContent(
@@ -167,7 +167,7 @@ export async function deleteFeedback(id: string) {
 
   if (result.count === 0) {
     return {
-      error: "削除対象のフィードバックが見つかりません。",
+      error: "削除対象のAI回答が見つかりません。",
     };
   }
 

@@ -39,13 +39,13 @@ export default async function FeedbackPage({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold">フィードバックの詳細</h1>
+      <h1 className="text-xl font-semibold">AI回答の詳細</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>フィードバック</CardTitle>
+          <CardTitle>AI回答</CardTitle>
           <CardDescription>
-            フィードバックの確認・編集・削除が行えます。
+            AI回答の確認・編集・削除が行えます。
           </CardDescription>
 
           <CardAction className="space-x-2">
@@ -88,7 +88,7 @@ export default async function FeedbackPage({
 
           <section className="space-y-2">
             <h2 className="text-base font-semibold text-muted-foreground">
-              AIフィードバック
+              AI回答
             </h2>
 
             <Separator />

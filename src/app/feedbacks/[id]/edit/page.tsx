@@ -26,7 +26,7 @@ export default async function EditFeedbackPage({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold">フィードバックの編集</h1>
+      <h1 className="text-xl font-semibold">AI回答を編集</h1>
       <MessageForm
         prompts={prompts}
         onSubmitAction={updateFeedbackAction}

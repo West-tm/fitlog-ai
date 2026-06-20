@@ -7,7 +7,7 @@ export default async function NewPromptPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold">指示文の新規作成</h1>
+      <h1 className="text-xl font-semibold">指示文を作成</h1>
       <PromptForm onSubmitAction={createPrompt} showTemplatePicker={true} />
     </div>
   );

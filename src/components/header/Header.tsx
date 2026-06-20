@@ -14,7 +14,7 @@ const publicNavItems = [
 
 const privateNavItems = [
   { href: "/prompts", label: "指示文" },
-  { href: "/feedbacks", label: "フィードバック" },
+  { href: "/feedbacks", label: "AI回答" },
 ];
 
 export default async function Header() {

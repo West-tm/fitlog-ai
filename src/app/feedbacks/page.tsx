@@ -19,7 +19,7 @@ export default async function FeedbacksPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold">フィードバックの一覧</h1>
+        <h1 className="text-xl font-semibold">AI回答 一覧</h1>
         <Button asChild>
           <Link href="/feedbacks/new">
             <Plus />
@@ -31,7 +31,7 @@ export default async function FeedbacksPage() {
       <Table className="w-full table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead>フィードバック</TableHead>
+            <TableHead>AI回答</TableHead>
             <TableHead className="hidden w-24 sm:table-cell">更新日</TableHead>
             <TableHead className="hidden w-24 sm:table-cell">作成日</TableHead>
           </TableRow>

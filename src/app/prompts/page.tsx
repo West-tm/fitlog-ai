@@ -19,7 +19,7 @@ export default async function PromptsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold">指示文の一覧</h1>
+        <h1 className="text-xl font-semibold">指示文 一覧</h1>
         <Button asChild>
           <Link href="/prompts/new">
             <Plus /> 新規作成

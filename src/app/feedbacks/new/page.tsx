@@ -7,7 +7,7 @@ export default async function CreateFeedbackPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold">フィードバックの新規作成</h1>
+      <h1 className="text-xl font-semibold">AI回答を作成</h1>
       <MessageForm prompts={prompts} onSubmitAction={generateFeedback} />
     </div>
   );
