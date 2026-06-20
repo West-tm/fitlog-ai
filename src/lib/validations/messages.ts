@@ -1,23 +1,15 @@
 import { z } from "zod";
 
-export const createMessageSchema = z.object({
-  content: z.string().trim().min(4, {
-    error: "メッセージは4文字以上で入力してください",
-  }),
-  promptId: z.uuid({
-    error: "指示文を選択してください",
-  }),
-  useGoogleSearch: z.boolean({
-    error: "外部検索を使用するか選択してください",
-  }),
+export const messageFormSchema = z.object({
+  content: z.string().trim().min(1, "メッセージを入力してください"),
+  promptId: z.uuid("指示文を選択してください"),
+  useGoogleSearch: z.boolean("外部検索を使用するか選択してください"),
 });
 
-export type CreateMessageValues = z.infer<typeof createMessageSchema>;
+export type MessageFormValues = z.infer<typeof messageFormSchema>;
 
-export const updateMessageValues = createMessageSchema.extend({
-  feedbackId: z.uuid({
-    error: "指示文を選択してください",
-  }),
+export const createMessageSchema = messageFormSchema;
+
+export const updateMessageSchema = messageFormSchema.extend({
+  feedbackId: z.uuid(),
 });
-
-export type UpdateMessageSchema = z.infer<typeof updateMessageValues>;

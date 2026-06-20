@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 
-import { getFeedback } from "@/app/actions/feedbacks";
+import { getFeedback, updateFeedback } from "@/app/actions/feedbacks";
 import { getMessage } from "@/app/actions/messages";
 import { getPrompts } from "@/app/actions/prompts";
-import EditMessageFrom from "@/components/messages/edit-message-form";
+import MessageForm from "@/components/messages/message-form";
 
 export default async function EditFeedbackPage({
   params,
@@ -22,13 +22,19 @@ export default async function EditFeedbackPage({
 
   const prompts = await getPrompts();
 
+  const updateFeedbackAction = updateFeedback.bind(null, id);
+
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-semibold">フィードバックの編集</h1>
-      <EditMessageFrom
+      <MessageForm
         prompts={prompts}
-        message={message}
-        feedback={feedback}
+        onSubmitAction={updateFeedbackAction}
+        defaultValues={{
+          content: message.content,
+          promptId: feedback.promptId ?? "",
+          useGoogleSearch: false,
+        }}
       />
     </div>
   );

@@ -1,12 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Feedback, Message, Prompt } from "@prisma/client";
+import { Prompt } from "@prisma/client";
 import { ChevronDownIcon, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 
-import { updateFeedback } from "@/app/actions/feedbacks";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
@@ -22,8 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  UpdateMessageSchema,
-  updateMessageValues,
+  createMessageSchema,
+  MessageFormValues,
 } from "@/lib/validations/messages";
 
 import { Button } from "../ui/button";
@@ -38,25 +37,24 @@ import { Textarea } from "../ui/textarea";
 
 type Props = {
   prompts: Prompt[];
-  message: Message;
-  feedback: Feedback;
+  onSubmitAction: (values: MessageFormValues) => Promise<{ error: string }>;
+  defaultValues?: MessageFormValues;
 };
 
-export default function EditMessageFrom({ prompts, message, feedback }: Props) {
+export default function MessageForm({
+  prompts,
+  onSubmitAction,
+  defaultValues = { content: "", promptId: "", useGoogleSearch: false },
+}: Props) {
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
     control,
-  } = useForm<UpdateMessageSchema>({
-    resolver: zodResolver(updateMessageValues),
-    defaultValues: {
-      content: message.content,
-      promptId: feedback.promptId || undefined,
-      useGoogleSearch: false,
-      feedbackId: feedback.id,
-    },
+  } = useForm<MessageFormValues>({
+    resolver: zodResolver(createMessageSchema),
+    defaultValues,
     mode: "onBlur",
   });
 
@@ -65,17 +63,18 @@ export default function EditMessageFrom({ prompts, message, feedback }: Props) {
 
   const isPending = isSubmitting || isSubmitLocked;
 
+  // refガードをレンダー中に評価しないよう、handleSubmitはsubmit時に実行する
   const handleFormSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
     void handleSubmit(onSubmit)(event);
   };
 
-  const onSubmit = async (value: UpdateMessageSchema) => {
+  const onSubmit = async (value: MessageFormValues) => {
     if (submitLockRef.current) return;
 
     submitLockRef.current = true;
     setIsSubmitLocked(true);
 
-    const result = await updateFeedback(value);
+    const result = await onSubmitAction(value);
 
     if (result.error) {
       setError("root", { message: result.error });
@@ -90,6 +89,11 @@ export default function EditMessageFrom({ prompts, message, feedback }: Props) {
   });
 
   const selectPrompt = prompts.find((prompt) => prompt.id === selectedPromptId);
+
+  const isDeletedPrompt = defaultValues.content && !defaultValues.promptId;
+  const promptPlaceholder = isDeletedPrompt
+    ? "指示文は削除済みです。今回使用する指示文を選択してください。"
+    : "指示文を選択";
 
   return (
     <form className="space-y-4" onSubmit={handleFormSubmit}>
@@ -112,7 +116,7 @@ export default function EditMessageFrom({ prompts, message, feedback }: Props) {
                 id="promptId"
                 className="w-full **:data-[slot=select-value]:truncate"
               >
-                <SelectValue placeholder="指示文は削除済みです。今回使用する指示文を選択してください" />
+                <SelectValue placeholder={promptPlaceholder} />
               </SelectTrigger>
 
               <SelectContent

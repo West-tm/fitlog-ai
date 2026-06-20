@@ -1,5 +1,6 @@
+import { generateFeedback } from "@/app/actions/feedbacks";
 import { getPrompts } from "@/app/actions/prompts";
-import NewMessageForm from "@/components/messages/new-message-form";
+import MessageForm from "@/components/messages/message-form";
 
 export default async function CreateFeedbackPage() {
   const prompts = await getPrompts();
@@ -7,7 +8,7 @@ export default async function CreateFeedbackPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-semibold">フィードバックの新規作成</h1>
-      <NewMessageForm prompts={prompts} />
+      <MessageForm prompts={prompts} onSubmitAction={generateFeedback} />
     </div>
   );
 }

@@ -7,18 +7,17 @@ import { getUser } from "@/lib/auth/get-user";
 import { prisma } from "@/lib/prisma/prisma";
 import {
   createMessageSchema,
-  CreateMessageValues,
-  UpdateMessageSchema,
-  updateMessageValues,
+  MessageFormValues,
+  updateMessageSchema,
 } from "@/lib/validations/messages";
 
 import { geminiGenerateContent } from "./gemini";
 import { getPrompt } from "./prompts";
 
-export async function generateFeedback(value: CreateMessageValues) {
+export async function generateFeedback(values: MessageFormValues) {
   const user = await getUser();
 
-  const result = createMessageSchema.safeParse(value);
+  const result = createMessageSchema.safeParse(values);
 
   if (!result.success) {
     return { error: "入力内容を確認してください。" };
@@ -105,8 +104,11 @@ export async function getFeedbacksByPromptId(promptId: string) {
   return feedbacks;
 }
 
-export async function updateFeedback(value: UpdateMessageSchema) {
-  const result = updateMessageValues.safeParse(value);
+export async function updateFeedback(
+  feedbackId: string,
+  values: MessageFormValues,
+) {
+  const result = updateMessageSchema.safeParse({ ...values, feedbackId });
 
   if (!result.success) {
     return { error: "入力内容を確認してください。" };
