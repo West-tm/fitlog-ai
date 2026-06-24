@@ -25,3 +25,5 @@ export function getGoogleHealthScopes() {
 export function getGoogleHealthApiBaseUrl() {
   return getEnv("GOOGLE_HEALTH_API_BASE_URL");
 }
+
+export const GOOGLE_HEALTH_OAUTH_STATE = "google_health_oauth_state";
