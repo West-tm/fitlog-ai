@@ -34,23 +34,34 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid OAuth state" }, { status: 400 });
   }
 
-  const oauth2Client = createGoogleHealthOAuthClient();
+  let response: NextResponse;
 
-  const { tokens } = await oauth2Client.getToken(code);
+  try {
+    const oauth2Client = createGoogleHealthOAuthClient();
 
-  oauth2Client.setCredentials(tokens);
+    const { tokens } = await oauth2Client.getToken(code);
 
-  const profileResponse = await oauth2Client.request({
-    url: `${getGoogleHealthApiBaseUrl()}/v4/users/me/profile`,
-    method: "GET",
-  });
+    oauth2Client.setCredentials(tokens);
 
-  const response = NextResponse.json({
-    message: "Google Health API connection succeeded",
-    hasAccessToken: Boolean(tokens.access_token),
-    hasRefreshToken: Boolean(tokens.refresh_token),
-    profile: profileResponse.data,
-  });
+    const profileResponse = await oauth2Client.request({
+      url: `${getGoogleHealthApiBaseUrl()}/v4/users/me/profile`,
+      method: "GET",
+    });
+
+    response = NextResponse.json({
+      message: "Google Health API connection succeeded",
+      hasAccessToken: Boolean(tokens.access_token),
+      hasRefreshToken: Boolean(tokens.refresh_token),
+      profile: profileResponse.data,
+    });
+  } catch (error) {
+    console.error("Google Health API connection failed", error);
+
+    response = NextResponse.json(
+      { error: "Google Health API connection failed" },
+      { status: 502 },
+    );
+  }
 
   response.cookies.delete("google_health_oauth_state");
 

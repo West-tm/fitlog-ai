@@ -19,7 +19,7 @@ export function createGoogleHealthOAuthClient() {
 }
 
 export function getGoogleHealthScopes() {
-  return getEnv("GOOGLE_HEALTH_SCOPES").split(" ");
+  return getEnv("GOOGLE_HEALTH_SCOPES").trim().split(/\s+/).filter(Boolean);
 }
 
 export function getGoogleHealthApiBaseUrl() {
