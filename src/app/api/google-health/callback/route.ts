@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   createGoogleHealthOAuthClient,
   getGoogleHealthApiBaseUrl,
+  GOOGLE_HEALTH_OAUTH_STATE,
 } from "@/lib/google-health";
 
 export const runtime = "nodejs";
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const savedState = request.cookies.get("google_health_oauth_state")?.value;
+  const savedState = request.cookies.get(GOOGLE_HEALTH_OAUTH_STATE)?.value;
 
   if (!state || !savedState || state !== savedState) {
     return NextResponse.json({ error: "Invalid OAuth state" }, { status: 400 });
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  response.cookies.delete("google_health_oauth_state");
+  response.cookies.delete(GOOGLE_HEALTH_OAUTH_STATE);
 
   return response;
 }
