@@ -101,9 +101,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   {isPending && <Spinner />}
                   アカウントを作成する
                 </Button>
-                {/* <Button variant="outline" type="button">
-                  Sign up with Google
-                </Button> */}
                 <FieldDescription className="px-6 text-center">
                   既にアカウントをお持ちですか？{" "}
                   <Link href="/auth/signin">ログイン</Link>
