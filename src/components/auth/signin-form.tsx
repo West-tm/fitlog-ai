@@ -91,9 +91,6 @@ export function SigninForm({
                   {isPending && <Spinner />}
                   ログインする
                 </Button>
-                {/* <Button variant="outline" type="button">
-                  Login with Google
-                </Button> */}
                 <FieldDescription className="text-center">
                   アカウントをお持ちではありませんか？{" "}
                   <Link href="/auth/signup">サインアップ</Link>
