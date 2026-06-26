@@ -42,13 +42,13 @@ export async function GET(request: NextRequest) {
   }
 
   if (!code) {
-    return redirectToIntegrations(request, "Authorization code is missing");
+    return redirectToIntegrations(request, "authorization-code-missing");
   }
 
   const savedState = request.cookies.get(GOOGLE_HEALTH_OAUTH_STATE)?.value;
 
   if (!state || !savedState || state !== savedState) {
-    return redirectToIntegrations(request, "Invalid OAuth state");
+    return redirectToIntegrations(request, "invalid-oauth-state");
   }
 
   const oauth2Client = createGoogleHealthOAuthClient();
