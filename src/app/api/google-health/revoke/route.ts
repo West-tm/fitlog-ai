@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getUser } from "@/lib/auth/get-user";
-import { decryptGoogleHealthToken } from "@/lib/google-health-token-crypto";
+import { decryptGoogleHealthToken } from "@/lib/google-health/google-health-token-crypto";
 import { prisma } from "@/lib/prisma/prisma";
 
 export const runtime = "nodejs";
