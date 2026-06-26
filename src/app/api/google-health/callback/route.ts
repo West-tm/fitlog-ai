@@ -6,8 +6,8 @@ import {
   getGoogleHealthIdentity,
   getGoogleHealthScopes,
   GOOGLE_HEALTH_OAUTH_STATE,
-} from "@/lib/google-health";
-import { encryptGoogleHealthToken } from "@/lib/google-health-token-crypto";
+} from "@/lib/google-health/google-health";
+import { encryptGoogleHealthToken } from "@/lib/google-health/google-health-token-crypto";
 import { prisma } from "@/lib/prisma/prisma";
 
 export const runtime = "nodejs";

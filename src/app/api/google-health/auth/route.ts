@@ -6,7 +6,7 @@ import {
   createGoogleHealthOAuthClient,
   getGoogleHealthScopes,
   GOOGLE_HEALTH_OAUTH_STATE,
-} from "@/lib/google-health";
+} from "@/lib/google-health/google-health";
 
 export const runtime = "nodejs";
 
