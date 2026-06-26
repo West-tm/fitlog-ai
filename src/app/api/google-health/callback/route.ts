@@ -10,13 +10,15 @@ import {
 import { encryptGoogleHealthToken } from "@/lib/google-health/google-health-token-crypto";
 import { prisma } from "@/lib/prisma/prisma";
 
+import { googleHealthCallbackSchema } from "./schema";
+
 export const runtime = "nodejs";
 
-function redirectToIntegrations(
+const redirectToIntegrations = (
   request: NextRequest,
   value: string,
   query: string = "error",
-) {
+) => {
   const redirectUrl = new URL("/settings/integrations", request.url);
 
   redirectUrl.searchParams.set(query, value);
@@ -26,31 +28,33 @@ function redirectToIntegrations(
   response.cookies.delete(GOOGLE_HEALTH_OAUTH_STATE);
 
   return response;
-}
+};
 
 export async function GET(request: NextRequest) {
   const user = await getUser();
 
   const searchParams = request.nextUrl.searchParams;
 
-  const error = searchParams.get("error");
-  const code = searchParams.get("code");
-  const state = searchParams.get("state");
-  const scope = searchParams.get("scope");
-
-  if (error) {
+  if (searchParams.get("error")) {
     return redirectToIntegrations(request, "google-health-cancelled");
   }
 
-  if (!code) {
-    return redirectToIntegrations(request, "authorization-code-missing");
-  }
+  const result = googleHealthCallbackSchema.safeParse(
+    Object.fromEntries(searchParams),
+  );
 
   const savedState = request.cookies.get(GOOGLE_HEALTH_OAUTH_STATE)?.value;
 
-  if (!state || !savedState || state !== savedState) {
-    return redirectToIntegrations(request, "invalid-oauth-state");
+  if (!result.success || !savedState || result.data.state !== savedState) {
+    console.warn("Google Health callback params invalid", {
+      hasCode: searchParams.has("code"),
+      hasState: searchParams.has("state"),
+    });
+
+    return redirectToIntegrations(request, "google-health-callback-invalid");
   }
+
+  const { code, scope } = result.data;
 
   const oauth2Client = createGoogleHealthOAuthClient();
 

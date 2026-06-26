@@ -64,20 +64,6 @@ function getIntegrationMessage({
     };
   }
 
-  if (error === "authorization-code-missing") {
-    return {
-      type: "error",
-      text: "Google Health の認証コードを取得できませんでした。",
-    };
-  }
-
-  if (error === "invalid-oauth-state") {
-    return {
-      type: "error",
-      text: "Google Health の OAuth の state パラメータが無効でした。",
-    };
-  }
-
   if (error === "token-exchange-failed") {
     return {
       type: "error",
