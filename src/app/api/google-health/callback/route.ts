@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getUser } from "@/lib/auth/get-user";
+import { googleHealthEnv } from "@/lib/google-health/env";
 import {
   createGoogleHealthOAuthClient,
   getGoogleHealthIdentity,
-  getGoogleHealthScopes,
   GOOGLE_HEALTH_OAUTH_STATE,
 } from "@/lib/google-health/google-health";
 import { encryptGoogleHealthToken } from "@/lib/google-health/google-health-token-crypto";
@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     return redirectToIntegrations(request, "get-google-health-identity-failed");
   }
 
-  const grantedScope = scope ?? getGoogleHealthScopes().join(" ");
+  const grantedScope = scope ?? googleHealthEnv.scopes.join(" ");
 
   try {
     await prisma.googleHealthConnection.upsert({

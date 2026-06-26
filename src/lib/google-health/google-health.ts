@@ -8,6 +8,7 @@ import {
 import { prisma } from "@/lib/prisma/prisma";
 
 import { getUser } from "../auth/get-user";
+import { googleHealthEnv } from "./env";
 
 export const GOOGLE_HEALTH_OAUTH_STATE = "google_health_oauth_state";
 
@@ -17,35 +18,19 @@ type GoogleHealthIdentity = {
   healthUserId?: string;
 };
 
-function getEnv(name: string) {
-  const value = process.env[name];
-
-  if (!value) throw new Error(`${name} is not set`);
-
-  return value;
-}
-
 export function createGoogleHealthOAuthClient() {
   return new google.auth.OAuth2(
-    getEnv("GOOGLE_HEALTH_CLIENT_ID"),
-    getEnv("GOOGLE_HEALTH_CLIENT_SECRET"),
-    getEnv("GOOGLE_HEALTH_REDIRECT_URI"),
+    googleHealthEnv.clientId,
+    googleHealthEnv.clientSecret,
+    googleHealthEnv.redirectUri,
   );
-}
-
-export function getGoogleHealthScopes() {
-  return getEnv("GOOGLE_HEALTH_SCOPES").trim().split(/\s+/).filter(Boolean);
-}
-
-export function getGoogleHealthApiBaseUrl() {
-  return getEnv("GOOGLE_HEALTH_API_BASE_URL").replace(/\/$/, "");
 }
 
 const GOOGLE_HEALTH_REQUEST_TIMEOUT_MS = 10_000;
 
 export async function getGoogleHealthIdentity(accessToken: string) {
   const response = await fetch(
-    `${getGoogleHealthApiBaseUrl()}/users/me/identity`,
+    `${googleHealthEnv.apiBaseUrl}/users/me/identity`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
