@@ -1,13 +1,11 @@
-import {
-  getGoogleHealthAccessToken,
-  getGoogleHealthApiBaseUrl,
-} from "@/lib/google-health/google-health";
+import { googleHealthEnv } from "@/lib/google-health/env";
+import { getGoogleHealthAccessToken } from "@/lib/google-health/google-health";
 
 export async function fetchGoogleHealthJson<T>(
   accessToken: string,
   path: string,
 ) {
-  const response = await fetch(`${getGoogleHealthApiBaseUrl()}${path}`, {
+  const response = await fetch(`${googleHealthEnv.apiBaseUrl}${path}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/json",

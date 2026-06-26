@@ -2,9 +2,9 @@ import { randomUUID } from "node:crypto";
 
 import { NextResponse } from "next/server";
 
+import { googleHealthEnv } from "@/lib/google-health/env";
 import {
   createGoogleHealthOAuthClient,
-  getGoogleHealthScopes,
   GOOGLE_HEALTH_OAUTH_STATE,
 } from "@/lib/google-health/google-health";
 
@@ -19,7 +19,7 @@ export async function GET() {
     access_type: "offline",
     include_granted_scopes: true,
     prompt: "consent",
-    scope: getGoogleHealthScopes(),
+    scope: googleHealthEnv.scopes,
     state,
   });
 
