@@ -7,6 +7,7 @@ import {
   getGoogleHealthScopes,
   GOOGLE_HEALTH_OAUTH_STATE,
 } from "@/lib/google-health";
+import { encryptGoogleHealthToken } from "@/lib/google-health-token-crypto";
 import { prisma } from "@/lib/prisma/prisma";
 
 export const runtime = "nodejs";
@@ -73,9 +74,11 @@ export async function GET(request: NextRequest) {
     select: { refreshToken: true },
   });
 
-  const refreshToken = tokens.refresh_token ?? currentConnection?.refreshToken;
+  const encryptedRefreshToken = tokens.refresh_token
+    ? encryptGoogleHealthToken(tokens.refresh_token)
+    : currentConnection?.refreshToken;
 
-  if (!refreshToken) {
+  if (!encryptedRefreshToken) {
     return redirectToIntegrations(request, "refresh-token-missing");
   }
 
@@ -96,15 +99,15 @@ export async function GET(request: NextRequest) {
         userId: user.id,
         googleUserId: identity.healthUserId ?? null,
         scope: grantedScope,
-        refreshToken,
-        accessToken: tokens.access_token,
+        refreshToken: encryptedRefreshToken,
+        accessToken: encryptGoogleHealthToken(tokens.access_token),
         expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
       },
       update: {
         googleUserId: identity.healthUserId ?? null,
         scope: grantedScope,
-        refreshToken,
-        accessToken: tokens.access_token,
+        refreshToken: encryptedRefreshToken,
+        accessToken: encryptGoogleHealthToken(tokens.access_token),
         expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
       },
     });
