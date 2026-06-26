@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getUser } from "@/lib/auth/get-user";
+import { decryptGoogleHealthToken } from "@/lib/google-health-token-crypto";
 import { prisma } from "@/lib/prisma/prisma";
 
 export const runtime = "nodejs";
@@ -36,7 +37,9 @@ export async function POST(request: NextRequest) {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams({ token: connection.refreshToken }),
+      body: new URLSearchParams({
+        token: decryptGoogleHealthToken(connection.refreshToken),
+      }),
       cache: "no-store",
     });
 
