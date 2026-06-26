@@ -32,6 +32,8 @@ export function getGoogleHealthApiBaseUrl() {
   return getEnv("GOOGLE_HEALTH_API_BASE_URL").replace(/\/$/, "");
 }
 
+const GOOGLE_HEALTH_REQUEST_TIMEOUT_MS = 10_000;
+
 export async function getGoogleHealthIdentity(accessToken: string) {
   const response = await fetch(
     `${getGoogleHealthApiBaseUrl()}/users/me/identity`,
@@ -41,6 +43,7 @@ export async function getGoogleHealthIdentity(accessToken: string) {
         Accept: "application/json",
       },
       cache: "no-store",
+      signal: AbortSignal.timeout(GOOGLE_HEALTH_REQUEST_TIMEOUT_MS),
     },
   );
 
