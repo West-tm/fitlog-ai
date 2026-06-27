@@ -16,18 +16,25 @@ export const runtime = "nodejs";
 
 const redirectToIntegrations = (
   request: NextRequest,
-  value: string,
+  value: string = "google-health-callback-invalid",
   query: string = "error",
 ) => {
   const redirectUrl = new URL("/settings/integrations", request.url);
-
   redirectUrl.searchParams.set(query, value);
 
   const response = NextResponse.redirect(redirectUrl, { status: 303 });
-
   response.cookies.delete(GOOGLE_HEALTH_OAUTH_STATE);
-
   return response;
+};
+
+const getTokensByCode = async (code: string) => {
+  try {
+    const { tokens } = await createGoogleHealthOAuthClient().getToken(code);
+    return tokens;
+  } catch (error) {
+    console.error("Google Health token exchange failed", error);
+    return null;
+  }
 };
 
 export async function GET(request: NextRequest) {
@@ -36,7 +43,7 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
 
   if (searchParams.get("error")) {
-    return redirectToIntegrations(request, "google-health-cancelled");
+    return redirectToIntegrations(request);
   }
 
   const result = googleHealthCallbackSchema.safeParse(
@@ -51,29 +58,18 @@ export async function GET(request: NextRequest) {
       hasState: searchParams.has("state"),
     });
 
-    return redirectToIntegrations(request, "google-health-callback-invalid");
+    return redirectToIntegrations(request);
   }
 
   const { code, scope } = result.data;
 
-  const oauth2Client = createGoogleHealthOAuthClient();
+  const tokens = await getTokensByCode(code);
 
-  let tokens;
-
-  try {
-    const result = await oauth2Client.getToken(code);
-    tokens = result.tokens;
-  } catch (error) {
-    console.error("Google Health token exchange failed", error);
-
-    return redirectToIntegrations(request, "token-exchange-failed");
+  if (!tokens || !tokens.access_token) {
+    return redirectToIntegrations(request);
   }
 
-  if (!tokens.access_token) {
-    return redirectToIntegrations(request, "token-exchange-failed");
-  }
-
-  const currentConnection = await prisma.googleHealthConnection.findFirst({
+  const currentConnection = await prisma.googleHealthConnection.findUnique({
     where: { userId: user.id },
     select: { refreshToken: true },
   });
@@ -83,41 +79,35 @@ export async function GET(request: NextRequest) {
     : currentConnection?.refreshToken;
 
   if (!encryptedRefreshToken) {
-    return redirectToIntegrations(request, "refresh-token-missing");
+    return redirectToIntegrations(request);
   }
 
-  let identity;
+  const identity = await getGoogleHealthIdentity(tokens.access_token);
 
-  try {
-    identity = await getGoogleHealthIdentity(tokens.access_token);
-  } catch {
-    return redirectToIntegrations(request, "get-google-health-identity-failed");
+  if (!identity) {
+    return redirectToIntegrations(request);
   }
 
-  const grantedScope = scope ?? googleHealthEnv.scopes.join(" ");
+  const connectionData = {
+    googleUserId: identity.healthUserId ?? null,
+    scope: scope ?? googleHealthEnv.scopes.join(" "),
+    refreshToken: encryptedRefreshToken,
+    accessToken: encryptGoogleHealthToken(tokens.access_token),
+    expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
+  };
 
   try {
     await prisma.googleHealthConnection.upsert({
       where: { userId: user.id },
       create: {
         userId: user.id,
-        googleUserId: identity.healthUserId ?? null,
-        scope: grantedScope,
-        refreshToken: encryptedRefreshToken,
-        accessToken: encryptGoogleHealthToken(tokens.access_token),
-        expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
+        ...connectionData,
       },
-      update: {
-        googleUserId: identity.healthUserId ?? null,
-        scope: grantedScope,
-        refreshToken: encryptedRefreshToken,
-        accessToken: encryptGoogleHealthToken(tokens.access_token),
-        expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
-      },
+      update: connectionData,
     });
 
     return redirectToIntegrations(request, "google-health-connected", "notice");
   } catch {
-    return redirectToIntegrations(request, "google-health-upsert-failed");
+    return redirectToIntegrations(request);
   }
 }
