@@ -29,23 +29,28 @@ export function createGoogleHealthOAuthClient() {
 const GOOGLE_HEALTH_REQUEST_TIMEOUT_MS = 10_000;
 
 export async function getGoogleHealthIdentity(accessToken: string) {
-  const response = await fetch(
-    `${googleHealthEnv.apiBaseUrl}/users/me/identity`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: "application/json",
+  try {
+    const response = await fetch(
+      `${googleHealthEnv.apiBaseUrl}/users/me/identity`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        },
+        cache: "no-store",
+        signal: AbortSignal.timeout(GOOGLE_HEALTH_REQUEST_TIMEOUT_MS),
       },
-      cache: "no-store",
-      signal: AbortSignal.timeout(GOOGLE_HEALTH_REQUEST_TIMEOUT_MS),
-    },
-  );
+    );
 
-  if (!response.ok) {
-    throw new Error("Google Health identity fetch failed");
+    if (!response.ok) {
+      throw new Error("Google Health identity fetch failed");
+    }
+
+    return (await response.json()) as GoogleHealthIdentity;
+  } catch (error) {
+    console.error("Google Health identity fetch failed", error);
+    return null;
   }
-
-  return (await response.json()) as GoogleHealthIdentity;
 }
 
 const ACCESS_TOKEN_REFRESH_MARGIN_MS = 60 * 1000;
