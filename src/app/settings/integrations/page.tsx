@@ -86,11 +86,9 @@ export default async function SettingsIntegrationsPage({
     notice: getFirstParam(notice),
   });
 
-  const googleHealthConnection = await prisma.googleHealthConnection.findFirst({
-    where: {
-      userId: user.id,
-    },
-  });
+  const googleHealthConnection = await prisma.googleHealthConnection.findUnique(
+    { where: { userId: user.id } },
+  );
 
   const isConnected = !!googleHealthConnection;
 
