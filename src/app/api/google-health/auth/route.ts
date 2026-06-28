@@ -3,19 +3,17 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { googleHealthEnv } from "@/lib/google-health/env";
-import {
-  createGoogleHealthOAuthClient,
-  GOOGLE_HEALTH_OAUTH_STATE,
-} from "@/lib/google-health/google-health";
+import { createGoogleHealthOAuthClient } from "@/lib/google-health/google-health";
 
 export const runtime = "nodejs";
 
+export const GOOGLE_HEALTH_OAUTH_STATE = "google_health_oauth_state";
+
 export async function GET() {
-  const oauth2Client = createGoogleHealthOAuthClient();
   const state = randomUUID();
 
   //  Google Health API の同意画面URLを生成
-  const authUrl = oauth2Client.generateAuthUrl({
+  const authUrl = createGoogleHealthOAuthClient().generateAuthUrl({
     access_type: "offline",
     include_granted_scopes: true,
     prompt: "consent",

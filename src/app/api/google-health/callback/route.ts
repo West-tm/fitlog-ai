@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getUser } from "@/lib/auth/get-user";
+import { getGoogleHealthIdentity } from "@/lib/google-health/actions";
 import { googleHealthEnv } from "@/lib/google-health/env";
-import {
-  createGoogleHealthOAuthClient,
-  getGoogleHealthIdentity,
-  GOOGLE_HEALTH_OAUTH_STATE,
-} from "@/lib/google-health/google-health";
+import { createGoogleHealthOAuthClient } from "@/lib/google-health/google-health";
 import { encryptGoogleHealthToken } from "@/lib/google-health/google-health-token-crypto";
 import { prisma } from "@/lib/prisma/prisma";
 
+import { GOOGLE_HEALTH_OAUTH_STATE } from "../auth/route";
 import { googleHealthCallbackSchema } from "./schema";
 
 export const runtime = "nodejs";
