@@ -18,7 +18,7 @@ const googleHealthEnvSchema = z
     GOOGLE_HEALTH_CLIENT_ID: z.string().min(1),
     GOOGLE_HEALTH_CLIENT_SECRET: z.string().min(1),
     GOOGLE_HEALTH_REDIRECT_URI: urlEnv("GOOGLE_HEALTH_REDIRECT_URI"),
-    GOOGLE_HEALTH_SCOPES: z.string().min(1),
+    GOOGLE_HEALTH_SCOPES: z.string().trim().min(1),
     GOOGLE_HEALTH_API_BASE_URL: urlEnv("GOOGLE_HEALTH_API_BASE_URL"),
     GOOGLE_HEALTH_TOKEN_ENCRYPTION_KEY: z
       .string()
@@ -31,7 +31,7 @@ const googleHealthEnvSchema = z
     clientId: env.GOOGLE_HEALTH_CLIENT_ID,
     clientSecret: env.GOOGLE_HEALTH_CLIENT_SECRET,
     redirectUri: env.GOOGLE_HEALTH_REDIRECT_URI,
-    scopes: env.GOOGLE_HEALTH_SCOPES.trim().split(/\s+/).filter(Boolean),
+    scopes: env.GOOGLE_HEALTH_SCOPES.split(/\s+/),
     apiBaseUrl: env.GOOGLE_HEALTH_API_BASE_URL.replace(/\/$/, ""),
   }));
 
