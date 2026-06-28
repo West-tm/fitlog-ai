@@ -29,8 +29,8 @@ const getTokensByCode = async (code: string) => {
   try {
     const { tokens } = await createGoogleHealthOAuthClient().getToken(code);
     return tokens;
-  } catch (error) {
-    console.error("Google Health token exchange failed", error);
+  } catch {
+    console.error("Google Health token exchange failed");
     return null;
   }
 };

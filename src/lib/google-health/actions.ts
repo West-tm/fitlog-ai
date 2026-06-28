@@ -30,8 +30,8 @@ export async function getGoogleHealthIdentity(accessToken: string) {
 
     const data = await response.json();
     return googleHealthIdentitySchema.parse(data);
-  } catch (error) {
-    console.error("Google Health identity fetch failed", error);
+  } catch {
+    console.error("Google Health identity fetch failed");
     return null;
   }
 }
