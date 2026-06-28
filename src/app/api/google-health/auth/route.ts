@@ -4,10 +4,9 @@ import { NextResponse } from "next/server";
 
 import { googleHealthEnv } from "@/lib/google-health/env";
 import { createGoogleHealthOAuthClient } from "@/lib/google-health/google-health";
+import { GOOGLE_HEALTH_OAUTH_STATE } from "@/lib/google-health/oauth-state";
 
 export const runtime = "nodejs";
-
-export const GOOGLE_HEALTH_OAUTH_STATE = "google_health_oauth_state";
 
 export async function GET() {
   const state = randomUUID();

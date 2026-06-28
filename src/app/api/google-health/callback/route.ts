@@ -5,9 +5,9 @@ import { getGoogleHealthIdentity } from "@/lib/google-health/actions";
 import { googleHealthEnv } from "@/lib/google-health/env";
 import { createGoogleHealthOAuthClient } from "@/lib/google-health/google-health";
 import { encryptGoogleHealthToken } from "@/lib/google-health/google-health-token-crypto";
+import { GOOGLE_HEALTH_OAUTH_STATE } from "@/lib/google-health/oauth-state";
 import { prisma } from "@/lib/prisma/prisma";
 
-import { GOOGLE_HEALTH_OAUTH_STATE } from "../auth/route";
 import { googleHealthCallbackSchema } from "./schema";
 
 export const runtime = "nodejs";
