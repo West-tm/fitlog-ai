@@ -40,8 +40,15 @@ export async function GET(request: NextRequest) {
 
   const searchParams = request.nextUrl.searchParams;
 
-  if (searchParams.get("error")) {
-    return redirectToIntegrations(request);
+  const error = searchParams.get("error");
+
+  if (error) {
+    return redirectToIntegrations(
+      request,
+      error === "access_denied"
+        ? "google-health-cancelled"
+        : "google-health-callback-invalid",
+    );
   }
 
   const result = googleHealthCallbackSchema.safeParse(
