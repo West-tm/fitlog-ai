@@ -13,7 +13,7 @@ const googleHealthProfileSchema = z.object({
   }),
 });
 
-export async function fetchGoogleHealthJson<TSchema extends z.ZodTypeAny>(
+async function fetchGoogleHealthJson<TSchema extends z.ZodTypeAny>(
   path: string,
   schema: TSchema,
 ) {
