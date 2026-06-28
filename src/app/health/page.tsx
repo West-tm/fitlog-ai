@@ -1,10 +1,24 @@
+import { z } from "zod";
+
 import { googleHealthEnv } from "@/lib/google-health/env";
 import { getGoogleHealthAccessToken } from "@/lib/google-health/google-health";
 
-export async function fetchGoogleHealthJson<T>(
-  accessToken: string,
+const googleHealthProfileSchema = z.object({
+  name: z.string(),
+  age: z.int(),
+  membershipStartDate: z.object({
+    year: z.int(),
+    month: z.int(),
+    day: z.int(),
+  }),
+});
+
+export async function fetchGoogleHealthJson<TSchema extends z.ZodTypeAny>(
   path: string,
+  schema: TSchema,
 ) {
+  const accessToken = await getGoogleHealthAccessToken();
+
   const response = await fetch(`${googleHealthEnv.apiBaseUrl}${path}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -18,13 +32,15 @@ export async function fetchGoogleHealthJson<T>(
     throw new Error("Google Health API request failed");
   }
 
-  return (await response.json()) as T;
+  const data: unknown = await response.json();
+  return schema.parse(data);
 }
 
 export default async function GoogleHealthPage() {
-  const accessToken = await getGoogleHealthAccessToken();
-
-  const profile = await fetchGoogleHealthJson(accessToken, "/users/me/profile");
+  const profile = await fetchGoogleHealthJson(
+    "/users/me/profile",
+    googleHealthProfileSchema,
+  );
 
   return (
     <div className="space-y-6">
