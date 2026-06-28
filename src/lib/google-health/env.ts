@@ -1,12 +1,25 @@
 import { z } from "zod";
 
+const urlEnv = (name: string) =>
+  z
+    .string()
+    .trim()
+    .refine((value) => {
+      try {
+        new URL(value);
+        return true;
+      } catch {
+        return false;
+      }
+    }, `${name} must be a valid URL`);
+
 const googleHealthEnvSchema = z
   .object({
     GOOGLE_HEALTH_CLIENT_ID: z.string().min(1),
     GOOGLE_HEALTH_CLIENT_SECRET: z.string().min(1),
-    GOOGLE_HEALTH_REDIRECT_URI: z.string().min(1),
+    GOOGLE_HEALTH_REDIRECT_URI: urlEnv("GOOGLE_HEALTH_REDIRECT_URI"),
     GOOGLE_HEALTH_SCOPES: z.string().min(1),
-    GOOGLE_HEALTH_API_BASE_URL: z.string().min(1),
+    GOOGLE_HEALTH_API_BASE_URL: urlEnv("GOOGLE_HEALTH_API_BASE_URL"),
     GOOGLE_HEALTH_TOKEN_ENCRYPTION_KEY: z
       .string()
       .refine(
