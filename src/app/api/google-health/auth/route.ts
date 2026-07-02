@@ -5,7 +5,8 @@ import { NextResponse } from "next/server";
 import {
   createGoogleHealthOAuthClient,
   getGoogleHealthScopes,
-} from "@/lib/google-health";
+  GOOGLE_HEALTH_OAUTH_STATE,
+} from "@/lib/google-health/google-health";
 
 export const runtime = "nodejs";
 
@@ -24,7 +25,7 @@ export async function GET() {
 
   const response = NextResponse.redirect(authUrl);
 
-  response.cookies.set("google_health_oauth_state", state, {
+  response.cookies.set(GOOGLE_HEALTH_OAUTH_STATE, state, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

@@ -1,69 +1,119 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { getUser } from "@/lib/auth/get-user";
 import {
   createGoogleHealthOAuthClient,
-  getGoogleHealthApiBaseUrl,
-} from "@/lib/google-health";
+  getGoogleHealthIdentity,
+  getGoogleHealthScopes,
+  GOOGLE_HEALTH_OAUTH_STATE,
+} from "@/lib/google-health/google-health";
+import { encryptGoogleHealthToken } from "@/lib/google-health/google-health-token-crypto";
+import { prisma } from "@/lib/prisma/prisma";
 
 export const runtime = "nodejs";
 
+function redirectToIntegrations(
+  request: NextRequest,
+  value: string,
+  query: string = "error",
+) {
+  const redirectUrl = new URL("/settings/integrations", request.url);
+
+  redirectUrl.searchParams.set(query, value);
+
+  const response = NextResponse.redirect(redirectUrl, { status: 303 });
+
+  response.cookies.delete(GOOGLE_HEALTH_OAUTH_STATE);
+
+  return response;
+}
+
 export async function GET(request: NextRequest) {
+  const user = await getUser();
+
   const searchParams = request.nextUrl.searchParams;
 
   const error = searchParams.get("error");
   const code = searchParams.get("code");
   const state = searchParams.get("state");
+  const scope = searchParams.get("scope");
 
   if (error) {
-    return NextResponse.json(
-      { error: "Google OAuth authorization failed", detail: error },
-      { status: 400 },
-    );
+    return redirectToIntegrations(request, "google-health-cancelled");
   }
 
   if (!code) {
-    return NextResponse.json(
-      { error: "Authorization code is missing" },
-      { status: 400 },
-    );
+    return redirectToIntegrations(request, "authorization-code-missing");
   }
 
-  const savedState = request.cookies.get("google_health_oauth_state")?.value;
+  const savedState = request.cookies.get(GOOGLE_HEALTH_OAUTH_STATE)?.value;
 
   if (!state || !savedState || state !== savedState) {
-    return NextResponse.json({ error: "Invalid OAuth state" }, { status: 400 });
+    return redirectToIntegrations(request, "invalid-oauth-state");
   }
 
-  let response: NextResponse;
+  const oauth2Client = createGoogleHealthOAuthClient();
+
+  let tokens;
 
   try {
-    const oauth2Client = createGoogleHealthOAuthClient();
-
-    const { tokens } = await oauth2Client.getToken(code);
-
-    oauth2Client.setCredentials(tokens);
-
-    const profileResponse = await oauth2Client.request({
-      url: `${getGoogleHealthApiBaseUrl()}/v4/users/me/profile`,
-      method: "GET",
-    });
-
-    response = NextResponse.json({
-      message: "Google Health API connection succeeded",
-      hasAccessToken: Boolean(tokens.access_token),
-      hasRefreshToken: Boolean(tokens.refresh_token),
-      profile: profileResponse.data,
-    });
+    const result = await oauth2Client.getToken(code);
+    tokens = result.tokens;
   } catch (error) {
-    console.error("Google Health API connection failed", error);
+    console.error("Google Health token exchange failed", error);
 
-    response = NextResponse.json(
-      { error: "Google Health API connection failed" },
-      { status: 502 },
-    );
+    return redirectToIntegrations(request, "token-exchange-failed");
   }
 
-  response.cookies.delete("google_health_oauth_state");
+  if (!tokens.access_token) {
+    return redirectToIntegrations(request, "token-exchange-failed");
+  }
 
-  return response;
+  const currentConnection = await prisma.googleHealthConnection.findFirst({
+    where: { userId: user.id },
+    select: { refreshToken: true },
+  });
+
+  const encryptedRefreshToken = tokens.refresh_token
+    ? encryptGoogleHealthToken(tokens.refresh_token)
+    : currentConnection?.refreshToken;
+
+  if (!encryptedRefreshToken) {
+    return redirectToIntegrations(request, "refresh-token-missing");
+  }
+
+  let identity;
+
+  try {
+    identity = await getGoogleHealthIdentity(tokens.access_token);
+  } catch {
+    return redirectToIntegrations(request, "get-google-health-identity-failed");
+  }
+
+  const grantedScope = scope ?? getGoogleHealthScopes().join(" ");
+
+  try {
+    await prisma.googleHealthConnection.upsert({
+      where: { userId: user.id },
+      create: {
+        userId: user.id,
+        googleUserId: identity.healthUserId ?? null,
+        scope: grantedScope,
+        refreshToken: encryptedRefreshToken,
+        accessToken: encryptGoogleHealthToken(tokens.access_token),
+        expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
+      },
+      update: {
+        googleUserId: identity.healthUserId ?? null,
+        scope: grantedScope,
+        refreshToken: encryptedRefreshToken,
+        accessToken: encryptGoogleHealthToken(tokens.access_token),
+        expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
+      },
+    });
+
+    return redirectToIntegrations(request, "google-health-connected", "notice");
+  } catch {
+    return redirectToIntegrations(request, "google-health-upsert-failed");
+  }
 }
