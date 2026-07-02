@@ -1,4 +1,13 @@
 import { google } from "googleapis";
+import { redirect } from "next/navigation";
+
+import {
+  decryptGoogleHealthToken,
+  encryptGoogleHealthToken,
+} from "@/lib/google-health/google-health-token-crypto";
+import { prisma } from "@/lib/prisma/prisma";
+
+import { getUser } from "../auth/get-user";
 
 export const GOOGLE_HEALTH_OAUTH_STATE = "google_health_oauth_state";
 
@@ -52,4 +61,55 @@ export async function getGoogleHealthIdentity(accessToken: string) {
   }
 
   return (await response.json()) as GoogleHealthIdentity;
+}
+
+const ACCESS_TOKEN_REFRESH_MARGIN_MS = 60 * 1000;
+
+export async function getGoogleHealthAccessToken() {
+  const user = await getUser();
+
+  const connection = await prisma.googleHealthConnection.findUnique({
+    where: { userId: user.id },
+    select: {
+      refreshToken: true,
+      accessToken: true,
+      expiresAt: true,
+    },
+  });
+
+  if (!connection) {
+    redirect("/settings/integrations?notice=google-health-not-connected");
+  }
+
+  if (
+    connection.accessToken &&
+    connection.expiresAt &&
+    connection.expiresAt.getTime() > Date.now() + ACCESS_TOKEN_REFRESH_MARGIN_MS
+  ) {
+    return decryptGoogleHealthToken(connection.accessToken);
+  }
+
+  const oauth2Client = createGoogleHealthOAuthClient();
+
+  oauth2Client.setCredentials({
+    refresh_token: decryptGoogleHealthToken(connection.refreshToken),
+  });
+
+  const result = await oauth2Client.getAccessToken();
+
+  if (!result.token) {
+    throw new Error("Failed to refresh Google Health access token");
+  }
+
+  await prisma.googleHealthConnection.update({
+    where: { userId: user.id },
+    data: {
+      accessToken: encryptGoogleHealthToken(result.token),
+      expiresAt: oauth2Client.credentials.expiry_date
+        ? new Date(oauth2Client.credentials.expiry_date)
+        : null,
+    },
+  });
+
+  return result.token;
 }
