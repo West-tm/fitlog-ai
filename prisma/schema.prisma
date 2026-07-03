@@ -26,7 +26,7 @@ model Prompt {
   content   String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  user      User       @relation(fields: [userId], references: [id])
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   feedbacks Feedback[]
 }
@@ -36,7 +36,7 @@ model Message {
   content   String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  user      User       @relation(fields: [userId], references: [id])
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   feedbacks Feedback[]
 }
@@ -46,7 +46,7 @@ model Feedback {
   content        String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  user           User     @relation(fields: [userId], references: [id])
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId         String
   prompt         Prompt?  @relation(fields: [promptId], references: [id])
   promptId       String?
@@ -65,5 +65,5 @@ model GoogleHealthConnection {
   expiresAt    DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  user         User      @relation(fields: [userId], references: [id])
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

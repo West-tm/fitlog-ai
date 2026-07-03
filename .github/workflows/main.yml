@@ -5,12 +5,12 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    env:
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
     steps:
       - uses: actions/checkout@v4
@@ -22,6 +22,14 @@ jobs:
 
       - run: npm install
       - run: npm run build
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GOOGLE_HEALTH_CLIENT_ID: ${{ secrets.GOOGLE_HEALTH_CLIENT_ID }}
+          GOOGLE_HEALTH_CLIENT_SECRET: ${{ secrets.GOOGLE_HEALTH_CLIENT_SECRET }}
+          GOOGLE_HEALTH_REDIRECT_URI: ${{ secrets.GOOGLE_HEALTH_REDIRECT_URI }}
+          GOOGLE_HEALTH_SCOPES: ${{ secrets.GOOGLE_HEALTH_SCOPES }}
+          GOOGLE_HEALTH_API_BASE_URL: ${{ secrets.GOOGLE_HEALTH_API_BASE_URL }}
+          GOOGLE_HEALTH_TOKEN_ENCRYPTION_KEY: ${{ secrets.GOOGLE_HEALTH_TOKEN_ENCRYPTION_KEY }}
 
   lint:
     runs-on: ubuntu-latest

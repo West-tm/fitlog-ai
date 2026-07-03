@@ -6,20 +6,26 @@ import { prisma } from "@/lib/prisma/prisma";
 
 export const runtime = "nodejs";
 
-const GOOGLE_OAUTH_REVOKE_URL = "https://oauth2.googleapis.com/revoke";
-
-function redirectToIntegrations(request: NextRequest, notice: string) {
+const redirectToIntegrations = (request: NextRequest, notice: string) => {
   const redirectUrl = new URL("/settings/integrations", request.url);
 
   redirectUrl.searchParams.set("notice", notice);
 
   return NextResponse.redirect(redirectUrl, { status: 303 });
-}
+};
+
+const deleteGoogleHealthConnection = async (id: string) => {
+  await prisma.googleHealthConnection.delete({
+    where: { id },
+  });
+};
 
 export async function POST(request: NextRequest) {
+  const GOOGLE_OAUTH_REVOKE_URL = "https://oauth2.googleapis.com/revoke";
+
   const user = await getUser();
 
-  const connection = await prisma.googleHealthConnection.findFirst({
+  const connection = await prisma.googleHealthConnection.findUnique({
     where: { userId: user.id },
     select: {
       id: true,
@@ -48,9 +54,7 @@ export async function POST(request: NextRequest) {
 
       if (error.error === "invalid_token") {
         // Google 側ではもう無効なので、アプリ側の記録も消してよい
-        await prisma.googleHealthConnection.delete({
-          where: { userId: user.id },
-        });
+        await deleteGoogleHealthConnection(connection.id);
 
         return redirectToIntegrations(request, "google-health-disconnected");
       }
@@ -61,9 +65,7 @@ export async function POST(request: NextRequest) {
     return redirectToIntegrations(request, "google-health-disconnect-failed");
   }
 
-  await prisma.googleHealthConnection.delete({
-    where: { userId: user.id },
-  });
+  await deleteGoogleHealthConnection(connection.id);
 
   return redirectToIntegrations(request, "google-health-disconnected");
 }

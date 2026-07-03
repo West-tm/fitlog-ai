@@ -64,41 +64,6 @@ function getIntegrationMessage({
     };
   }
 
-  if (error === "authorization-code-missing") {
-    return {
-      type: "error",
-      text: "Google Health の認証コードを取得できませんでした。",
-    };
-  }
-
-  if (error === "invalid-oauth-state") {
-    return {
-      type: "error",
-      text: "Google Health の OAuth の state パラメータが無効でした。",
-    };
-  }
-
-  if (error === "token-exchange-failed") {
-    return {
-      type: "error",
-      text: "Google Health の認証トークンを取得できませんでした。",
-    };
-  }
-
-  if (error === "refresh-token-missing") {
-    return {
-      type: "error",
-      text: "Google Health の継続利用に必要な認証情報を取得できませんでした。",
-    };
-  }
-
-  if (error === "google-health-upsert-failed") {
-    return {
-      type: "error",
-      text: "Google Health の新規作成・更新に失敗しました。時間をおいて再度お試しください。",
-    };
-  }
-
   if (error) {
     return {
       type: "error",
@@ -121,11 +86,9 @@ export default async function SettingsIntegrationsPage({
     notice: getFirstParam(notice),
   });
 
-  const googleHealthConnection = await prisma.googleHealthConnection.findFirst({
-    where: {
-      userId: user.id,
-    },
-  });
+  const googleHealthConnection = await prisma.googleHealthConnection.findUnique(
+    { where: { userId: user.id } },
+  );
 
   const isConnected = !!googleHealthConnection;
 
