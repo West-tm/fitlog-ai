@@ -16,6 +16,7 @@ const privateNavItems = [
   { href: "/prompts", label: "指示文" },
   { href: "/feedbacks", label: "AI回答" },
   { href: "/health", label: "健康状況" },
+  { href: "/health/weight", label: "体重" },
   { href: "/settings/integrations", label: "外部サービス連携" },
 ];
 
