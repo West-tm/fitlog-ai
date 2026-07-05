@@ -6,12 +6,12 @@ import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth/get-user";
 import { getGoogleHealthConnectionSelectId } from "@/lib/google-health/actions";
 import {
-  googleHealthWeightLogs,
+  GoogleHealthWeightLogs,
   googleHealthWeightSchema,
 } from "@/lib/google-health/validations";
 import { prisma } from "@/lib/prisma/prisma";
 
-export async function upsertBodyLogs(logs: googleHealthWeightLogs) {
+export async function upsertBodyLogs(logs: GoogleHealthWeightLogs) {
   const parsedLogs = googleHealthWeightSchema.parse(logs);
 
   const user = await getUser();

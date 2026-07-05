@@ -80,7 +80,7 @@ export async function fetchGoogleHealthJson(path: string) {
   }
 
   const data: unknown = await response.json();
-  const googleHealthWeightLogs = googleHealthWeightSchema.parse(data);
+  const parsedGoogleHealthWeight = googleHealthWeightSchema.parse(data);
 
-  await upsertBodyLogs(googleHealthWeightLogs);
+  await upsertBodyLogs(parsedGoogleHealthWeight);
 }

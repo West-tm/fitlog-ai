@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const CivilDateTimeSchema = z.object({
+const civilDateTimeSchema = z.object({
   date: z.object({
     year: z.int(),
     month: z.int(),
@@ -11,11 +11,11 @@ const CivilDateTimeSchema = z.object({
 export const googleHealthWeightSchema = z.object({
   rollupDataPoints: z.array(
     z.object({
-      civilStartTime: CivilDateTimeSchema,
-      civilEndTime: CivilDateTimeSchema,
+      civilStartTime: civilDateTimeSchema,
+      civilEndTime: civilDateTimeSchema,
       weight: z.object({ weightGramsAvg: z.int() }),
     }),
   ),
 });
 
-export type googleHealthWeightLogs = z.infer<typeof googleHealthWeightSchema>;
+export type GoogleHealthWeightLogs = z.infer<typeof googleHealthWeightSchema>;
