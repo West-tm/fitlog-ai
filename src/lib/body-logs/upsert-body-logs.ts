@@ -1,4 +1,4 @@
-"use server";
+import "server-only";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -11,8 +11,14 @@ import {
 } from "@/lib/google-health/validations";
 import { prisma } from "@/lib/prisma/prisma";
 
-export async function upsertBodyLogs(logs: GoogleHealthWeightLogs) {
-  const parsedLogs = googleHealthWeightSchema.parse(logs);
+const toRecordDate = (date: { year: number; month: number; day: number }) => {
+  return new Date(Date.UTC(date.year, date.month - 1, date.day));
+};
+
+export async function upsertBodyLogsFromGoogleHealth(
+  logs: GoogleHealthWeightLogs,
+) {
+  const parsedBodyLogs = googleHealthWeightSchema.parse(logs);
 
   const user = await getUser();
 
@@ -22,12 +28,8 @@ export async function upsertBodyLogs(logs: GoogleHealthWeightLogs) {
     redirect("/settings/integrations?notice=google-health-not-connected");
   }
 
-  const toRecordDate = (date: { year: number; month: number; day: number }) => {
-    return new Date(Date.UTC(date.year, date.month - 1, date.day));
-  };
-
   await prisma.$transaction(
-    parsedLogs.rollupDataPoints.map((log) => {
+    parsedBodyLogs.rollupDataPoints.map((log) => {
       const measuredOn = toRecordDate(log.civilStartTime.date);
 
       const bodyLogData = {
@@ -53,29 +55,4 @@ export async function upsertBodyLogs(logs: GoogleHealthWeightLogs) {
   );
 
   revalidatePath("/health/weight");
-}
-
-export async function getBodyLogs() {
-  const user = await getUser();
-
-  const connection = await getGoogleHealthConnectionSelectId();
-
-  if (!connection) {
-    redirect("/settings/integrations?notice=google-health-not-connected");
-  }
-
-  const bodyLogs = await prisma.bodyLog.findMany({
-    where: {
-      userId: user.id,
-      measuredOn: {
-        gte: new Date(Date.UTC(2026, 5, 4)),
-        lte: new Date(Date.UTC(2026, 6, 4)),
-      },
-    },
-    orderBy: {
-      measuredOn: "asc",
-    },
-  });
-
-  return bodyLogs;
 }

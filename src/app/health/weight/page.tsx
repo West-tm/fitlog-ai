@@ -1,7 +1,7 @@
-import { getBodyLogs } from "@/app/actions/bodyLogs";
+import { getBodyLogs } from "@/app/actions/body-logs";
+import GoogleHealthWeightSyncForm from "@/components/health/google-health-weight-sync-form";
 import { WeightChart } from "@/components/health/weight-chart";
-import { Button } from "@/components/ui/button";
-import { fetchGoogleHealthJson } from "@/lib/google-health/actions";
+import { syncGoogleHealthWeightLogs } from "@/lib/google-health/actions";
 
 export default async function GoogleHealthWeightPage() {
   const bodyLogs = await getBodyLogs();
@@ -20,18 +20,15 @@ export default async function GoogleHealthWeightPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-semibold">
-        Google Health API Weight TestPage
+        Google Health API 体重データ取得
       </h1>
 
-      <form
-        action={fetchGoogleHealthJson.bind(
+      <GoogleHealthWeightSyncForm
+        onSubmitAction={syncGoogleHealthWeightLogs.bind(
           null,
           "/users/me/dataTypes/weight/dataPoints:dailyRollUp",
         )}
-      >
-        <p>Google Health API Weightデータ取得</p>
-        <Button className="cursor-pointer">データ取得</Button>
-      </form>
+      />
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">体重推移</h2>

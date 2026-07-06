@@ -2,13 +2,16 @@
 
 import { z } from "zod";
 
-import { upsertBodyLogs } from "@/app/actions/bodyLogs";
-
 import { getUser } from "../auth/get-user";
+import { upsertBodyLogsFromGoogleHealth } from "../body-logs/upsert-body-logs";
 import { prisma } from "../prisma/prisma";
 import { googleHealthEnv } from "./env";
 import { getGoogleHealthAccessToken } from "./google-health";
-import { googleHealthWeightSchema } from "./validations";
+import {
+  googleHealthWeightSyncFormSchema,
+  GoogleHealthWeightSyncFormValues,
+  googleHealthWeightSchema,
+} from "./validations";
 
 export async function getGoogleHealthConnectionSelectId() {
   const user = await getUser();
@@ -55,10 +58,45 @@ export async function getGoogleHealthIdentity(accessToken: string) {
   }
 }
 
-export async function fetchGoogleHealthJson(path: string) {
-  const CivilTimeInterval = {
-    start: { date: { year: 2026, month: 6, day: 4 } },
-    end: { date: { year: 2026, month: 7, day: 4 } },
+export async function syncGoogleHealthWeightLogs(
+  path: string,
+  values: GoogleHealthWeightSyncFormValues,
+) {
+  const parsedValues = googleHealthWeightSyncFormSchema.parse(values);
+
+  const googleHealthData = await fetchFromGoogleHealth(path, parsedValues);
+
+  if ("error" in googleHealthData) {
+    return { success: false, error: googleHealthData.error };
+  }
+
+  await upsertBodyLogsFromGoogleHealth(googleHealthData);
+
+  return { success: true };
+}
+
+async function fetchFromGoogleHealth(
+  path: string,
+  values: GoogleHealthWeightSyncFormValues,
+) {
+  const { startDate, endDate } = values;
+
+  const toCivilDate = (dateString: string, addDays: number = 0) => {
+    const [year, month, day] = dateString.split("-").map(Number);
+    const addDate = new Date(year, month - 1, day + addDays);
+
+    return {
+      date: {
+        year: addDate.getFullYear(),
+        month: addDate.getMonth() + 1,
+        day: addDate.getDate(),
+      },
+    };
+  };
+
+  const civilTimeInterval = {
+    start: toCivilDate(startDate),
+    end: toCivilDate(endDate, 1),
   };
 
   const accessToken = await getGoogleHealthAccessToken();
@@ -70,17 +108,19 @@ export async function fetchGoogleHealthJson(path: string) {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ range: CivilTimeInterval }),
+    body: JSON.stringify({ range: civilTimeInterval }),
     cache: "no-store",
     signal: AbortSignal.timeout(10_000),
   });
 
   if (!response.ok) {
-    throw new Error("Google Health API request failed");
+    return {
+      error:
+        "Google Health API のデータ取得に失敗しました。時間をおいて再度お試しください。",
+    };
   }
 
-  const data: unknown = await response.json();
-  const parsedGoogleHealthWeight = googleHealthWeightSchema.parse(data);
+  const data = await response.json();
 
-  await upsertBodyLogs(parsedGoogleHealthWeight);
+  return googleHealthWeightSchema.parse(data);
 }
