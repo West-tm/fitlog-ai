@@ -1,6 +1,6 @@
 import { getBodyLogs } from "@/app/actions/body-logs";
 import GoogleHealthWeightSyncForm from "@/components/health/google-health-weight-sync-form";
-import { WeightChart } from "@/components/health/weight-chart";
+import ChartAreaInteractive from "@/components/health/weight-chart-area-interactive";
 import { syncGoogleHealthWeightLogs } from "@/lib/google-health/actions";
 
 export default async function GoogleHealthWeightPage() {
@@ -30,16 +30,7 @@ export default async function GoogleHealthWeightPage() {
         )}
       />
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">体重推移</h2>
-        <WeightChart data={chartData} />
-      </section>
-
-      {bodyLogs.map((log) => (
-        <div key={log.id}>
-          {log.weightGramsAvg}：{log.measuredOn.toLocaleDateString()}
-        </div>
-      ))}
+      <ChartAreaInteractive chartData={chartData} />
     </div>
   );
 }
