@@ -20,10 +20,12 @@ export const googleHealthWeightSchema = z.object({
 
 export type GoogleHealthWeightLogs = z.infer<typeof googleHealthWeightSchema>;
 
-const toDate = (dateString: string) => {
+const toUtcDay = (dateString: string) => {
+  const DAY_MS = 24 * 60 * 60 * 1000;
+
   const [year, month, day] = dateString.split("-").map(Number);
 
-  return new Date(year, month - 1, day);
+  return Date.UTC(year, month - 1, day) / DAY_MS;
 };
 
 export const googleHealthWeightSyncFormSchema = z
@@ -32,8 +34,8 @@ export const googleHealthWeightSyncFormSchema = z
     endDate: z.iso.date("終了日を入力してください"),
   })
   .superRefine((data, ctx) => {
-    const startDate = toDate(data.startDate);
-    const endDate = toDate(data.endDate);
+    const startDate = toUtcDay(data.startDate);
+    const endDate = toUtcDay(data.endDate);
 
     if (endDate < startDate) {
       ctx.addIssue({
@@ -45,8 +47,7 @@ export const googleHealthWeightSyncFormSchema = z
       return;
     }
 
-    const DAY_MS = 24 * 60 * 60 * 1000;
-    const diffDays = (endDate.getTime() - startDate.getTime()) / DAY_MS;
+    const diffDays = endDate - startDate;
 
     if (diffDays > 90) {
       ctx.addIssue({
