@@ -8,9 +8,9 @@ import { prisma } from "../prisma/prisma";
 import { googleHealthEnv } from "./env";
 import { getGoogleHealthAccessToken } from "./google-health";
 import {
+  googleHealthWeightSchema,
   googleHealthWeightSyncFormSchema,
   GoogleHealthWeightSyncFormValues,
-  googleHealthWeightSchema,
 } from "./validations";
 
 export async function getGoogleHealthConnectionSelectId() {
