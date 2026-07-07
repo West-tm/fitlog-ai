@@ -139,10 +139,7 @@ export default async function SettingsIntegrationsPage({
               <p className="font-semibold">Google Health API 体重データ取得</p>
 
               <GoogleHealthWeightSyncForm
-                onSubmitAction={syncGoogleHealthWeightLogs.bind(
-                  null,
-                  "/users/me/dataTypes/weight/dataPoints:dailyRollUp",
-                )}
+                onSubmitAction={syncGoogleHealthWeightLogs}
               />
             </>
           ) : (

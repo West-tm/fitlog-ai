@@ -58,13 +58,18 @@ export async function getGoogleHealthIdentity(accessToken: string) {
   }
 }
 
+const GOOGLE_HEALTH_WEIGHT_DAILY_ROLLUP_PATH =
+  "/users/me/dataTypes/weight/dataPoints:dailyRollUp" as const;
+
 export async function syncGoogleHealthWeightLogs(
-  path: string,
   values: GoogleHealthWeightSyncFormValues,
 ) {
   const parsedValues = googleHealthWeightSyncFormSchema.parse(values);
 
-  const googleHealthData = await fetchFromGoogleHealth(path, parsedValues);
+  const googleHealthData = await fetchFromGoogleHealth(
+    GOOGLE_HEALTH_WEIGHT_DAILY_ROLLUP_PATH,
+    parsedValues,
+  );
 
   if ("error" in googleHealthData) {
     return { success: false, error: googleHealthData.error };
