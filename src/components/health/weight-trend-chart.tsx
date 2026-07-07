@@ -48,7 +48,7 @@ const formatDateLabel = (date: string) => {
   return `${Number(month)}月${Number(day)}日`;
 };
 
-export default function ChartAreaInteractive({ chartData }: WeightChartProps) {
+export default function WeightTrendChart({ chartData }: WeightChartProps) {
   const [timeRange, setTimeRange] = useState("90");
 
   if (chartData.length === 0) {

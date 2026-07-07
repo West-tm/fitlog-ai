@@ -1,5 +1,5 @@
 import { getBodyLogs } from "@/app/actions/body-logs";
-import ChartAreaInteractive from "@/components/health/weight-chart-area-interactive";
+import WeightTrendChart from "@/components/health/weight-trend-chart";
 
 export default async function GoogleHealthWeightPage() {
   const bodyLogs = await getBodyLogs();
@@ -21,7 +21,7 @@ export default async function GoogleHealthWeightPage() {
         Google Health API 体重推移データ
       </h1>
 
-      <ChartAreaInteractive chartData={chartData} />
+      <WeightTrendChart chartData={chartData} />
     </div>
   );
 }
