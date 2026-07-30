@@ -28,7 +28,7 @@ const today = date.toLocaleDateString("sv-SE", {
   timeZone: "Asia/Tokyo",
 });
 
-date.setDate(date.getDate() - 90);
+date.setDate(date.getDate() - 89);
 const ninetyDaysAgo = date.toLocaleDateString("sv-SE", {
   timeZone: "Asia/Tokyo",
 });
