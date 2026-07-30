@@ -1,5 +1,6 @@
 import { Plug } from "lucide-react";
 
+import GoogleHealthWeightSyncForm from "@/components/health/google-health-weight-sync-form";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,7 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { getUser } from "@/lib/auth/get-user";
+import { syncGoogleHealthWeightLogs } from "@/lib/google-health/actions";
 import { prisma } from "@/lib/prisma/prisma";
 
 type Props = {
@@ -130,6 +133,14 @@ export default async function SettingsIntegrationsPage({
                   Google Health 連携を解除する
                 </Button>
               </form>
+
+              <Separator />
+
+              <p className="font-semibold">Google Health API 体重データ取得</p>
+
+              <GoogleHealthWeightSyncForm
+                onSubmitAction={syncGoogleHealthWeightLogs}
+              />
             </>
           ) : (
             <>
