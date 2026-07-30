@@ -8,10 +8,16 @@ export async function geminiGenerateContent(
   promptContent: string,
   messageContent: string,
   isUseGoogleSearch: boolean,
+  bodyLogs: { date: string; weightKg: number }[],
 ): Promise<GeminiGenerateContentResult> {
   const config = isUseGoogleSearch
     ? { tools: [{ googleSearch: {} }] }
     : undefined;
+
+  const bodyLogsString =
+    bodyLogs.length > 0
+      ? bodyLogs.map((log) => `${log.date}: ${log.weightKg}kg`).join("\n")
+      : "体重データはありません";
 
   try {
     const result = await gemini.models.generateContent({
@@ -21,6 +27,8 @@ export async function geminiGenerateContent(
         ${promptContent}
         #メッセージ
         ${messageContent}
+        #体重データ
+        ${bodyLogsString}
         `.trim(),
       config,
     });

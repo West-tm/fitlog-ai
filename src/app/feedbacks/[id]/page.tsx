@@ -81,6 +81,15 @@ export default async function FeedbackPage({
             <Separator />
 
             <div className="space-y-1">
+              <p className="text-muted-foreground">体重データ</p>
+              <p className="wrap-anywhere">
+                {`${feedback.startDate.toISOString().slice(0, 10)} ～ ${feedback.endDate.toISOString().slice(0, 10)}`}
+              </p>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-1">
               <p className="text-muted-foreground">メッセージ</p>
               <p className="wrap-anywhere">{message.content}</p>
             </div>

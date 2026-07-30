@@ -31,7 +31,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../ui/collapsible";
+import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { Separator } from "../ui/separator";
 import { Spinner } from "../ui/spinner";
 import { Textarea } from "../ui/textarea";
 
@@ -41,10 +43,27 @@ type Props = {
   defaultValues?: MessageFormValues;
 };
 
+const date = new Date();
+
+const today = date.toLocaleDateString("sv-SE", {
+  timeZone: "Asia/Tokyo",
+});
+
+date.setDate(date.getDate() - 89);
+const ninetyDaysAgo = date.toLocaleDateString("sv-SE", {
+  timeZone: "Asia/Tokyo",
+});
+
 export default function MessageForm({
   prompts,
   onSubmitAction,
-  defaultValues = { content: "", promptId: "", useGoogleSearch: false },
+  defaultValues = {
+    content: "",
+    promptId: "",
+    useGoogleSearch: false,
+    startDate: ninetyDaysAgo,
+    endDate: today,
+  },
 }: Props) {
   const {
     register,
@@ -154,6 +173,49 @@ export default function MessageForm({
           </div>
         </CollapsibleContent>
       </Collapsible>
+
+      <Separator />
+
+      <Field>
+        <FieldLabel>体重データ</FieldLabel>
+        <FieldDescription>
+          使用する体重データの期間を指定してください
+        </FieldDescription>
+
+        <div className="flex gap-2">
+          <Label className="w-12" htmlFor="startDate">
+            開始日
+          </Label>
+          <Input
+            className="w-40"
+            id="startDate"
+            type="date"
+            {...register("startDate")}
+            disabled={isPending}
+          />
+        </div>
+        {errors.startDate && (
+          <p className="text-destructive">{errors.startDate.message}</p>
+        )}
+
+        <div className="flex gap-2">
+          <Label className="w-12" htmlFor="endDate">
+            終了日
+          </Label>
+          <Input
+            className="w-40"
+            id="endDate"
+            type="date"
+            {...register("endDate")}
+            disabled={isPending}
+          />
+        </div>
+        {errors.endDate && (
+          <p className="text-destructive">{errors.endDate.message}</p>
+        )}
+      </Field>
+
+      <Separator />
 
       <div className="space-y-2">
         <Label htmlFor="content">メッセージ</Label>

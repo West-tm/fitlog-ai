@@ -38,6 +38,8 @@ export default async function EditFeedbackPage({
           content: message.content,
           promptId: feedback.promptId ?? "",
           useGoogleSearch: false,
+          startDate: feedback.startDate.toISOString().slice(0, 10),
+          endDate: feedback.endDate.toISOString().slice(0, 10),
         }}
       />
     </div>
