@@ -43,16 +43,17 @@ type Props = {
   defaultValues?: MessageFormValues;
 };
 
-const date = new Date();
-
-const today = date.toLocaleDateString("sv-SE", {
-  timeZone: "Asia/Tokyo",
-});
-
-date.setDate(date.getDate() - 89);
-const ninetyDaysAgo = date.toLocaleDateString("sv-SE", {
-  timeZone: "Asia/Tokyo",
-});
+function getDefaultDateRange() {
+  const date = new Date();
+  const endDate = date.toLocaleDateString("sv-SE", {
+    timeZone: "Asia/Tokyo",
+  });
+  date.setDate(date.getDate() - 89);
+  const startDate = date.toLocaleDateString("sv-SE", {
+    timeZone: "Asia/Tokyo",
+  });
+  return { startDate, endDate };
+}
 
 export default function MessageForm({
   prompts,
@@ -61,8 +62,7 @@ export default function MessageForm({
     content: "",
     promptId: "",
     useGoogleSearch: false,
-    startDate: ninetyDaysAgo,
-    endDate: today,
+    ...getDefaultDateRange(),
   },
 }: Props) {
   const {
