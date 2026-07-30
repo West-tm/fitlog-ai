@@ -42,7 +42,7 @@ export async function getPrompt(id: string) {
   return prompt;
 }
 
-export async function getPromptWithFeedbackCount(id: string) {
+export async function getPromptWithMessageCount(id: string) {
   const user = await getUser();
 
   const prompt = await prisma.prompt.findFirst({
@@ -50,7 +50,7 @@ export async function getPromptWithFeedbackCount(id: string) {
     include: {
       _count: {
         select: {
-          feedbacks: true,
+          messages: true,
         },
       },
     },
@@ -74,7 +74,7 @@ export async function getPrompts() {
   return prompts;
 }
 
-export async function getPromptsWithFeedbackCount() {
+export async function getPromptsWithMessageCount() {
   const user = await getUser();
 
   const prompts = await prisma.prompt.findMany({
@@ -87,7 +87,7 @@ export async function getPromptsWithFeedbackCount() {
     include: {
       _count: {
         select: {
-          feedbacks: true,
+          messages: true,
         },
       },
     },

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getFeedbacksByPromptId } from "@/app/actions/feedbacks";
-import { getPromptWithFeedbackCount } from "@/app/actions/prompts";
+import { getPromptWithMessageCount } from "@/app/actions/prompts";
 import DeletePromptButton from "@/components/prompts/delete-prompt-button";
 import PromptContentCollapsible from "@/components/prompts/prompt-content-collapsible";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ export default async function PromptPage({
   params,
 }: PageProps<"/prompts/[id]">) {
   const { id } = await params;
-  const prompt = await getPromptWithFeedbackCount(id);
+  const prompt = await getPromptWithMessageCount(id);
 
   if (!prompt) {
     notFound();
@@ -71,7 +71,7 @@ export default async function PromptPage({
             <div className="flex gap-4">
               <div className="space-y-1">
                 <dt className="w-14 text-muted-foreground">利用回数</dt>
-                <dd>{prompt._count.feedbacks} 回</dd>
+                <dd>{prompt._count.messages} 回</dd>
               </div>
               <Separator orientation="vertical" />
 

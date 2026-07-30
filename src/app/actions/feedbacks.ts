@@ -47,21 +47,31 @@ export async function generateFeedback(values: MessageFormValues) {
   }
 
   const feedback = await prisma.$transaction(async (tx) => {
+    const chat = await tx.chat.create({
+      data: {
+        title:
+          result.data.content.trim().length > 0
+            ? result.data.content.trim().slice(0, 40)
+            : "新しいチャット",
+        userId: user.id,
+      },
+    });
     const message = await tx.message.create({
       data: {
         content: result.data.content,
+        startDate: new Date(result.data.startDate),
+        endDate: new Date(result.data.endDate),
         userId: user.id,
+        chatId: chat.id,
+        promptId: prompt.id,
       },
     });
     const feedback = await tx.feedback.create({
       data: {
+        content: generateResult.content,
+        promptSnapshot: prompt.content,
         userId: user.id,
         messageId: message.id,
-        promptId: prompt.id,
-        promptSnapshot: prompt.content,
-        content: generateResult.content,
-        startDate: new Date(result.data.startDate),
-        endDate: new Date(result.data.endDate),
       },
     });
 
@@ -103,7 +113,9 @@ export async function getFeedbacksByPromptId(promptId: string) {
   const feedbacks = await prisma.feedback.findMany({
     where: {
       userId: user.id,
-      promptId,
+      message: {
+        promptId,
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -156,17 +168,17 @@ export async function updateFeedback(
       where: { id: feedback.messageId },
       data: {
         content: result.data.content,
+        startDate: new Date(result.data.startDate),
+        endDate: new Date(result.data.endDate),
+        promptId: prompt.id,
       },
     });
 
     await tx.feedback.update({
       where: { id: feedback.id },
       data: {
-        promptId: prompt.id,
         content: generateResult.content,
         promptSnapshot: prompt.content,
-        startDate: new Date(result.data.startDate),
-        endDate: new Date(result.data.endDate),
       },
     });
   });
