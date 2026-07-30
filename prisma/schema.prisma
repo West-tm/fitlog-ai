@@ -54,6 +54,8 @@ model Feedback {
   promptSnapshot String
   message        Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
   messageId      String
+  startDate      DateTime @db.Date
+  endDate        DateTime @db.Date
 }
 
 model GoogleHealthConnection {

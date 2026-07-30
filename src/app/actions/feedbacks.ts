@@ -11,6 +11,7 @@ import {
   updateMessageSchema,
 } from "@/lib/validations/messages";
 
+import { getBodyLogsByStartDateAndEndDate } from "./body-logs";
 import { geminiGenerateContent } from "./gemini";
 import { getPrompt } from "./prompts";
 
@@ -29,10 +30,16 @@ export async function generateFeedback(values: MessageFormValues) {
     return { error: "指示文が見つかりません。" };
   }
 
+  const bodyLogs = await getBodyLogsByStartDateAndEndDate(
+    new Date(result.data.startDate),
+    new Date(result.data.endDate),
+  );
+
   const generateResult = await geminiGenerateContent(
     prompt.content,
     result.data.content,
     result.data.useGoogleSearch,
+    bodyLogs,
   );
 
   if (!generateResult.ok) {
@@ -53,6 +60,8 @@ export async function generateFeedback(values: MessageFormValues) {
         promptId: prompt.id,
         promptSnapshot: prompt.content,
         content: generateResult.content,
+        startDate: new Date(result.data.startDate),
+        endDate: new Date(result.data.endDate),
       },
     });
 
@@ -126,10 +135,16 @@ export async function updateFeedback(
     return { error: "AI回答が見つかりません。" };
   }
 
+  const bodyLogs = await getBodyLogsByStartDateAndEndDate(
+    new Date(result.data.startDate),
+    new Date(result.data.endDate),
+  );
+
   const generateResult = await geminiGenerateContent(
     prompt.content,
     result.data.content,
     result.data.useGoogleSearch,
+    bodyLogs,
   );
 
   if (!generateResult.ok) {
@@ -150,6 +165,8 @@ export async function updateFeedback(
         promptId: prompt.id,
         content: generateResult.content,
         promptSnapshot: prompt.content,
+        startDate: new Date(result.data.startDate),
+        endDate: new Date(result.data.endDate),
       },
     });
   });
