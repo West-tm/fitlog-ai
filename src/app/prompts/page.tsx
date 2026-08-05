@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { PROMPT_REQUIRED_NOTICE } from "@/lib/notice";
 
-import { getPromptsWithFeedbackCount } from "../actions/prompts";
+import { getPromptsWithMessageCount } from "../actions/prompts";
 
 type Props = {
   searchParams: Promise<{
@@ -25,7 +25,7 @@ export default async function PromptsPage({ searchParams }: Props) {
   const currentNotice = Array.isArray(notice) ? notice[0] : notice;
   const isPromptRequiredNotice = currentNotice === PROMPT_REQUIRED_NOTICE;
 
-  const prompts = await getPromptsWithFeedbackCount();
+  const prompts = await getPromptsWithMessageCount();
 
   return (
     <div className="space-y-6">
@@ -67,10 +67,10 @@ export default async function PromptsPage({ searchParams }: Props) {
               </TableCell>
               <TableCell
                 className={
-                  prompt._count.feedbacks ? "" : "text-muted-foreground"
+                  prompt._count.messages ? "" : "text-muted-foreground"
                 }
               >
-                {prompt._count.feedbacks || "-"}
+                {prompt._count.messages || "-"}
               </TableCell>
               <TableCell className="hidden text-muted-foreground sm:table-cell">
                 {prompt.updatedAt.toLocaleDateString("ja-JP", {

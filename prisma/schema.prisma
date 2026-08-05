@@ -19,26 +19,43 @@ model User {
   feedbacks               Feedback[]
   googleHealthConnections GoogleHealthConnection[]
   bodyLogs                BodyLog[]
+  chats                   Chat[]
 }
 
 model Prompt {
-  id        String     @id @default(uuid())
+  id        String    @id @default(uuid())
   title     String
   content   String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  feedbacks Feedback[]
+  messages  Message[]
+}
+
+model Chat {
+  id        String    @id @default(uuid())
+  title     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  messages  Message[]
 }
 
 model Message {
   id        String     @id @default(uuid())
   content   String
+  startDate DateTime   @db.Date
+  endDate   DateTime   @db.Date
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
+  prompt    Prompt?    @relation(fields: [promptId], references: [id], onDelete: SetNull)
+  promptId  String?
+  chat      Chat       @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId    String
   feedbacks Feedback[]
 }
 
@@ -49,13 +66,9 @@ model Feedback {
   updatedAt      DateTime @updatedAt
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId         String
-  prompt         Prompt?  @relation(fields: [promptId], references: [id])
-  promptId       String?
   promptSnapshot String
   message        Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
   messageId      String
-  startDate      DateTime @db.Date
-  endDate        DateTime @db.Date
 }
 
 model GoogleHealthConnection {

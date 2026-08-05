@@ -34,7 +34,7 @@ export default async function FeedbackPage({
   }
 
   const promptTitle =
-    (feedback.promptId && (await getPrompt(feedback.promptId))?.title) ??
+    (message.promptId && (await getPrompt(message.promptId))?.title) ??
     "削除済みの指示文";
 
   return (
@@ -83,7 +83,7 @@ export default async function FeedbackPage({
             <div className="space-y-1">
               <p className="text-muted-foreground">体重データ</p>
               <p className="wrap-anywhere">
-                {`${feedback.startDate.toISOString().slice(0, 10)} ～ ${feedback.endDate.toISOString().slice(0, 10)}`}
+                {`${message.startDate.toISOString().slice(0, 10)} ～ ${message.endDate.toISOString().slice(0, 10)}`}
               </p>
             </div>
 

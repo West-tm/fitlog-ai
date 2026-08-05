@@ -36,10 +36,10 @@ export default async function EditFeedbackPage({
         onSubmitAction={updateFeedbackAction}
         defaultValues={{
           content: message.content,
-          promptId: feedback.promptId ?? "",
+          promptId: message.promptId ?? "",
           useGoogleSearch: false,
-          startDate: feedback.startDate.toISOString().slice(0, 10),
-          endDate: feedback.endDate.toISOString().slice(0, 10),
+          startDate: message.startDate.toISOString().slice(0, 10),
+          endDate: message.endDate.toISOString().slice(0, 10),
         }}
       />
     </div>
