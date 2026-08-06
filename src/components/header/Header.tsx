@@ -31,7 +31,10 @@ export default async function Header() {
 
   return (
     <header className="border-b">
-      <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">
+      <div
+        className="mx-auto flex w-full max-w-5xl items-center justify-between
+          gap-6 px-4 py-3 sm:px-6 lg:px-8"
+      >
         <Link href={"/"} className="text-lg font-bold hover:opacity-70">
           FitLog AI
         </Link>

@@ -66,7 +66,8 @@ export function SigninForm({
                   <FieldLabel htmlFor="password">パスワード</FieldLabel>
                   <Link
                     href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                    className="ml-auto inline-block text-sm underline-offset-4
+                      hover:underline"
                   >
                     パスワードをお忘れですか？
                   </Link>
