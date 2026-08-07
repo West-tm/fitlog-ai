@@ -6,6 +6,7 @@ const config = {
     "prettier-plugin-merge",
   ],
   tailwindStylesheet: "./src/app/globals.css",
+  tailwindFunctions: ["cn"],
   printWidth: 80,
 };
 
