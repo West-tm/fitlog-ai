@@ -1,24 +1,14 @@
-import { LogOut } from "lucide-react";
 import Link from "next/link";
 
-import { signoutAndRedirect } from "@/app/actions/auth";
 import { createClient } from "@/lib/supabase/server";
 
 import { Button } from "../ui/button";
+import { SidebarTrigger } from "../ui/sidebar";
 import { MobileNav } from "./mobile-nav";
 
 const publicNavItems = [
   { href: "/auth/signup", label: "新規登録" },
   { href: "/auth/signin", label: "ログイン" },
-];
-
-const privateNavItems = [
-  { href: "/prompts", label: "指示文" },
-  { href: "/chats", label: "チャット" },
-  { href: "/feedbacks", label: "AI回答" },
-  { href: "/health", label: "健康状況" },
-  { href: "/health/weight", label: "体重" },
-  { href: "/settings/integrations", label: "外部サービス連携" },
 ];
 
 export default async function Header() {
@@ -27,39 +17,28 @@ export default async function Header() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const navItems = user ? privateNavItems : publicNavItems;
-
   return (
     <header className="border-b">
-      <div
-        className="mx-auto flex w-full max-w-5xl items-center justify-between
-          gap-6 px-4 py-3 sm:px-6 lg:px-8"
-      >
-        <Link href={"/"} className="text-lg font-bold hover:opacity-70">
-          FitLog AI
-        </Link>
-
-        <nav className="hidden items-center justify-center gap-2 md:flex">
-          {navItems.map((item) => (
-            <Button key={item.href} asChild variant="ghost">
-              <Link href={item.href}>{item.label}</Link>
-            </Button>
-          ))}
-
-          {user && (
-            <form action={signoutAndRedirect}>
-              <Button variant="ghost" className="w-full justify-start">
-                <LogOut />
-                ログアウト
+      {user ? (
+        <SidebarTrigger className="h-14 w-14 shrink-0 cursor-pointer" />
+      ) : (
+        <div
+          className="mx-auto flex w-full max-w-5xl items-center gap-6 px-4 py-3
+            sm:px-6 md:justify-between lg:px-8"
+        >
+          <MobileNav navItems={publicNavItems} className="md:hidden" />
+          <Link href={"/"} className="text-lg font-bold hover:opacity-70">
+            FitLog AI
+          </Link>
+          <nav className="hidden items-center justify-center gap-2 md:flex">
+            {publicNavItems.map((item) => (
+              <Button key={item.href} asChild variant="ghost">
+                <Link href={item.href}>{item.label}</Link>
               </Button>
-            </form>
-          )}
-        </nav>
-
-        <div className="md:hidden">
-          <MobileNav navItems={navItems} isSignedIn={!!user} />
+            ))}
+          </nav>
         </div>
-      </div>
+      )}
     </header>
   );
 }
