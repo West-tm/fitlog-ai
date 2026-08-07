@@ -10,13 +10,26 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   SidebarGroup,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
+import { DeleteChatMenuItem } from "./delete-chat-menu-item";
+import { RenameChatMenuItem } from "./rename-chat-menu-item";
+
 export function NavChats({ chats }: { chats: Chat[] }) {
+  const { isMobile } = useSidebar();
+
   return (
     <SidebarGroup
       className="truncate overflow-hidden transition-opacity duration-200
@@ -44,6 +57,26 @@ export function NavChats({ chats }: { chats: Chat[] }) {
                         <span className="truncate">{chat.title}</span>
                       </Link>
                     </SidebarMenuButton>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <SidebarMenuAction
+                          showOnHover
+                          className="aria-expanded:bg-muted"
+                        >
+                          <MoreHorizontalIcon />
+                          <span className="sr-only">More</span>
+                        </SidebarMenuAction>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        className="w-fit"
+                        side={isMobile ? "bottom" : "right"}
+                        align={isMobile ? "end" : "start"}
+                      >
+                        <RenameChatMenuItem id={chat.id} title={chat.title} />
+                        <DropdownMenuSeparator />
+                        <DeleteChatMenuItem id={chat.id} />
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </SidebarMenuItem>
                 ))}
                 <SidebarMenuItem>

@@ -42,7 +42,7 @@ export async function getPrompt(id: string) {
   return prompt;
 }
 
-export async function getPromptWithMessageCount(id: string) {
+export async function getPromptWithMessages(id: string) {
   const user = await getUser();
 
   const prompt = await prisma.prompt.findFirst({
@@ -51,6 +51,14 @@ export async function getPromptWithMessageCount(id: string) {
       _count: {
         select: {
           messages: true,
+        },
+      },
+      messages: {
+        include: {
+          chat: true,
+        },
+        orderBy: {
+          updatedAt: "desc",
         },
       },
     },
@@ -135,6 +143,5 @@ export async function deletePrompt(id: string) {
   }
 
   revalidatePath("/prompts");
-  revalidatePath("/feedbacks");
   redirect("/prompts");
 }
