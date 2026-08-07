@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
+import { getPromptsWithMessageCount } from "@/app/actions/prompts";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -11,8 +12,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PROMPT_REQUIRED_NOTICE } from "@/lib/notice";
-
-import { getPromptsWithMessageCount } from "@/app/actions/prompts";
 
 type Props = {
   searchParams: Promise<{

@@ -26,7 +26,7 @@ import {
 const privateNavItems = [
   {
     name: "新しいチャット",
-    url: "/feedbacks/new",
+    url: "/chats/new",
     icon: <MessageCircleIcon />,
   },
   {
@@ -34,12 +34,6 @@ const privateNavItems = [
     url: "/chats",
     icon: <HistoryIcon />,
   },
-  {
-    name: "AI回答一覧",
-    url: "/feedbacks",
-    icon: <HistoryIcon />,
-  },
-
   {
     name: "指示文",
     url: "/prompts",

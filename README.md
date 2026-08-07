@@ -35,29 +35,32 @@
 
 1. サインアップ、またはデモアカウントでログイン
 2. 「指示文」→「新規作成」から指示文を保存（例：「増量中なので強気な提案を」）
-3. 作成した「指示文」が保存され、「指示文 一覧」にリスト表示される
-   リストの各リンク先から詳細の確認、編集・削除ができる
-4. 「AI回答」→「新規作成」からメッセージを入力し、AI 回答を生成
-5. 生成されたAI回答が保存され、「AI回答 一覧」にリスト表示される
-   リストの各リンク先から詳細の確認、編集（AI回答の再生成）・削除ができる
+3. 「新しいチャット」からメッセージを入力し、指示文・期間・（任意で）外部検索を選んで AI 回答を生成
+4. チャット詳細でメッセージと AI 回答を確認。編集するとメッセージ更新と AI 回答の再生成ができる
+5. サイドバーやチャット一覧から履歴の確認・名前変更・削除ができる
+
+Google Health を連携している場合、指定期間の体重データが AI への入力に含まれます。
 
 ---
 
 ## 機能
 
-### v0.1（現在）
+### 実装済み
 
-- 認証：ログイン・サインアップ・ログアウト
-- 指示文管理：AI 回答生成時に使用する指示文の作成・詳細・編集・削除
-- AI 連携：指示文＋メッセージを Gemini API に送信してAIフィードバックを生成・保存・再生成・削除
-- AI回答の生成用メッセージ管理：テキスト形式で記録・編集・削除
+- 認証：ログイン・サインアップ・ログアウト（Supabase Auth）
+- 指示文管理：AI 回答生成時に使う指示文の作成・詳細・編集・削除
+- チャット管理：新規作成・履歴一覧・詳細・名前変更・削除
+- AI 連携：指示文＋メッセージ（＋任意の体重データ）を Gemini API に送信し、フィードバックを生成・保存・再生成
+- 外部検索：生成時に Google 検索ツールを使うかどうかを選択可能
+- Google Health 連携：連携・解除、体重データの同期、体重推移グラフ（Recharts）
 
-### v1.0（予定）
+### 今後
 
-- Google Health API 連携（体重推移・睡眠・歩数・消費カロリーの自動取得）
-- Web ダッシュボード（Recharts でグラフ表示）
+- 連続チャット（1 チャット内での複数メッセージ往復）
+- Google Health の睡眠・歩数・消費カロリーなど体重以外の取得
 - 筋トレ管理（Markdown 記録・ボリューム推移グラフ）
 - データ CSV / Markdown エクスポート
+- ダッシュボードの拡充
 
 ---
 
@@ -66,11 +69,16 @@
 ```mermaid
 erDiagram
   User ||--o{ Prompt : creates
+  User ||--o{ Chat : creates
   User ||--o{ Message : creates
   User ||--o{ Feedback : creates
+  User ||--o| GoogleHealthConnection : has
+  User ||--o{ BodyLog : has
 
-  Prompt o|--o{ Feedback : used_for
+  Chat ||--o{ Message : contains
+  Prompt o|--o{ Message : used_by
   Message ||--o{ Feedback : generates
+  GoogleHealthConnection o|--o{ BodyLog : syncs
 
   User {
     String id PK
@@ -86,23 +94,56 @@ erDiagram
     String userId FK
   }
 
-  Message {
+  Chat {
     String id PK
-    String content
+    String title
     DateTime createdAt
     DateTime updatedAt
     String userId FK
   }
 
-  Feedback {
+  Message {
     String id PK
     String content
+    DateTime startDate
+    DateTime endDate
     DateTime createdAt
     DateTime updatedAt
     String userId FK
     String promptId FK
+    String chatId FK
+  }
+
+  Feedback {
+    String id PK
+    String content
     String promptSnapshot
+    DateTime createdAt
+    DateTime updatedAt
+    String userId FK
     String messageId FK
+  }
+
+  GoogleHealthConnection {
+    String id PK
+    String userId FK
+    String googleUserId
+    String scope
+    String refreshToken
+    String accessToken
+    DateTime expiresAt
+    DateTime createdAt
+    DateTime updatedAt
+  }
+
+  BodyLog {
+    String id PK
+    String userId FK
+    String googleHealthConnectionId FK
+    DateTime measuredOn
+    Float weightGramsAvg
+    DateTime createdAt
+    DateTime updatedAt
   }
 ```
 
@@ -110,23 +151,23 @@ erDiagram
 
 ## 技術スタック
 
-| カテゴリ         | 技術                                            |
-| ---------------- | ----------------------------------------------- |
-| フロントエンド   | Next.js / TypeScript / Tailwind CSS / shadcn/ui |
-| フォーム         | useActionState / react-hook-form / Zod          |
-| バックエンド     | Supabase（Auth・DB）/ Prisma ORM                |
-| AI               | Gemini API                                      |
-| グラフ（v1.0〜） | Recharts                                        |
-| デプロイ         | Vercel                                          |
+| カテゴリ       | 技術                                                   |
+| -------------- | ------------------------------------------------------ |
+| フロントエンド | Next.js 16 / TypeScript / Tailwind CSS / shadcn/ui     |
+| フォーム       | auth: useActionState / 主要機能: react-hook-form + Zod |
+| バックエンド   | Supabase（Auth・DB）/ Prisma ORM                       |
+| AI             | Gemini API（`@google/genai`）                          |
+| グラフ         | Recharts                                               |
+| デプロイ       | Vercel                                                 |
 
 ---
 
 ## 外部 API
 
-| API                            | 用途                                             |
-| ------------------------------ | ------------------------------------------------ |
-| Gemini API（gemini-2.5-flash） | 指示文とメッセージを元に AI フィードバックを生成 |
-| Google Health API（v1.0〜）    | 体重・睡眠・活動データの自動取得                 |
+| API                            | 用途                                                         |
+| ------------------------------ | ------------------------------------------------------------ |
+| Gemini API（gemini-2.5-flash） | 指示文・メッセージ・体重データを元に AI フィードバックを生成 |
+| Google Health API              | 連携・体重データの取得と同期（睡眠・活動などは今後）         |
 
 ---
 
@@ -145,7 +186,15 @@ npm install
 cp .env.example .env.local
 ```
 
-`.env.local` に以下の環境変数を設定してください。
+Windows PowerShell の場合:
+
+```powershell
+Copy-Item .env.example .env.local
+```
+
+`.env.local` に環境変数を設定してください。
+
+### 必須
 
 - `DATABASE_URL`
 - `DIRECT_URL`
@@ -153,15 +202,18 @@ cp .env.example .env.local
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - `GEMINI_API_KEY`
 
+### Google Health 連携を使う場合
+
+- `GOOGLE_HEALTH_CLIENT_ID`
+- `GOOGLE_HEALTH_CLIENT_SECRET`
+- `GOOGLE_HEALTH_TOKEN_ENCRYPTION_KEY`
+- `GOOGLE_HEALTH_API_BASE_URL`
+- `GOOGLE_HEALTH_REDIRECT_URI`
+- `GOOGLE_HEALTH_SCOPES`
+
 ```bash
 npx prisma generate
 npm run dev
-```
-
-Windows PowerShell の場合:
-
-```powershell
-Copy-Item .env.example .env.local
 ```
 
 [http://localhost:3000](http://localhost:3000) でアクセス

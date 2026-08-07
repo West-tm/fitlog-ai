@@ -1,22 +1,17 @@
 import { notFound, redirect } from "next/navigation";
 
-import { getFeedback, updateFeedback } from "@/app/actions/feedbacks";
-import { getMessage } from "@/app/actions/messages";
+import { updateFeedback } from "@/app/actions/feedbacks";
+import { getMessageByChatId } from "@/app/actions/messages";
 import { getPrompts } from "@/app/actions/prompts";
 import MessageForm from "@/components/messages/message-form";
 import { PROMPT_REQUIRED_NOTICE } from "@/lib/notice";
 
-export default async function EditFeedbackPage({
+export default async function EditChatPage({
   params,
-}: PageProps<"/feedbacks/[id]">) {
+}: PageProps<"/chats/[id]/edit">) {
   const { id } = await params;
-  const feedback = await getFeedback(id);
 
-  if (!feedback) {
-    notFound();
-  }
-
-  const message = await getMessage(feedback.messageId);
+  const message = await getMessageByChatId(id);
   if (!message) {
     notFound();
   }
@@ -26,11 +21,15 @@ export default async function EditFeedbackPage({
     redirect(`/prompts?notice=${PROMPT_REQUIRED_NOTICE}`);
   }
 
-  const updateFeedbackAction = updateFeedback.bind(null, id);
+  const feedback = message.feedbacks[0];
+  if (!feedback) {
+    notFound();
+  }
+  const updateFeedbackAction = updateFeedback.bind(null, feedback.id);
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold">AI回答を編集</h1>
+      <h1 className="text-xl font-semibold">チャットのメッセージを編集</h1>
       <MessageForm
         prompts={prompts}
         onSubmitAction={updateFeedbackAction}

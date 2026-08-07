@@ -1,3 +1,5 @@
+import { PencilIcon } from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -6,6 +8,7 @@ import { getChat } from "@/app/actions/chats";
 import { getMessagesByChatId } from "@/app/actions/messages";
 import PromptCollapsibleForChat from "@/components/prompts/prompt-collapsible-for-chat";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
+import { Button } from "@/components/ui/button";
 import {
   Message,
   MessageContent,
@@ -54,13 +57,20 @@ export default async function ChatPage({ params }: PageProps<"/chats/[id]">) {
                 <Bubble>
                   <BubbleContent>{message.content}</BubbleContent>
                 </Bubble>
-                <MessageFooter>
-                  送信日時:{" "}
-                  {message.createdAt.toLocaleString("ja-JP", {
-                    timeZone: "Asia/Tokyo",
-                    dateStyle: "short",
-                    timeStyle: "medium",
-                  })}
+                <MessageFooter className="flex items-center gap-4">
+                  <span>
+                    送信日時:{" "}
+                    {message.createdAt.toLocaleString("ja-JP", {
+                      timeZone: "Asia/Tokyo",
+                      dateStyle: "short",
+                      timeStyle: "medium",
+                    })}
+                  </span>
+                  <Button variant="ghost" size="icon" title="編集" asChild>
+                    <Link href={`/chats/${message.chatId}/edit`}>
+                      <PencilIcon />
+                    </Link>
+                  </Button>
                 </MessageFooter>
               </MessageContent>
             </Message>

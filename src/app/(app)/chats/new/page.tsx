@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 
-import { generateFeedback } from "@/app/actions/feedbacks";
+import { createChat } from "@/app/actions/chats";
 import { getPrompts } from "@/app/actions/prompts";
 import MessageForm from "@/components/messages/message-form";
 import { PROMPT_REQUIRED_NOTICE } from "@/lib/notice";
 
-export default async function CreateFeedbackPage() {
+export default async function CreateChatPage() {
   const prompts = await getPrompts();
 
   if (prompts.length === 0) {
@@ -14,8 +14,8 @@ export default async function CreateFeedbackPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold">AI回答を作成</h1>
-      <MessageForm prompts={prompts} onSubmitAction={generateFeedback} />
+      <h1 className="text-xl font-semibold">新しいチャットを開始する</h1>
+      <MessageForm prompts={prompts} onSubmitAction={createChat} />
     </div>
   );
 }

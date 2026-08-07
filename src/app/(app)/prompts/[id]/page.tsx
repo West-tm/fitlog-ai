@@ -2,8 +2,7 @@ import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getFeedbacksByPromptId } from "@/app/actions/feedbacks";
-import { getPromptWithMessageCount } from "@/app/actions/prompts";
+import { getPromptWithMessages } from "@/app/actions/prompts";
 import DeletePromptButton from "@/components/prompts/delete-prompt-button";
 import PromptContentCollapsible from "@/components/prompts/prompt-content-collapsible";
 import { Button } from "@/components/ui/button";
@@ -30,13 +29,11 @@ export default async function PromptPage({
   params,
 }: PageProps<"/prompts/[id]">) {
   const { id } = await params;
-  const prompt = await getPromptWithMessageCount(id);
+  const prompt = await getPromptWithMessages(id);
 
   if (!prompt) {
     notFound();
   }
-
-  const feedbacks = await getFeedbacksByPromptId(id);
 
   return (
     <div className="space-y-6">
@@ -104,34 +101,36 @@ export default async function PromptPage({
         </CardFooter>
       </Card>
 
-      <h2 className="text-lg font-semibold">この指示文で作成したAI回答</h2>
+      <h2 className="text-lg font-semibold">
+        この指示文を使用したチャット一覧
+      </h2>
       <Table className="w-full table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead>AI回答</TableHead>
+            <TableHead>チャットタイトル</TableHead>
             <TableHead className="hidden w-24 sm:table-cell">更新日</TableHead>
             <TableHead className="hidden w-24 sm:table-cell">作成日</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
-          {feedbacks.map((feedback) => (
-            <TableRow key={feedback.id}>
+          {prompt.messages.map((message) => (
+            <TableRow key={message.id}>
               <TableCell>
                 <Link
-                  href={`/feedbacks/${feedback.id}`}
+                  href={`/chats/${message.chatId}`}
                   className="block truncate hover:underline"
                 >
-                  {feedback.content}
+                  {message.chat.title}
                 </Link>
               </TableCell>
               <TableCell className="hidden text-muted-foreground sm:table-cell">
-                {feedback.updatedAt.toLocaleDateString("ja-JP", {
+                {message.updatedAt.toLocaleDateString("ja-JP", {
                   timeZone: "Asia/Tokyo",
                 })}
               </TableCell>
               <TableCell className="hidden text-muted-foreground sm:table-cell">
-                {feedback.createdAt.toLocaleDateString("ja-JP", {
+                {message.createdAt.toLocaleDateString("ja-JP", {
                   timeZone: "Asia/Tokyo",
                 })}
               </TableCell>
