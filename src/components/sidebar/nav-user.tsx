@@ -2,6 +2,7 @@
 
 import { ChevronsUpDownIcon, LinkIcon, LogOutIcon } from "lucide-react";
 import Link from "next/link";
+import { useRef } from "react";
 
 import { signoutAndRedirect } from "@/app/actions/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,6 +32,7 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const signoutFormRef = useRef<HTMLFormElement>(null);
 
   return (
     <SidebarMenu>
@@ -84,12 +86,16 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <form action={signoutAndRedirect}>
-              <DropdownMenuItem asChild>
-                <button type="submit" className="cursor-pointer">
-                  <LogOutIcon />
-                  ログアウト
-                </button>
+            <form ref={signoutFormRef} action={signoutAndRedirect}>
+              <DropdownMenuItem
+                onSelect={(event) => {
+                  event.preventDefault();
+                  signoutFormRef.current?.requestSubmit();
+                }}
+                className="cursor-pointer"
+              >
+                <LogOutIcon />
+                ログアウト
               </DropdownMenuItem>
             </form>
           </DropdownMenuContent>
