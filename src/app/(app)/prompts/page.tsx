@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { PROMPT_REQUIRED_NOTICE } from "@/lib/notice";
 
-import { getPromptsWithMessageCount } from "../actions/prompts";
+import { getPromptsWithMessageCount } from "@/app/actions/prompts";
 
 type Props = {
   searchParams: Promise<{

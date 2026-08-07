@@ -4,8 +4,8 @@ import Form from "next/form";
 import Link from "next/link";
 import { useActionState } from "react";
 
-import { signupAction } from "@/app/auth/signup/actions";
-import { type SignupActionState } from "@/app/auth/signup/schema";
+import { signupAction } from "@/app/(auth)/auth/signup/actions";
+import { type SignupActionState } from "@/app/(auth)/auth/signup/schema";
 import { Button } from "@/components/ui/button";
 import {
   Card,

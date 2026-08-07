@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useActionState } from "react";
 
-import { signinAction } from "@/app/auth/signin/actions";
-import { SigninActionState } from "@/app/auth/signin/schema";
+import { signinAction } from "@/app/(auth)/auth/signin/actions";
+import { SigninActionState } from "@/app/(auth)/auth/signin/schema";
 import { Button } from "@/components/ui/button";
 import {
   Card,
