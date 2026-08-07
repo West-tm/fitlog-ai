@@ -72,7 +72,7 @@ erDiagram
   User ||--o{ Chat : creates
   User ||--o{ Message : creates
   User ||--o{ Feedback : creates
-  User ||--o{ GoogleHealthConnection : has
+  User ||--o| GoogleHealthConnection : has
   User ||--o{ BodyLog : has
 
   Chat ||--o{ Message : contains
