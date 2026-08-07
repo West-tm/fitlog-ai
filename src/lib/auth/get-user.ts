@@ -13,3 +13,11 @@ export async function getUser() {
 
   return user;
 }
+
+export async function getOptionalUser() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return user;
+}

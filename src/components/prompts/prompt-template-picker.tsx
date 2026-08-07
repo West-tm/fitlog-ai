@@ -46,7 +46,10 @@ export function PromptTemplatePicker({
           className="group w-full justify-between"
         >
           テンプレートから始める（任意）
-          <ChevronDownIcon className="size-4 transition-transform group-data-[state=open]:rotate-180" />
+          <ChevronDownIcon
+            className="size-4 transition-transform
+              group-data-[state=open]:rotate-180"
+          />
         </Button>
       </CollapsibleTrigger>
 
@@ -56,7 +59,9 @@ export function PromptTemplatePicker({
             <AccordionItem key={template.id} value={template.id}>
               <AccordionTrigger>{template.title}</AccordionTrigger>
 
-              <AccordionContent className="h-fit max-h-40 space-y-3 overflow-y-auto">
+              <AccordionContent
+                className="h-fit max-h-40 space-y-3 overflow-y-auto"
+              >
                 <p className="text-sm whitespace-pre-wrap text-muted-foreground">
                   {template.content}
                 </p>

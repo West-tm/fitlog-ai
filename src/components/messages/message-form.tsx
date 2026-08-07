@@ -164,10 +164,14 @@ export default function MessageForm({
         <CollapsibleTrigger asChild>
           <Button type="button" variant="ghost" className="group">
             指示文の詳細
-            <ChevronDownIcon className="ml-auto group-data-[state=open]:rotate-180" />
+            <ChevronDownIcon
+              className="ml-auto group-data-[state=open]:rotate-180"
+            />
           </Button>
         </CollapsibleTrigger>
-        <CollapsibleContent className="flex flex-col items-start gap-2 p-2.5 pt-0 text-sm">
+        <CollapsibleContent
+          className="flex flex-col items-start gap-2 p-2.5 pt-0 text-sm"
+        >
           <div>
             {selectPrompt ? selectPrompt.content : "指示文は未選択です"}
           </div>

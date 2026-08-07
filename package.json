@@ -52,6 +52,8 @@
     "eslint-config-next": "16.2.6",
     "eslint-plugin-simple-import-sort": "^13.0.0",
     "prettier": "^3.8.4",
+    "prettier-plugin-classnames": "^0.10.4",
+    "prettier-plugin-merge": "^0.10.1",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4",
     "typescript": "^5"

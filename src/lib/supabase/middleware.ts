@@ -42,7 +42,6 @@ export async function updateSession(request: NextRequest) {
 
   const authRoutes = ["/auth/signin", "/auth/signup"];
   const isAuthRoute = authRoutes.some((route) => pathname.includes(route));
-  const isPublicRoute = pathname === "/";
 
   // redirect時もSupabaseが更新したCookieを引き継ぐ
   const redirectWithCookies = (path: string) => {
@@ -63,12 +62,12 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   };
 
-  if (!user && !isAuthRoute && !isPublicRoute) {
+  if (!user && !isAuthRoute) {
     return redirectWithCookies("/auth/signin");
   }
 
   if (user && isAuthRoute) {
-    return redirectWithCookies("/dashboard");
+    return redirectWithCookies("/");
   }
 
   return supabaseResponse;

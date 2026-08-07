@@ -19,7 +19,10 @@ export default function BeforeConfirmPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md text-center">
         <CardHeader>
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+          <div
+            className="mx-auto mb-2 flex h-12 w-12 items-center justify-center
+              rounded-full bg-primary/10"
+          >
             <Mail className="h-6 w-6 text-primary" />
           </div>
           <CardTitle>メールを送信しました</CardTitle>

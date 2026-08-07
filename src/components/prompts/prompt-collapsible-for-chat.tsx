@@ -24,17 +24,22 @@ export default function PromptCollapsibleForChat({
   const [open, setOpen] = useState(isOpen);
   return (
     <Collapsible
-      className="flex flex-col items-end rounded-md border data-[state=open]:bg-muted"
+      className="flex flex-col items-end rounded-md border
+        data-[state=open]:bg-muted"
       open={open}
       onOpenChange={setOpen}
     >
       <CollapsibleTrigger asChild>
         <Button type="button" variant="ghost" className="group w-fit text-xs">
           {promptTitle}
-          <ChevronDownIcon className="ml-auto group-data-[state=open]:rotate-180" />
+          <ChevronDownIcon
+            className="ml-auto group-data-[state=open]:rotate-180"
+          />
         </Button>
       </CollapsibleTrigger>
-      <CollapsibleContent className="p-2.5 pt-0 wrap-anywhere whitespace-pre-wrap">
+      <CollapsibleContent
+        className="p-2.5 pt-0 wrap-anywhere whitespace-pre-wrap"
+      >
         {promptContent}
       </CollapsibleContent>
     </Collapsible>

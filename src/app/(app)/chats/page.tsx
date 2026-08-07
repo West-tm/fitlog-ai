@@ -1,7 +1,5 @@
-import { Plus } from "lucide-react";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -11,51 +9,45 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { getFeedbacks } from "../actions/feedbacks";
+import { getChats } from "@/app/actions/chats";
 
-export default async function FeedbacksPage() {
-  const feedbacks = await getFeedbacks();
+export default async function ChatsPage() {
+  const chats = await getChats();
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold">AI回答 一覧</h1>
-        <Button asChild>
-          <Link href="/feedbacks/new">
-            <Plus />
-            新規作成
-          </Link>
-        </Button>
+        <h1 className="text-xl font-semibold">チャット一覧</h1>
       </div>
 
       <Table className="w-full table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead>AI回答</TableHead>
+            <TableHead>タイトル</TableHead>
             <TableHead className="hidden w-24 sm:table-cell">更新日</TableHead>
             <TableHead className="hidden w-24 sm:table-cell">作成日</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
-          {feedbacks.map((feedback) => (
-            <TableRow key={feedback.id}>
+          {chats.map((chat) => (
+            <TableRow key={chat.id}>
               <TableCell className="whitespace-normal">
                 <Link
-                  href={`/feedbacks/${feedback.id}`}
+                  href={`/chats/${chat.id}`}
                   className="line-clamp-3 wrap-anywhere hover:underline"
                 >
-                  {feedback.content}
+                  {chat.title}
                 </Link>
               </TableCell>
 
               <TableCell className="hidden text-muted-foreground sm:table-cell">
-                {feedback.updatedAt.toLocaleDateString("ja-JP", {
+                {chat.updatedAt.toLocaleDateString("ja-JP", {
                   timeZone: "Asia/Tokyo",
                 })}
               </TableCell>
               <TableCell className="hidden text-muted-foreground sm:table-cell">
-                {feedback.createdAt.toLocaleDateString("ja-JP", {
+                {chat.createdAt.toLocaleDateString("ja-JP", {
                   timeZone: "Asia/Tokyo",
                 })}
               </TableCell>

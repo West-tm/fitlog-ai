@@ -45,5 +45,5 @@ export async function signinAction(
   }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  redirect("/");
 }

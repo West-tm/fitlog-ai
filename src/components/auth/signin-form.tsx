@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useActionState } from "react";
 
-import { signinAction } from "@/app/auth/signin/actions";
-import { SigninActionState } from "@/app/auth/signin/schema";
+import { signinAction } from "@/app/(auth)/auth/signin/actions";
+import { SigninActionState } from "@/app/(auth)/auth/signin/schema";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -66,7 +66,8 @@ export function SigninForm({
                   <FieldLabel htmlFor="password">パスワード</FieldLabel>
                   <Link
                     href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                    className="ml-auto inline-block text-sm underline-offset-4
+                      hover:underline"
                   >
                     パスワードをお忘れですか？
                   </Link>

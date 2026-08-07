@@ -29,10 +29,14 @@ export default function PromptContentCollapsible({
       <CollapsibleTrigger asChild>
         <Button type="button" variant="ghost" className="group w-full">
           指示文の詳細
-          <ChevronDownIcon className="ml-auto group-data-[state=open]:rotate-180" />
+          <ChevronDownIcon
+            className="ml-auto group-data-[state=open]:rotate-180"
+          />
         </Button>
       </CollapsibleTrigger>
-      <CollapsibleContent className="p-2.5 pt-0 text-sm wrap-anywhere whitespace-pre-wrap">
+      <CollapsibleContent
+        className="p-2.5 pt-0 text-sm wrap-anywhere whitespace-pre-wrap"
+      >
         {promptContent}
       </CollapsibleContent>
     </Collapsible>

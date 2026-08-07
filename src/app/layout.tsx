@@ -5,7 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 
-import Header from "@/components/header/Header";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -22,13 +22,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className={cn("font-sans", geist.variable)}>
-      <body className="flex min-h-svh flex-col">
-        <Header />
-        <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 py-6 sm:px-6 lg:px-8">
+      <body className="min-h-svh">
+        <TooltipProvider>
           {children}
-        </main>
-        <Analytics />
-        <SpeedInsights />
+          <Analytics />
+          <SpeedInsights />
+        </TooltipProvider>
       </body>
     </html>
   );
