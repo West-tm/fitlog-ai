@@ -93,10 +93,12 @@ export default function MessageForm({
     submitLockRef.current = true;
     setIsSubmitLocked(true);
 
-    const result = await onSubmitAction(value);
-
-    if (result.error) {
-      setError("root", { message: result.error });
+    try {
+      const result = await onSubmitAction(value);
+      if (result.error) {
+        setError("root", { message: result.error });
+      }
+    } finally {
       submitLockRef.current = false;
       setIsSubmitLocked(false);
     }
@@ -224,7 +226,7 @@ export default function MessageForm({
       <div className="space-y-2">
         <Label htmlFor="content">メッセージ</Label>
         <Textarea
-          className="min-h-40"
+          className="min-h-10"
           id="content"
           placeholder="ここにメッセージを入力"
           {...register("content")}

@@ -40,6 +40,7 @@ export async function createChat(values: MessageFormValues) {
 
   const generateResult = await geminiGenerateContent(
     prompt.content,
+    null,
     result.data.content,
     result.data.useGoogleSearch,
     bodyLogs,

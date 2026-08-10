@@ -1,11 +1,14 @@
 import { PencilIcon } from "lucide-react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { getChat } from "@/app/actions/chats";
+import { createFeedback } from "@/app/actions/feedbacks";
 import { getMessagesByChatId } from "@/app/actions/messages";
+import { getPrompts } from "@/app/actions/prompts";
+import MessageForm from "@/components/messages/message-form";
 import PromptCollapsibleForChat from "@/components/prompts/prompt-collapsible-for-chat";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Button } from "@/components/ui/button";
@@ -15,6 +18,7 @@ import {
   MessageFooter,
   MessageHeader,
 } from "@/components/ui/message";
+import { PROMPT_REQUIRED_NOTICE } from "@/lib/notice";
 
 export default async function ChatPage({ params }: PageProps<"/chats/[id]">) {
   const { id } = await params;
@@ -25,6 +29,15 @@ export default async function ChatPage({ params }: PageProps<"/chats/[id]">) {
   }
 
   const messages = await getMessagesByChatId(id);
+
+  const prompts = await getPrompts();
+  if (prompts.length === 0) {
+    redirect(`/prompts?notice=${PROMPT_REQUIRED_NOTICE}`);
+  }
+
+  const createFeedbackAction = createFeedback.bind(null, id);
+
+  const lastMessage = messages.at(-1);
 
   return (
     <div className="space-y-4">
@@ -87,6 +100,22 @@ export default async function ChatPage({ params }: PageProps<"/chats/[id]">) {
           </div>
         ))}
       </div>
+
+      <MessageForm
+        prompts={prompts}
+        onSubmitAction={createFeedbackAction}
+        defaultValues={{
+          content: "",
+          promptId: lastMessage?.promptId ?? "",
+          useGoogleSearch: false,
+          startDate:
+            lastMessage?.startDate.toISOString().slice(0, 10) ??
+            new Date().toISOString().slice(0, 10),
+          endDate:
+            lastMessage?.endDate.toISOString().slice(0, 10) ??
+            new Date().toISOString().slice(0, 10),
+        }}
+      />
     </div>
   );
 }

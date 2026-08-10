@@ -1,4 +1,5 @@
 import { gemini } from "@/lib/gemini/gemini";
+import { ChatHistory } from "@/lib/types/gemini";
 
 type GeminiGenerateContentResult =
   | { ok: true; content: string }
@@ -6,6 +7,7 @@ type GeminiGenerateContentResult =
 
 export async function geminiGenerateContent(
   promptContent: string,
+  history: ChatHistory[] | null,
   messageContent: string,
   isUseGoogleSearch: boolean,
   bodyLogs: { date: string; weightKg: number }[],
@@ -29,6 +31,17 @@ export async function geminiGenerateContent(
         ${messageContent}
         #体重データ
         ${bodyLogsString}
+        #チャット履歴
+        ${
+          history?.length
+            ? history
+                .map(
+                  (turn) =>
+                    `- ユーザー: ${turn.userText}\n- モデル: ${turn.modelText}`,
+                )
+                .join("\n")
+            : "なし"
+        }
         `.trim(),
       config,
     });
