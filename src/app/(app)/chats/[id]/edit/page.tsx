@@ -4,6 +4,7 @@ import { updateFeedback } from "@/app/actions/feedbacks";
 import { getMessageByChatId } from "@/app/actions/messages";
 import { getPrompts } from "@/app/actions/prompts";
 import MessageForm from "@/components/messages/message-form";
+import { toTokyoDateString } from "@/lib/date";
 import { PROMPT_REQUIRED_NOTICE } from "@/lib/notice";
 
 export default async function EditChatPage({
@@ -37,8 +38,8 @@ export default async function EditChatPage({
           content: message.content,
           promptId: message.promptId ?? "",
           useGoogleSearch: false,
-          startDate: message.startDate.toISOString().slice(0, 10),
-          endDate: message.endDate.toISOString().slice(0, 10),
+          startDate: toTokyoDateString(message.startDate),
+          endDate: toTokyoDateString(message.endDate),
         }}
       />
     </div>

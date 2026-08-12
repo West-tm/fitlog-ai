@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getTokyoDateRangeStrings } from "@/lib/date";
 import {
   createMessageSchema,
   MessageFormValues,
@@ -43,18 +44,6 @@ type Props = {
   defaultValues?: MessageFormValues;
 };
 
-function getDefaultDateRange() {
-  const date = new Date();
-  const endDate = date.toLocaleDateString("sv-SE", {
-    timeZone: "Asia/Tokyo",
-  });
-  date.setDate(date.getDate() - 89);
-  const startDate = date.toLocaleDateString("sv-SE", {
-    timeZone: "Asia/Tokyo",
-  });
-  return { startDate, endDate };
-}
-
 export default function MessageForm({
   prompts,
   onSubmitAction,
@@ -62,7 +51,7 @@ export default function MessageForm({
     content: "",
     promptId: "",
     useGoogleSearch: false,
-    ...getDefaultDateRange(),
+    ...getTokyoDateRangeStrings(89),
   },
 }: Props) {
   const {

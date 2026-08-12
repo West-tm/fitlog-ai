@@ -18,6 +18,7 @@ import {
   MessageFooter,
   MessageHeader,
 } from "@/components/ui/message";
+import { toTokyoDateString } from "@/lib/date";
 import { PROMPT_REQUIRED_NOTICE } from "@/lib/notice";
 
 export default async function ChatPage({ params }: PageProps<"/chats/[id]">) {
@@ -108,12 +109,12 @@ export default async function ChatPage({ params }: PageProps<"/chats/[id]">) {
           content: "",
           promptId: lastMessage?.promptId ?? "",
           useGoogleSearch: false,
-          startDate:
-            lastMessage?.startDate.toISOString().slice(0, 10) ??
-            new Date().toISOString().slice(0, 10),
-          endDate:
-            lastMessage?.endDate.toISOString().slice(0, 10) ??
-            new Date().toISOString().slice(0, 10),
+          startDate: lastMessage
+            ? toTokyoDateString(lastMessage.startDate)
+            : toTokyoDateString(),
+          endDate: lastMessage
+            ? toTokyoDateString(lastMessage.endDate)
+            : toTokyoDateString(),
         }}
       />
     </div>

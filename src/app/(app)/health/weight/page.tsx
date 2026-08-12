@@ -1,5 +1,6 @@
 import { getBodyLogs } from "@/app/actions/body-logs";
 import WeightTrendChart from "@/components/health/weight-trend-chart";
+import { toTokyoDateString } from "@/lib/date";
 
 export default async function GoogleHealthWeightPage() {
   const bodyLogs = await getBodyLogs();
@@ -9,7 +10,7 @@ export default async function GoogleHealthWeightPage() {
 
     return [
       {
-        date: log.measuredOn.toISOString().slice(0, 10),
+        date: toTokyoDateString(log.measuredOn),
         weightKg: log.weightGramsAvg / 1000,
       },
     ];
