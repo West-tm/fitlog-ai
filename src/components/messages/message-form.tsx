@@ -2,17 +2,18 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Prompt } from "@prisma/client";
-import { ChevronDownIcon, Sparkles } from "lucide-react";
+import { CircleHelpIcon, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupTextarea,
+} from "@/components/ui/input-group";
 import {
   Select,
   SelectContent,
@@ -27,16 +28,14 @@ import {
 } from "@/lib/validations/messages";
 
 import { Button } from "../ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "../ui/collapsible";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Separator } from "../ui/separator";
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+  PopoverTrigger,
+} from "../ui/popover";
 import { Spinner } from "../ui/spinner";
-import { Textarea } from "../ui/textarea";
 
 type Props = {
   prompts: Prompt[];
@@ -107,153 +106,221 @@ export default function MessageForm({
 
   return (
     <form className="space-y-4" onSubmit={handleFormSubmit}>
-      <Controller
-        name="promptId"
-        control={control}
-        render={({ field, fieldState }) => (
-          <Field>
-            <FieldLabel htmlFor="promptId">指示文</FieldLabel>
-            <FieldDescription>
-              最適な結果を得るには、メッセージに適した指示文を選択してください
-            </FieldDescription>
-
-            <Select
-              value={field.value}
-              onValueChange={field.onChange}
-              disabled={isPending}
-            >
-              <SelectTrigger
-                id="promptId"
-                className="w-full **:data-[slot=select-value]:truncate"
-              >
-                <SelectValue placeholder={promptPlaceholder} />
-              </SelectTrigger>
-
-              <SelectContent
-                position="popper"
-                sideOffset={4}
-                className="w-(--radix-select-trigger-width)"
-              >
-                {prompts.map((prompt) => (
-                  <SelectItem
-                    key={prompt.id}
-                    value={prompt.id}
-                    className="wrap-anywhere"
-                  >
-                    {prompt.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-          </Field>
-        )}
-      />
-
-      <Collapsible className="mb-6 rounded-md data-[state=open]:bg-muted">
-        <CollapsibleTrigger asChild>
-          <Button type="button" variant="ghost" className="group">
-            指示文の詳細
-            <ChevronDownIcon
-              className="ml-auto group-data-[state=open]:rotate-180"
-            />
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent
-          className="flex flex-col items-start gap-2 p-2.5 pt-0 text-sm"
-        >
-          <div>
-            {selectPrompt ? selectPrompt.content : "指示文は未選択です"}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-
-      <Separator />
-
-      <Field>
-        <FieldLabel>体重データ</FieldLabel>
-        <FieldDescription>
-          使用する体重データの期間を指定してください
-        </FieldDescription>
-
-        <div className="flex gap-2">
-          <Label className="w-12" htmlFor="startDate">
-            開始日
-          </Label>
-          <Input
-            className="w-40"
-            id="startDate"
-            type="date"
-            {...register("startDate")}
-            disabled={isPending}
-          />
-        </div>
-        {errors.startDate && (
-          <p className="text-destructive">{errors.startDate.message}</p>
-        )}
-
-        <div className="flex gap-2">
-          <Label className="w-12" htmlFor="endDate">
-            終了日
-          </Label>
-          <Input
-            className="w-40"
-            id="endDate"
-            type="date"
-            {...register("endDate")}
-            disabled={isPending}
-          />
-        </div>
-        {errors.endDate && (
-          <p className="text-destructive">{errors.endDate.message}</p>
-        )}
-      </Field>
-
-      <Separator />
-
-      <div className="space-y-2">
-        <Label htmlFor="content">メッセージ</Label>
-        <Textarea
-          className="min-h-10"
+      <InputGroup
+        className="border-foreground/30
+          has-[[data-slot][aria-invalid=true]]:border-foreground/30
+          has-[[data-slot][aria-invalid=true]]:ring-0"
+      >
+        <InputGroupTextarea
           id="content"
+          aria-label="メッセージ"
           placeholder="ここにメッセージを入力"
+          className="min-h-20"
           {...register("content")}
           disabled={isPending}
+          aria-invalid={!!errors.content}
         />
-        {errors.content && (
-          <p className="text-destructive">{errors.content.message}</p>
-        )}
-      </div>
 
-      <Controller
-        name="useGoogleSearch"
-        control={control}
-        render={({ field, fieldState }) => (
+        <InputGroupAddon
+          align="block-start"
+          className="flex-col justify-between border-b border-foreground/20
+            text-foreground"
+        >
+          <Controller
+            name="promptId"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field>
+                <div className="flex items-center gap-1">
+                  <FieldLabel className="w-20 shrink-0" htmlFor="promptId">
+                    指示文
+                  </FieldLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-6"
+                        aria-label="指示文の説明"
+                      >
+                        <CircleHelpIcon className="size-4 text-muted-foreground" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-auto text-sm">
+                      最適な結果を得るには、メッセージに適した指示文を選択してください
+                    </PopoverContent>
+                  </Popover>
+
+                  <Popover>
+                    <PopoverAnchor asChild>
+                      <div className="flex min-w-0 flex-1 items-center gap-1">
+                        <div className="w-0 flex-1">
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            disabled={isPending}
+                          >
+                            <SelectTrigger
+                              id="promptId"
+                              className="w-full text-left"
+                            >
+                              <SelectValue placeholder={promptPlaceholder} />
+                            </SelectTrigger>
+
+                            <SelectContent
+                              position="popper"
+                              sideOffset={4}
+                              className="w-(--radix-select-trigger-width)"
+                            >
+                              {prompts.map((prompt) => (
+                                <SelectItem
+                                  key={prompt.id}
+                                  value={prompt.id}
+                                  className="wrap-anywhere"
+                                >
+                                  {prompt.title}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <PopoverTrigger asChild>
+                          <Button type="button" variant="ghost" size="sm">
+                            詳細
+                          </Button>
+                        </PopoverTrigger>
+                      </div>
+                    </PopoverAnchor>
+
+                    <PopoverContent
+                      align="start"
+                      className="max-h-60 w-(--radix-popper-anchor-width)
+                        overflow-y-auto text-sm whitespace-pre-wrap"
+                    >
+                      {selectPrompt?.content ?? "指示文は未選択です"}
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
           <Field>
-            <div className="flex gap-1">
-              <Checkbox
-                id="useGoogleSearch"
-                checked={field.value}
-                onCheckedChange={(checked) => field.onChange(checked === true)}
-                disabled={isPending}
-              />
-              <FieldLabel htmlFor="useGoogleSearch">外部検索の許可</FieldLabel>
+            <div className="flex flex-wrap items-center gap-1">
+              <FieldLabel className="w-20 shrink-0" htmlFor="startDate">
+                体重データ
+              </FieldLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-6"
+                    aria-label="体重データの説明"
+                  >
+                    <CircleHelpIcon className="size-4 text-muted-foreground" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-auto text-sm">
+                  使用する体重データの期間を指定してください
+                </PopoverContent>
+              </Popover>
+
+              <div className="flex items-center gap-1">
+                <Input
+                  className="w-36"
+                  id="startDate"
+                  type="date"
+                  {...register("startDate")}
+                  disabled={isPending}
+                />
+
+                <span className="text-muted-foreground">〜</span>
+
+                <Input
+                  className="w-36"
+                  id="endDate"
+                  type="date"
+                  {...register("endDate")}
+                  disabled={isPending}
+                />
+              </div>
             </div>
 
-            <FieldDescription>
-              許可すると、必要に応じてAIがGoogle検索を使用するようになります
-            </FieldDescription>
-
-            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            {errors.startDate && <FieldError errors={[errors.startDate]} />}
+            {errors.endDate && <FieldError errors={[errors.endDate]} />}
           </Field>
-        )}
-      />
+        </InputGroupAddon>
 
-      <Button className="cursor-pointer" type="submit" disabled={isPending}>
-        {isPending ? <Spinner /> : <Sparkles />}
-        {isPending ? "分析中" : "AI回答を生成"}
-      </Button>
+        <InputGroupAddon
+          align="block-end"
+          className="justify-between border-t border-foreground/20
+            text-foreground"
+        >
+          <Controller
+            name="useGoogleSearch"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field>
+                <div className="flex items-center gap-1">
+                  <Checkbox
+                    id="useGoogleSearch"
+                    checked={field.value}
+                    onCheckedChange={(checked) =>
+                      field.onChange(checked === true)
+                    }
+                    disabled={isPending}
+                  />
+
+                  <FieldLabel htmlFor="useGoogleSearch">
+                    外部検索の許可
+                  </FieldLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-6"
+                        aria-label="外部検索の許可"
+                      >
+                        <CircleHelpIcon className="size-4 text-muted-foreground" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-auto text-sm">
+                      許可すると、必要に応じてAIがGoogle検索を使用するようになります
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <InputGroupButton
+            type="submit"
+            variant="default"
+            size="sm"
+            disabled={isPending}
+            className="cursor-pointer"
+          >
+            {isPending ? <Spinner /> : <Sparkles />}
+            {isPending ? "分析中" : "AI回答を生成"}
+          </InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
+
+      {errors.content && <FieldError errors={[errors.content]} />}
       {errors.root && <p className="text-destructive">{errors.root.message}</p>}
     </form>
   );
