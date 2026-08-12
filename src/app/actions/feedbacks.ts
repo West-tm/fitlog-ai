@@ -6,13 +6,93 @@ import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth/get-user";
 import { prisma } from "@/lib/prisma/prisma";
 import {
+  createMessageSchema,
   MessageFormValues,
   updateMessageSchema,
 } from "@/lib/validations/messages";
 
 import { getBodyLogsByStartDateAndEndDate } from "./body-logs";
+import { getChat } from "./chats";
 import { geminiGenerateContent } from "./gemini";
+import { getMessage, getMessagesByChatId } from "./messages";
 import { getPrompt } from "./prompts";
+
+export async function createFeedback(
+  chatId: string,
+  values: MessageFormValues,
+) {
+  const user = await getUser();
+
+  const result = createMessageSchema.safeParse(values);
+
+  if (!result.success) {
+    return { error: "入力内容を確認してください。" };
+  }
+
+  const prompt = await getPrompt(result.data.promptId);
+
+  if (!prompt) {
+    return { error: "指示文が見つかりません。" };
+  }
+
+  const chat = await getChat(chatId);
+
+  if (!chat) {
+    return { error: "チャットが見つかりません。" };
+  }
+
+  const bodyLogs = await getBodyLogsByStartDateAndEndDate(
+    new Date(result.data.startDate),
+    new Date(result.data.endDate),
+  );
+
+  const messages = await getMessagesByChatId(chatId);
+
+  const history = messages.map((message) => ({
+    userText: message.content,
+    modelText: message.feedbacks[0]?.content ?? "",
+  }));
+
+  const generateResult = await geminiGenerateContent(
+    prompt.content,
+    history,
+    result.data.content,
+    result.data.useGoogleSearch,
+    bodyLogs,
+  );
+
+  if (!generateResult.ok) {
+    return { error: generateResult.error };
+  }
+
+  await prisma.$transaction(async (tx) => {
+    const message = await tx.message.create({
+      data: {
+        content: result.data.content,
+        startDate: new Date(result.data.startDate),
+        endDate: new Date(result.data.endDate),
+        userId: user.id,
+        chatId: chat.id,
+        promptId: prompt.id,
+      },
+    });
+    await tx.feedback.create({
+      data: {
+        content: generateResult.content,
+        promptSnapshot: prompt.content,
+        userId: user.id,
+        messageId: message.id,
+      },
+    });
+    await tx.chat.update({
+      where: { id: chat.id },
+      data: { updatedAt: new Date() },
+    });
+  });
+
+  revalidatePath("/chats");
+  redirect(`/chats/${chatId}`);
+}
 
 export async function getFeedback(id: string) {
   const user = await getUser();
@@ -51,8 +131,30 @@ export async function updateFeedback(
     new Date(result.data.endDate),
   );
 
+  const message = await getMessage(feedback.messageId);
+
+  if (!message) {
+    return { error: "メッセージが見つかりません。" };
+  }
+
+  const chat = await getChat(message.chatId);
+
+  if (!chat) {
+    return { error: "チャットが見つかりません。" };
+  }
+
+  const messages = await getMessagesByChatId(chat.id);
+
+  const history = messages
+    .filter((item) => item.id !== message.id)
+    .map((item) => ({
+      userText: item.content,
+      modelText: item.feedbacks[0]?.content ?? "",
+    }));
+
   const generateResult = await geminiGenerateContent(
     prompt.content,
+    history,
     result.data.content,
     result.data.useGoogleSearch,
     bodyLogs,
@@ -62,7 +164,7 @@ export async function updateFeedback(
     return { error: generateResult.error };
   }
 
-  const message = await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx) => {
     const message = await tx.message.update({
       where: { id: feedback.messageId },
       data: {
@@ -87,8 +189,6 @@ export async function updateFeedback(
         updatedAt: new Date(),
       },
     });
-
-    return message;
   });
 
   revalidatePath("/chats");

@@ -5,6 +5,7 @@ import { Save } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
+import { getTokyoDateRangeStrings } from "@/lib/date";
 import {
   googleHealthWeightSyncFormSchema,
   GoogleHealthWeightSyncFormValues,
@@ -22,20 +23,9 @@ type Props = {
   defaultValues?: GoogleHealthWeightSyncFormValues;
 };
 
-const date = new Date();
-
-const today = date.toLocaleDateString("sv-SE", {
-  timeZone: "Asia/Tokyo",
-});
-
-date.setDate(date.getDate() - 89);
-const ninetyDaysAgo = date.toLocaleDateString("sv-SE", {
-  timeZone: "Asia/Tokyo",
-});
-
 export default function GoogleHealthWeightSyncForm({
   onSubmitAction,
-  defaultValues = { startDate: ninetyDaysAgo, endDate: today },
+  defaultValues = getTokyoDateRangeStrings(89),
 }: Props) {
   const {
     register,

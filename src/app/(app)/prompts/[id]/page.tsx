@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatTokyoDateLabel } from "@/lib/date";
 
 export default async function PromptPage({
   params,
@@ -125,14 +126,10 @@ export default async function PromptPage({
                 </Link>
               </TableCell>
               <TableCell className="hidden text-muted-foreground sm:table-cell">
-                {message.updatedAt.toLocaleDateString("ja-JP", {
-                  timeZone: "Asia/Tokyo",
-                })}
+                {formatTokyoDateLabel(message.updatedAt)}
               </TableCell>
               <TableCell className="hidden text-muted-foreground sm:table-cell">
-                {message.createdAt.toLocaleDateString("ja-JP", {
-                  timeZone: "Asia/Tokyo",
-                })}
+                {formatTokyoDateLabel(message.createdAt)}
               </TableCell>
             </TableRow>
           ))}

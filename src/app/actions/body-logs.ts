@@ -1,6 +1,7 @@
 "use server";
 
 import { getUser } from "@/lib/auth/get-user";
+import { toTokyoDateString } from "@/lib/date";
 import { prisma } from "@/lib/prisma/prisma";
 
 export async function getBodyLogs() {
@@ -28,7 +29,7 @@ export async function getBodyLogsByStartDateAndEndDate(
 
     return [
       {
-        date: log.measuredOn.toISOString().slice(0, 10),
+        date: toTokyoDateString(log.measuredOn),
         weightKg: log.weightGramsAvg / 1000,
       },
     ];

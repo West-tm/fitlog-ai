@@ -1,4 +1,7 @@
 import { gemini } from "@/lib/gemini/gemini";
+import { ChatHistory } from "@/lib/types/gemini";
+
+const MAX_HISTORY_TURNS = 5;
 
 type GeminiGenerateContentResult =
   | { ok: true; content: string }
@@ -6,6 +9,7 @@ type GeminiGenerateContentResult =
 
 export async function geminiGenerateContent(
   promptContent: string,
+  history: ChatHistory[] | null,
   messageContent: string,
   isUseGoogleSearch: boolean,
   bodyLogs: { date: string; weightKg: number }[],
@@ -19,6 +23,16 @@ export async function geminiGenerateContent(
       ? bodyLogs.map((log) => `${log.date}: ${log.weightKg}kg`).join("\n")
       : "体重データはありません";
 
+  // 古い履歴は捨てて、直近の履歴をプロンプトに載せる
+  const recentHistory = history?.length
+    ? history
+        .slice(-MAX_HISTORY_TURNS)
+        .map(
+          (turn) => `- ユーザー: ${turn.userText}\n- モデル: ${turn.modelText}`,
+        )
+        .join("\n")
+    : "なし";
+
   try {
     const result = await gemini.models.generateContent({
       model: "gemini-2.5-flash",
@@ -29,6 +43,8 @@ export async function geminiGenerateContent(
         ${messageContent}
         #体重データ
         ${bodyLogsString}
+        #チャット履歴
+        ${recentHistory}
         `.trim(),
       config,
     });

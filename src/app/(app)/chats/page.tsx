@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { getChats } from "@/app/actions/chats";
 import {
   Table,
   TableBody,
@@ -8,8 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-import { getChats } from "@/app/actions/chats";
+import { formatTokyoDateLabel } from "@/lib/date";
 
 export default async function ChatsPage() {
   const chats = await getChats();
@@ -42,14 +42,10 @@ export default async function ChatsPage() {
               </TableCell>
 
               <TableCell className="hidden text-muted-foreground sm:table-cell">
-                {chat.updatedAt.toLocaleDateString("ja-JP", {
-                  timeZone: "Asia/Tokyo",
-                })}
+                {formatTokyoDateLabel(chat.updatedAt)}
               </TableCell>
               <TableCell className="hidden text-muted-foreground sm:table-cell">
-                {chat.createdAt.toLocaleDateString("ja-JP", {
-                  timeZone: "Asia/Tokyo",
-                })}
+                {formatTokyoDateLabel(chat.createdAt)}
               </TableCell>
             </TableRow>
           ))}

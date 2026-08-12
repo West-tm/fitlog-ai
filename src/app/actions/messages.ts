@@ -13,19 +13,6 @@ export async function getMessage(id: string) {
   return message;
 }
 
-export async function getMessageByChatId(chatId: string) {
-  const user = await getUser();
-
-  const message = await prisma.message.findFirst({
-    where: { chatId, userId: user.id },
-    include: {
-      feedbacks: {},
-    },
-  });
-
-  return message;
-}
-
 export async function getMessagesByChatId(chatId: string) {
   const user = await getUser();
 
