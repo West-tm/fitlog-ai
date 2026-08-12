@@ -47,14 +47,14 @@ export default async function ChatPage({
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">{chat.title}</h1>
 
-      <div className="space-y-2">
+      <div className="mb-12 space-y-2">
         {messages.map((message) => {
           const feedback = message.feedbacks[0];
 
           return (
             <div className="space-y-4" key={message.id}>
               {feedback && editingId === message.id ? (
-                <div className="space-y-2">
+                <div className="mt-4 space-y-2">
                   <MessageForm
                     prompts={prompts}
                     onSubmitAction={updateFeedback.bind(null, feedback.id)}
