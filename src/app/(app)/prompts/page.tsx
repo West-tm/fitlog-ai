@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatTokyoDateLabel } from "@/lib/date";
 import { PROMPT_REQUIRED_NOTICE } from "@/lib/notice";
 
 type Props = {
@@ -72,14 +73,10 @@ export default async function PromptsPage({ searchParams }: Props) {
                 {prompt._count.messages || "-"}
               </TableCell>
               <TableCell className="hidden text-muted-foreground sm:table-cell">
-                {prompt.updatedAt.toLocaleDateString("ja-JP", {
-                  timeZone: "Asia/Tokyo",
-                })}
+                {formatTokyoDateLabel(prompt.updatedAt)}
               </TableCell>
               <TableCell className="hidden text-muted-foreground sm:table-cell">
-                {prompt.createdAt.toLocaleDateString("ja-JP", {
-                  timeZone: "Asia/Tokyo",
-                })}
+                {formatTokyoDateLabel(prompt.createdAt)}
               </TableCell>
             </TableRow>
           ))}
