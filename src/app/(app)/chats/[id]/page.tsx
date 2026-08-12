@@ -106,12 +106,20 @@ export default async function ChatPage({
                         更新日: {formatTokyoDateLabel(message.updatedAt)}
                       </span>
                       {feedback && (
-                        <Link
-                          href={`/chats/${id}?editing=${message.id}`}
-                          scroll={false}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="メッセージを編集する"
+                          asChild
                         >
-                          <PencilIcon className="size-4" />
-                        </Link>
+                          <Link
+                            href={`/chats/${id}?editing=${message.id}`}
+                            scroll={false}
+                            aria-label="メッセージを編集する"
+                          >
+                            <PencilIcon className="size-4" aria-hidden="true" />
+                          </Link>
+                        </Button>
                       )}
                     </MessageFooter>
                   </MessageContent>
