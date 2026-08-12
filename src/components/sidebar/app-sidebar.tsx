@@ -30,7 +30,7 @@ const privateNavItems = [
     icon: <MessageCircleIcon />,
   },
   {
-    name: "チャット履歴",
+    name: "チャット一覧",
     url: "/chats",
     icon: <HistoryIcon />,
   },

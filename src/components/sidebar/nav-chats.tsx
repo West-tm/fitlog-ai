@@ -41,7 +41,7 @@ export function NavChats({ chats }: { chats: Chat[] }) {
           <SidebarMenuItem>
             <CollapsibleTrigger asChild>
               <SidebarMenuButton>
-                <span>最近のチャット一覧</span>
+                <span>最近のチャット</span>
                 <ChevronRightIcon
                   className="ml-auto transition-transform duration-200
                     group-data-[state=open]/collapsible:rotate-90"
