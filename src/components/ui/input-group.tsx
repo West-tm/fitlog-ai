@@ -75,13 +75,13 @@ function InputGroupAddon({
       data-align={align}
       className={cn(inputGroupAddonVariants({ align }), className)}
       onClick={(e) => {
-        if ((e.target as HTMLElement).closest("button")) {
+        if (e.target !== e.currentTarget) {
           return;
         }
         e.currentTarget.parentElement
           ?.querySelector<
             HTMLInputElement | HTMLTextAreaElement
-          >("textarea, input")
+          >("[data-slot=input-group-control]")
           ?.focus();
       }}
       {...props}
