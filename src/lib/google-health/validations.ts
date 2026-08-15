@@ -8,17 +8,36 @@ const civilDateTimeSchema = z.object({
   }),
 });
 
-export const googleHealthWeightSchema = z.object({
-  rollupDataPoints: z.array(
-    z.object({
-      civilStartTime: civilDateTimeSchema,
-      civilEndTime: civilDateTimeSchema,
-      weight: z.object({ weightGramsAvg: z.int() }),
-    }),
-  ),
-});
+function dailyRollupSchema<T extends z.ZodRawShape>(value: T) {
+  return z.object({
+    rollupDataPoints: z
+      .array(
+        z.object({
+          civilStartTime: civilDateTimeSchema,
+          civilEndTime: civilDateTimeSchema,
+          ...value,
+        }),
+      )
+      .default([]),
+  });
+}
 
-export type GoogleHealthWeightLogs = z.infer<typeof googleHealthWeightSchema>;
+export const googleHealthWeightSchema = dailyRollupSchema({
+  weight: z.object({ weightGramsAvg: z.int() }),
+});
+export const googleHealthBodyFatSchema = dailyRollupSchema({
+  bodyFat: z.object({ bodyFatPercentageAvg: z.number() }),
+});
+export const googleHealthStepsSchema = dailyRollupSchema({
+  steps: z.object({ countSum: z.coerce.number().int() }),
+});
+export const googleHealthCaloriesSchema = dailyRollupSchema({
+  totalCalories: z.object({ kcalSum: z.number() }),
+});
+export type GoogleHealthWeight = z.infer<typeof googleHealthWeightSchema>;
+export type GoogleHealthBodyFat = z.infer<typeof googleHealthBodyFatSchema>;
+export type GoogleHealthSteps = z.infer<typeof googleHealthStepsSchema>;
+export type GoogleHealthCalories = z.infer<typeof googleHealthCaloriesSchema>;
 
 const toUtcDay = (dateString: string) => {
   const DAY_MS = 24 * 60 * 60 * 1000;
@@ -28,7 +47,7 @@ const toUtcDay = (dateString: string) => {
   return Date.UTC(year, month - 1, day) / DAY_MS;
 };
 
-export const googleHealthWeightSyncFormSchema = z
+export const googleHealthDataSyncFormSchema = z
   .object({
     startDate: z.iso.date("開始日を入力してください"),
     endDate: z.iso.date("終了日を入力してください"),
@@ -49,15 +68,15 @@ export const googleHealthWeightSyncFormSchema = z
 
     const diffDays = endDate - startDate;
 
-    if (diffDays > 90) {
+    if (diffDays > 13) {
       ctx.addIssue({
         code: "custom",
         path: ["endDate"],
-        message: "日付の間隔は90日以内にしてください",
+        message: "日付の間隔は14日以内にしてください",
       });
     }
   });
 
-export type GoogleHealthWeightSyncFormValues = z.infer<
-  typeof googleHealthWeightSyncFormSchema
+export type GoogleHealthDataSyncFormValues = z.infer<
+  typeof googleHealthDataSyncFormSchema
 >;

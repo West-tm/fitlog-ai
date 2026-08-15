@@ -3,8 +3,8 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 
 import {
-  GoogleHealthBodyFat,
-  GoogleHealthWeight,
+  GoogleHealthCalories,
+  GoogleHealthSteps,
 } from "@/lib/google-health/validations";
 import { prisma } from "@/lib/prisma/prisma";
 
@@ -12,8 +12,8 @@ const toRecordDate = (date: { year: number; month: number; day: number }) => {
   return new Date(Date.UTC(date.year, date.month - 1, date.day));
 };
 
-export async function upsertWeightLogs(
-  logs: GoogleHealthWeight,
+export async function upsertStepsLogs(
+  logs: GoogleHealthSteps,
   userId: string,
   googleHealthConnectionId: string,
 ) {
@@ -23,10 +23,10 @@ export async function upsertWeightLogs(
 
       const logData = {
         googleHealthConnectionId,
-        weightGramsAvg: log.weight.weightGramsAvg,
+        stepsCountSum: log.steps.countSum,
       };
 
-      return prisma.bodyLog.upsert({
+      return prisma.activityLog.upsert({
         where: {
           userId_measuredOn: {
             userId,
@@ -43,11 +43,11 @@ export async function upsertWeightLogs(
     }),
   );
 
-  revalidatePath("/health/weight");
+  revalidatePath("/health");
 }
 
-export async function upsertBodyFatLogs(
-  logs: GoogleHealthBodyFat,
+export async function upsertCaloriesLogs(
+  logs: GoogleHealthCalories,
   userId: string,
   googleHealthConnectionId: string,
 ) {
@@ -57,10 +57,10 @@ export async function upsertBodyFatLogs(
 
       const logData = {
         googleHealthConnectionId,
-        bodyFatPercentageAvg: log.bodyFat.bodyFatPercentageAvg,
+        totalCaloriesKcalSum: log.totalCalories.kcalSum,
       };
 
-      return prisma.bodyLog.upsert({
+      return prisma.activityLog.upsert({
         where: {
           userId_measuredOn: {
             userId,

@@ -7,8 +7,8 @@ import { useForm } from "react-hook-form";
 
 import { getTokyoDateRangeStrings } from "@/lib/date";
 import {
-  googleHealthWeightSyncFormSchema,
-  GoogleHealthWeightSyncFormValues,
+  googleHealthDataSyncFormSchema,
+  GoogleHealthDataSyncFormValues,
 } from "@/lib/google-health/validations";
 
 import { Button } from "../ui/button";
@@ -18,22 +18,22 @@ import { Spinner } from "../ui/spinner";
 
 type Props = {
   onSubmitAction: (
-    values: GoogleHealthWeightSyncFormValues,
+    values: GoogleHealthDataSyncFormValues,
   ) => Promise<{ success: boolean; error?: string }>;
-  defaultValues?: GoogleHealthWeightSyncFormValues;
+  defaultValues?: GoogleHealthDataSyncFormValues;
 };
 
-export default function GoogleHealthWeightSyncForm({
+export default function GoogleHealthDataSyncForm({
   onSubmitAction,
-  defaultValues = getTokyoDateRangeStrings(89),
+  defaultValues = getTokyoDateRangeStrings(13),
 }: Props) {
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<GoogleHealthWeightSyncFormValues>({
-    resolver: zodResolver(googleHealthWeightSyncFormSchema),
+  } = useForm<GoogleHealthDataSyncFormValues>({
+    resolver: zodResolver(googleHealthDataSyncFormSchema),
     defaultValues,
     mode: "onBlur",
   });
@@ -48,7 +48,7 @@ export default function GoogleHealthWeightSyncForm({
     void handleSubmit(onSubmit)(event);
   };
 
-  const onSubmit = async (values: GoogleHealthWeightSyncFormValues) => {
+  const onSubmit = async (values: GoogleHealthDataSyncFormValues) => {
     if (submitLockRef.current) return;
 
     submitLockRef.current = true;
@@ -61,7 +61,7 @@ export default function GoogleHealthWeightSyncForm({
         setError("root", { message: result.error });
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setError("root", {
         message:
           "Google Health API のデータ取得に失敗しました。時間をおいて再度お試しください。",
