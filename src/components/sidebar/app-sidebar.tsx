@@ -44,11 +44,6 @@ const privateNavItems = [
     url: "/health",
     icon: <ChartSpline />,
   },
-  {
-    name: "体重データ",
-    url: "/health/weight",
-    icon: <ChartSpline />,
-  },
 ];
 
 const user = {

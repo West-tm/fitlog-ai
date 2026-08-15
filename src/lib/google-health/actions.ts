@@ -65,11 +65,22 @@ export async function syncGoogleHealthDataLogs(
 
   const connection = await prisma.googleHealthConnection.findUnique({
     where: { userId: user.id },
-    select: { id: true },
+    select: { id: true, scope: true },
   });
 
   if (!connection) {
     redirect("/settings/integrations?notice=google-health-not-connected");
+  }
+
+  const granted = new Set(connection.scope.split(/\s+/).filter(Boolean));
+  const missing = googleHealthEnv.scopes.filter((scope) => !granted.has(scope));
+
+  if (missing.length > 0) {
+    return {
+      success: false,
+      error:
+        "Google Health API の権限が不足しています。連携を解除して再度連携してください。",
+    };
   }
 
   const parsedValues = googleHealthDataSyncFormSchema.parse(values);

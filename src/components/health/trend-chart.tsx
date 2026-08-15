@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
@@ -26,21 +26,32 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type WeightChartPoint = {
+type TrendChartPoint = {
   date: string;
-  weightKg: number;
+  value: number;
 };
 
-type WeightChartProps = {
-  chartData: WeightChartPoint[];
+type TrendChartProps = {
+  chartData: TrendChartPoint[];
+  label: string;
+  unit: string;
+  fractionDigits?: number;
 };
 
-const chartConfig = {
-  weightKg: {
-    label: "平均体重",
-    color: "var(--chart-2)",
-  },
-} satisfies ChartConfig;
+const DOMAIN_PADDING_RATIO = 0.1;
+
+const getPaddedDomain = (
+  dataMin: number,
+  dataMax: number,
+): [number, number] => {
+  const range = dataMax - dataMin;
+  const padding =
+    range === 0
+      ? Math.abs(dataMax) * DOMAIN_PADDING_RATIO || 1
+      : range * DOMAIN_PADDING_RATIO;
+
+  return [Math.max(0, dataMin - padding), dataMax + padding];
+};
 
 const formatDateLabel = (date: string) => {
   const [, month, day] = date.split("-");
@@ -48,13 +59,27 @@ const formatDateLabel = (date: string) => {
   return `${Number(month)}月${Number(day)}日`;
 };
 
-export default function WeightTrendChart({ chartData }: WeightChartProps) {
+export default function TrendChart({
+  chartData,
+  label,
+  unit,
+  fractionDigits = 0,
+}: TrendChartProps) {
+  const chartConfig = {
+    value: {
+      label,
+      color: "var(--chart-2)",
+    },
+  } satisfies ChartConfig;
+
   const [timeRange, setTimeRange] = useState("90");
+  // useId はコロンを含むので、SVG の url(#...) では使えない
+  const gradientId = `fill-${useId().replaceAll(":", "")}`;
 
   if (chartData.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        体重ログがまだありません。
+        {label}ログがまだありません。
       </p>
     );
   }
@@ -70,21 +95,27 @@ export default function WeightTrendChart({ chartData }: WeightChartProps) {
     return new Date(item.date) >= startDate;
   });
 
+  const values = filteredData.map((item) => item.value);
+  const yDomain =
+    values.length === 0
+      ? undefined
+      : getPaddedDomain(Math.min(...values), Math.max(...values));
+
   return (
     <Card className="pt-0">
       <CardHeader
         className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row"
       >
         <div className="grid flex-1 gap-1">
-          <CardTitle>体重推移</CardTitle>
+          <CardTitle>{label}推移</CardTitle>
           <CardDescription>
-            指定した期間の体重推移を確認することが出来ます
+            指定した期間の{label}推移を確認することが出来ます
           </CardDescription>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger
             className="rounded-lg sm:ml-auto sm:flex sm:w-40"
-            aria-label="Select a value"
+            aria-label="期間を選択"
           >
             <SelectValue placeholder="週" />
           </SelectTrigger>
@@ -112,7 +143,7 @@ export default function WeightTrendChart({ chartData }: WeightChartProps) {
         >
           <AreaChart data={filteredData}>
             <defs>
-              <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
                   stopColor="var(--chart-2)"
@@ -135,19 +166,18 @@ export default function WeightTrendChart({ chartData }: WeightChartProps) {
               tickFormatter={(value) => formatDateLabel(value)}
             />
             <YAxis
-              width={48}
-              domain={[
-                (dataMin: number) => Math.floor(dataMin - 1),
-                (dataMax: number) => Math.ceil(dataMax + 1),
-              ]}
-              tickFormatter={(value: number) => `${value}kg`}
+              width={64}
+              domain={yDomain}
+              tickFormatter={(value: number) =>
+                `${Number(value).toFixed(fractionDigits)}${unit}`
+              }
             />
             <ChartTooltip
               content={
                 <ChartTooltipContent
                   formatter={(value) => [
-                    "平均体重：",
-                    `${Number(value).toFixed(1)}kg`,
+                    `${label}：`,
+                    `${Number(value).toFixed(fractionDigits)}${unit}`,
                   ]}
                   labelFormatter={(value) => formatDateLabel(value)}
                   indicator="dot"
@@ -156,9 +186,9 @@ export default function WeightTrendChart({ chartData }: WeightChartProps) {
             />
 
             <Area
-              dataKey="weightKg"
+              dataKey="value"
               type="linear"
-              fill="url(#fillDesktop)"
+              fill={`url(#${gradientId})`}
               stroke="var(--chart-2)"
               dot={
                 Number(timeRange) <= 30 && {

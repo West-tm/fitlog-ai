@@ -43,7 +43,7 @@ export async function upsertWeightLogs(
     }),
   );
 
-  revalidatePath("/health/weight");
+  revalidatePath("/health");
 }
 
 export async function upsertBodyFatLogs(
