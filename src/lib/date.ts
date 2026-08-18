@@ -31,3 +31,16 @@ export function getTokyoDateRangeStrings(days: number, now: Date = new Date()) {
     endDate,
   };
 }
+
+export function toUtcDateFromIsoDate(isoDate: string) {
+  const [year, month, day] = isoDate.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+export function toRecordDate(date: {
+  year: number;
+  month: number;
+  day: number;
+}) {
+  return new Date(Date.UTC(date.year, date.month - 1, date.day));
+}

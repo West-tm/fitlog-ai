@@ -214,7 +214,7 @@ export default function MessageForm({
           <Field>
             <div className="flex flex-wrap items-center gap-1">
               <FieldLabel className="w-20 shrink-0" htmlFor="startDate">
-                体重データ
+                健康データ
               </FieldLabel>
               <Popover>
                 <PopoverTrigger asChild>
@@ -223,13 +223,13 @@ export default function MessageForm({
                     variant="ghost"
                     size="icon"
                     className="size-6"
-                    aria-label="体重データの説明"
+                    aria-label="健康データの説明"
                   >
                     <CircleHelpIcon className="size-4 text-muted-foreground" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent align="start" className="w-auto text-sm">
-                  使用する体重データの期間を指定してください
+                  使用する健康データの期間を指定してください
                 </PopoverContent>
               </Popover>
 

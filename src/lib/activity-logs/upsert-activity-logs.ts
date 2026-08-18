@@ -2,15 +2,12 @@ import "server-only";
 
 import { revalidatePath } from "next/cache";
 
+import { toRecordDate } from "@/lib/date";
 import {
   GoogleHealthCalories,
   GoogleHealthSteps,
 } from "@/lib/google-health/validations";
 import { prisma } from "@/lib/prisma/prisma";
-
-const toRecordDate = (date: { year: number; month: number; day: number }) => {
-  return new Date(Date.UTC(date.year, date.month - 1, date.day));
-};
 
 export async function upsertStepsLogs(
   logs: GoogleHealthSteps,
@@ -57,7 +54,7 @@ export async function upsertCaloriesLogs(
 
       const logData = {
         googleHealthConnectionId,
-        totalCaloriesKcalSum: log.totalCalories.kcalSum,
+        totalCaloriesKcalSum: Math.round(log.totalCalories.kcalSum),
       };
 
       return prisma.activityLog.upsert({

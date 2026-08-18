@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getUser } from "@/lib/auth/get-user";
+import { getHealthLogsByDateRange } from "@/lib/health-logs/get-health-logs-by-date-range";
 import { prisma } from "@/lib/prisma/prisma";
 import {
   createMessageSchema,
@@ -11,7 +12,6 @@ import {
   updateMessageSchema,
 } from "@/lib/validations/messages";
 
-import { getBodyLogsByStartDateAndEndDate } from "./body-logs";
 import { getChat } from "./chats";
 import { geminiGenerateContent } from "./gemini";
 import { getMessage, getMessagesByChatId } from "./messages";
@@ -41,9 +41,9 @@ export async function createFeedback(
     return { error: "チャットが見つかりません。" };
   }
 
-  const bodyLogs = await getBodyLogsByStartDateAndEndDate(
-    new Date(result.data.startDate),
-    new Date(result.data.endDate),
+  const healthLogs = await getHealthLogsByDateRange(
+    result.data.startDate,
+    result.data.endDate,
   );
 
   const messages = await getMessagesByChatId(chatId);
@@ -58,7 +58,7 @@ export async function createFeedback(
     history,
     result.data.content,
     result.data.useGoogleSearch,
-    bodyLogs,
+    healthLogs,
   );
 
   if (!generateResult.ok) {
@@ -126,9 +126,9 @@ export async function updateFeedback(
     return { error: "AI回答が見つかりません。" };
   }
 
-  const bodyLogs = await getBodyLogsByStartDateAndEndDate(
-    new Date(result.data.startDate),
-    new Date(result.data.endDate),
+  const healthLogs = await getHealthLogsByDateRange(
+    result.data.startDate,
+    result.data.endDate,
   );
 
   const message = await getMessage(feedback.messageId);
@@ -157,7 +157,7 @@ export async function updateFeedback(
     history,
     result.data.content,
     result.data.useGoogleSearch,
-    bodyLogs,
+    healthLogs,
   );
 
   if (!generateResult.ok) {
