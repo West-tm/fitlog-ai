@@ -93,33 +93,37 @@ export async function syncGoogleHealthDataLogs(
     return `/users/me/dataTypes/${dataType}/dataPoints:dailyRollUp`;
   }
 
-  const googleHealthWeightData = await fetchFromGoogleHealth(
-    getGoogleHealthUrl("weight"),
-    parsedValues,
-    googleHealthWeightSchema,
-    accessToken,
-  );
-
-  const googleHealthBodyFatData = await fetchFromGoogleHealth(
-    getGoogleHealthUrl("body-fat"),
-    parsedValues,
-    googleHealthBodyFatSchema,
-    accessToken,
-  );
-
-  const googleHealthStepsData = await fetchFromGoogleHealth(
-    getGoogleHealthUrl("steps"),
-    parsedValues,
-    googleHealthStepsSchema,
-    accessToken,
-  );
-
-  const googleHealthCaloriesData = await fetchFromGoogleHealth(
-    getGoogleHealthUrl("total-calories"),
-    parsedValues,
-    googleHealthCaloriesSchema,
-    accessToken,
-  );
+  const [
+    googleHealthWeightData,
+    googleHealthBodyFatData,
+    googleHealthStepsData,
+    googleHealthCaloriesData,
+  ] = await Promise.all([
+    fetchFromGoogleHealth(
+      getGoogleHealthUrl("weight"),
+      parsedValues,
+      googleHealthWeightSchema,
+      accessToken,
+    ),
+    fetchFromGoogleHealth(
+      getGoogleHealthUrl("body-fat"),
+      parsedValues,
+      googleHealthBodyFatSchema,
+      accessToken,
+    ),
+    fetchFromGoogleHealth(
+      getGoogleHealthUrl("steps"),
+      parsedValues,
+      googleHealthStepsSchema,
+      accessToken,
+    ),
+    fetchFromGoogleHealth(
+      getGoogleHealthUrl("total-calories"),
+      parsedValues,
+      googleHealthCaloriesSchema,
+      accessToken,
+    ),
+  ]);
 
   const failures: string[] = [];
 
