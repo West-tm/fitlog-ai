@@ -1,5 +1,5 @@
 import { gemini } from "@/lib/gemini/gemini";
-import { ChatHistory } from "@/lib/types/gemini";
+import { ChatHistory, HealthLogForGemini } from "@/lib/types/gemini";
 
 const MAX_HISTORY_TURNS = 5;
 
@@ -7,21 +7,39 @@ type GeminiGenerateContentResult =
   | { ok: true; content: string }
   | { ok: false; error: string };
 
+function formatHealthLogs(logs: HealthLogForGemini[]) {
+  if (logs.length === 0) return "健康データはありません";
+
+  return logs
+    .map((log) => {
+      const parts = [
+        log.weightKg != null ? `${log.weightKg}kg` : null,
+        log.bodyFatPercentage != null
+          ? `体脂肪 ${log.bodyFatPercentage}%`
+          : null,
+        log.stepsCount != null ? `${log.stepsCount}歩` : null,
+        log.totalCaloriesKcal != null
+          ? `消費 ${log.totalCaloriesKcal}kcal`
+          : null,
+      ].filter(Boolean);
+
+      return `${log.date}: ${parts.join(" / ")}`;
+    })
+    .join("\n");
+}
+
 export async function geminiGenerateContent(
   promptContent: string,
   history: ChatHistory[] | null,
   messageContent: string,
   isUseGoogleSearch: boolean,
-  bodyLogs: { date: string; weightKg: number }[],
+  healthLogs: HealthLogForGemini[],
 ): Promise<GeminiGenerateContentResult> {
   const config = isUseGoogleSearch
     ? { tools: [{ googleSearch: {} }] }
     : undefined;
 
-  const bodyLogsString =
-    bodyLogs.length > 0
-      ? bodyLogs.map((log) => `${log.date}: ${log.weightKg}kg`).join("\n")
-      : "体重データはありません";
+  const healthLogsString = formatHealthLogs(healthLogs);
 
   // 古い履歴は捨てて、直近の履歴をプロンプトに載せる
   const recentHistory = history?.length
@@ -41,8 +59,8 @@ export async function geminiGenerateContent(
         ${promptContent}
         #メッセージ
         ${messageContent}
-        #体重データ
-        ${bodyLogsString}
+        #健康データ
+        ${healthLogsString}
         #チャット履歴
         ${recentHistory}
         `.trim(),
@@ -56,7 +74,8 @@ export async function geminiGenerateContent(
     }
 
     return { ok: true, content: feedbackContent };
-  } catch {
+  } catch (error) {
+    console.error(error);
     return {
       ok: false,
       error: "AI回答の作成に失敗しました。時間をおいて再度お試しください。",

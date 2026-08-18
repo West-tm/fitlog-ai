@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getUser } from "@/lib/auth/get-user";
+import { getHealthLogsByDateRange } from "@/lib/health-logs/get-health-logs-by-date-range";
 import { prisma } from "@/lib/prisma/prisma";
 import {
   updateChatTitleSchema,
@@ -14,7 +15,6 @@ import {
   MessageFormValues,
 } from "@/lib/validations/messages";
 
-import { getBodyLogsByStartDateAndEndDate } from "./body-logs";
 import { geminiGenerateContent } from "./gemini";
 import { getPrompt } from "./prompts";
 
@@ -33,9 +33,9 @@ export async function createChat(values: MessageFormValues) {
     return { error: "指示文が見つかりません。" };
   }
 
-  const bodyLogs = await getBodyLogsByStartDateAndEndDate(
-    new Date(result.data.startDate),
-    new Date(result.data.endDate),
+  const healthLogs = await getHealthLogsByDateRange(
+    result.data.startDate,
+    result.data.endDate,
   );
 
   const generateResult = await geminiGenerateContent(
@@ -43,7 +43,7 @@ export async function createChat(values: MessageFormValues) {
     null,
     result.data.content,
     result.data.useGoogleSearch,
-    bodyLogs,
+    healthLogs,
   );
 
   if (!generateResult.ok) {

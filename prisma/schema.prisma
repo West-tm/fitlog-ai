@@ -15,11 +15,12 @@ model User {
   id                      String                   @id @default(uuid())
   updatedAt               DateTime                 @updatedAt
   prompts                 Prompt[]
+  chats                   Chat[]
   messages                Message[]
   feedbacks               Feedback[]
   googleHealthConnections GoogleHealthConnection[]
   bodyLogs                BodyLog[]
-  chats                   Chat[]
+  activityLogs            ActivityLog[]
 }
 
 model Prompt {
@@ -72,17 +73,18 @@ model Feedback {
 }
 
 model GoogleHealthConnection {
-  id           String    @id @default(uuid())
-  userId       String    @unique
+  id           String        @id @default(uuid())
+  userId       String        @unique
   googleUserId String?
   scope        String
   refreshToken String
   accessToken  String?
   expiresAt    DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   bodyLogs     BodyLog[]
+  activityLogs ActivityLog[]
 }
 
 model BodyLog {
@@ -91,11 +93,28 @@ model BodyLog {
   googleHealthConnectionId String?
   measuredOn               DateTime @db.Date
   weightGramsAvg           Float?
+  bodyFatPercentageAvg     Float?
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
 
   user                   User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   googleHealthConnection GoogleHealthConnection? @relation(fields: [googleHealthConnectionId], references: [id])
+
+  @@unique([userId, measuredOn])
+}
+
+model ActivityLog {
+  id                       String   @id @default(uuid())
+  userId                   String
+  googleHealthConnectionId String?
+  measuredOn               DateTime @db.Date
+  stepsCountSum            Int?
+  totalCaloriesKcalSum     Float?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  user                   User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  googleHealthConnection GoogleHealthConnection? @relation(fields: [googleHealthConnectionId], references: [id], onDelete: SetNull)
 
   @@unique([userId, measuredOn])
 }

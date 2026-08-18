@@ -1,28 +1,28 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import {
+  upsertCaloriesLogs,
+  upsertStepsLogs,
+} from "../activity-logs/upsert-activity-logs";
 import { getUser } from "../auth/get-user";
-import { upsertBodyLogsFromGoogleHealth } from "../body-logs/upsert-body-logs";
+import {
+  upsertBodyFatLogs,
+  upsertWeightLogs,
+} from "../body-logs/upsert-body-logs";
 import { prisma } from "../prisma/prisma";
 import { googleHealthEnv } from "./env";
 import { getGoogleHealthAccessToken } from "./google-health";
 import {
+  googleHealthBodyFatSchema,
+  googleHealthCaloriesSchema,
+  googleHealthDataSyncFormSchema,
+  GoogleHealthDataSyncFormValues,
+  googleHealthStepsSchema,
   googleHealthWeightSchema,
-  googleHealthWeightSyncFormSchema,
-  GoogleHealthWeightSyncFormValues,
 } from "./validations";
-
-export async function getGoogleHealthConnectionSelectId() {
-  const user = await getUser();
-
-  const connection = await prisma.googleHealthConnection.findUnique({
-    where: { userId: user.id },
-    select: { id: true },
-  });
-
-  return connection;
-}
 
 export async function getGoogleHealthIdentity(accessToken: string) {
   const GOOGLE_HEALTH_REQUEST_TIMEOUT_MS = 10_000;
@@ -58,53 +58,140 @@ export async function getGoogleHealthIdentity(accessToken: string) {
   }
 }
 
-const GOOGLE_HEALTH_WEIGHT_DAILY_ROLLUP_PATH =
-  "/users/me/dataTypes/weight/dataPoints:dailyRollUp" as const;
-
-export async function syncGoogleHealthWeightLogs(
-  values: GoogleHealthWeightSyncFormValues,
+export async function syncGoogleHealthDataLogs(
+  values: GoogleHealthDataSyncFormValues,
 ) {
-  const parsedValues = googleHealthWeightSyncFormSchema.parse(values);
+  const user = await getUser();
 
-  const googleHealthData = await fetchFromGoogleHealth(
-    GOOGLE_HEALTH_WEIGHT_DAILY_ROLLUP_PATH,
-    parsedValues,
-  );
+  const connection = await prisma.googleHealthConnection.findUnique({
+    where: { userId: user.id },
+    select: { id: true, scope: true },
+  });
 
-  if ("error" in googleHealthData) {
-    return { success: false, error: googleHealthData.error };
+  if (!connection) {
+    redirect("/settings/integrations?notice=google-health-not-connected");
   }
 
-  await upsertBodyLogsFromGoogleHealth(googleHealthData);
+  const granted = new Set(connection.scope.split(/\s+/).filter(Boolean));
+  const missing = googleHealthEnv.scopes.filter((scope) => !granted.has(scope));
 
-  return { success: true };
+  if (missing.length > 0) {
+    return {
+      success: false,
+      error:
+        "Google Health API の権限が不足しています。連携を解除して再度連携してください。",
+    };
+  }
+
+  const parsedValues = googleHealthDataSyncFormSchema.parse(values);
+
+  const accessToken = await getGoogleHealthAccessToken();
+
+  function getGoogleHealthUrl(
+    dataType: "weight" | "body-fat" | "steps" | "total-calories",
+  ) {
+    return `/users/me/dataTypes/${dataType}/dataPoints:dailyRollUp`;
+  }
+
+  const [
+    googleHealthWeightData,
+    googleHealthBodyFatData,
+    googleHealthStepsData,
+    googleHealthCaloriesData,
+  ] = await Promise.all([
+    fetchFromGoogleHealth(
+      getGoogleHealthUrl("weight"),
+      parsedValues,
+      googleHealthWeightSchema,
+      accessToken,
+    ),
+    fetchFromGoogleHealth(
+      getGoogleHealthUrl("body-fat"),
+      parsedValues,
+      googleHealthBodyFatSchema,
+      accessToken,
+    ),
+    fetchFromGoogleHealth(
+      getGoogleHealthUrl("steps"),
+      parsedValues,
+      googleHealthStepsSchema,
+      accessToken,
+    ),
+    fetchFromGoogleHealth(
+      getGoogleHealthUrl("total-calories"),
+      parsedValues,
+      googleHealthCaloriesSchema,
+      accessToken,
+    ),
+  ]);
+
+  const failures: string[] = [];
+
+  if ("error" in googleHealthWeightData) {
+    failures.push("体重");
+  } else if (googleHealthWeightData.rollupDataPoints.length > 0) {
+    await upsertWeightLogs(googleHealthWeightData, user.id, connection.id);
+  }
+
+  if ("error" in googleHealthBodyFatData) {
+    failures.push("体脂肪率");
+  } else if (googleHealthBodyFatData.rollupDataPoints.length > 0) {
+    await upsertBodyFatLogs(googleHealthBodyFatData, user.id, connection.id);
+  }
+
+  if ("error" in googleHealthStepsData) {
+    failures.push("歩数");
+  } else if (googleHealthStepsData.rollupDataPoints.length > 0) {
+    await upsertStepsLogs(googleHealthStepsData, user.id, connection.id);
+  }
+
+  if ("error" in googleHealthCaloriesData) {
+    failures.push("カロリー");
+  } else if (googleHealthCaloriesData.rollupDataPoints.length > 0) {
+    await upsertCaloriesLogs(googleHealthCaloriesData, user.id, connection.id);
+  }
+
+  if (failures.length === 4) {
+    return {
+      success: false,
+      error:
+        "Google Health API のデータ取得に失敗しました。時間をおいて再度お試しください。",
+    };
+  }
+
+  return {
+    success: failures.length === 0,
+    error: failures.length
+      ? `${failures.join("・")}の取得に失敗しました。他のデータは保存しました。`
+      : undefined,
+  };
 }
 
-async function fetchFromGoogleHealth(
+const toCivilDate = (dateString: string, addDays: number = 0) => {
+  const [year, month, day] = dateString.split("-").map(Number);
+  const addDate = new Date(year, month - 1, day + addDays);
+
+  return {
+    date: {
+      year: addDate.getFullYear(),
+      month: addDate.getMonth() + 1,
+      day: addDate.getDate(),
+    },
+  };
+};
+
+async function fetchFromGoogleHealth<T extends z.ZodTypeAny>(
   path: string,
-  values: GoogleHealthWeightSyncFormValues,
+  values: GoogleHealthDataSyncFormValues,
+  schema: T,
+  accessToken: string,
 ) {
   const { startDate, endDate } = values;
-
-  const toCivilDate = (dateString: string, addDays: number = 0) => {
-    const [year, month, day] = dateString.split("-").map(Number);
-    const addDate = new Date(year, month - 1, day + addDays);
-
-    return {
-      date: {
-        year: addDate.getFullYear(),
-        month: addDate.getMonth() + 1,
-        day: addDate.getDate(),
-      },
-    };
-  };
 
   const civilTimeInterval = {
     start: toCivilDate(startDate),
     end: toCivilDate(endDate, 1),
   };
-
-  const accessToken = await getGoogleHealthAccessToken();
 
   const response = await fetch(`${googleHealthEnv.apiBaseUrl}${path}`, {
     method: "post",
@@ -120,12 +207,22 @@ async function fetchFromGoogleHealth(
 
   if (!response.ok) {
     return {
-      error:
-        "Google Health API のデータ取得に失敗しました。時間をおいて再度お試しください。",
+      error: "Google Health API のデータ取得に失敗しました。",
     };
   }
 
   const data = await response.json();
 
-  return googleHealthWeightSchema.parse(data);
+  const parsed = schema.safeParse(data);
+
+  if (!parsed.success) {
+    console.error("Google Health response parse failed", {
+      path,
+      error: parsed.error,
+    });
+    return {
+      error: "Google Health API のデータ取得に失敗しました。",
+    };
+  }
+  return parsed.data;
 }

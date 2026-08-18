@@ -1,51 +1,66 @@
-import { z } from "zod";
+import { getActivityLogs } from "@/app/actions/activity-logs";
+import { getBodyLogs } from "@/app/actions/body-logs";
+import TrendChart from "@/components/health/trend-chart";
+import { toTokyoDateString } from "@/lib/date";
 
-import { googleHealthEnv } from "@/lib/google-health/env";
-import { getGoogleHealthAccessToken } from "@/lib/google-health/google-health";
-
-const googleHealthProfileSchema = z.object({
-  name: z.string(),
-  age: z.int(),
-  membershipStartDate: z.object({
-    year: z.int(),
-    month: z.int(),
-    day: z.int(),
-  }),
-});
-
-async function fetchGoogleHealthJson<TSchema extends z.ZodTypeAny>(
-  path: string,
-  schema: TSchema,
+function toChartPoints<T extends { measuredOn: Date }>(
+  logs: T[],
+  getValue: (log: T) => number | null,
 ) {
-  const accessToken = await getGoogleHealthAccessToken();
+  return logs.flatMap((log) => {
+    const value = getValue(log);
+    if (value === null) return [];
 
-  const response = await fetch(`${googleHealthEnv.apiBaseUrl}${path}`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: "application/json",
-    },
-    cache: "no-store",
-    signal: AbortSignal.timeout(10_000),
+    return [{ date: toTokyoDateString(log.measuredOn), value }];
   });
-
-  if (!response.ok) {
-    throw new Error("Google Health API request failed");
-  }
-
-  const data: unknown = await response.json();
-  return schema.parse(data);
 }
 
 export default async function GoogleHealthPage() {
-  const profile = await fetchGoogleHealthJson(
-    "/users/me/profile",
-    googleHealthProfileSchema,
+  const [bodyLogs, activityLogs] = await Promise.all([
+    getBodyLogs(),
+    getActivityLogs(),
+  ]);
+
+  const weightChartData = toChartPoints(bodyLogs, (log) =>
+    log.weightGramsAvg === null ? null : log.weightGramsAvg / 1000,
+  );
+  const bodyFatPercentageChartData = toChartPoints(
+    bodyLogs,
+    (log) => log.bodyFatPercentageAvg,
+  );
+  const totalCaloriesChartData = toChartPoints(
+    activityLogs,
+    (log) => log.totalCaloriesKcalSum,
+  );
+  const stepsChartData = toChartPoints(
+    activityLogs,
+    (log) => log.stepsCountSum,
   );
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold">Google Health API TestPage</h1>
-      <div>{JSON.stringify(profile)}</div>
+      <h1 className="text-xl font-semibold">
+        Google Health API 健康データ一覧
+      </h1>
+      <TrendChart
+        chartData={weightChartData}
+        label="体重"
+        unit="kg"
+        fractionDigits={1}
+      />
+      <TrendChart
+        chartData={bodyFatPercentageChartData}
+        label="体脂肪率"
+        unit="%"
+        fractionDigits={1}
+      />
+
+      <TrendChart
+        chartData={totalCaloriesChartData}
+        label="消費カロリー"
+        unit="kcal"
+      />
+      <TrendChart chartData={stepsChartData} label="歩数" unit="歩" />
     </div>
   );
 }
