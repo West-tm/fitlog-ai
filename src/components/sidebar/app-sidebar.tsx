@@ -46,17 +46,15 @@ const privateNavItems = [
   },
 ];
 
-const user = {
-  name: "shadcn",
-  email: "m@example.com",
-  avatar: "/avatars/shadcn.jpg",
-};
-
 export function AppSidebar({
   chats,
+  name,
+  email,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   chats: Chat[];
+  name: string | null;
+  email: string;
 }) {
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -82,7 +80,7 @@ export function AppSidebar({
         <NavChats chats={chats} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser name={name} email={email} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
