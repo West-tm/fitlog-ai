@@ -15,6 +15,7 @@ import {
 import { getChat } from "./chats";
 import { geminiGenerateContent } from "./gemini";
 import { getMessage, getMessagesByChatId } from "./messages";
+import { getProfile } from "./profile";
 import { getPrompt } from "./prompts";
 
 export async function createFeedback(
@@ -53,12 +54,15 @@ export async function createFeedback(
     modelText: message.feedbacks[0]?.content ?? "",
   }));
 
+  const profile = await getProfile();
+
   const generateResult = await geminiGenerateContent(
     prompt.content,
     history,
     result.data.content,
     result.data.useGoogleSearch,
     healthLogs,
+    profile,
   );
 
   if (!generateResult.ok) {
@@ -131,6 +135,12 @@ export async function updateFeedback(
     result.data.endDate,
   );
 
+  const profile = await getProfile();
+
+  if (!profile) {
+    return { error: "プロフィールが見つかりません。" };
+  }
+
   const message = await getMessage(feedback.messageId);
 
   if (!message) {
@@ -158,6 +168,7 @@ export async function updateFeedback(
     result.data.content,
     result.data.useGoogleSearch,
     healthLogs,
+    profile,
   );
 
   if (!generateResult.ok) {

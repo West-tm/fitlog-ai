@@ -16,6 +16,7 @@ import {
 } from "@/lib/validations/messages";
 
 import { geminiGenerateContent } from "./gemini";
+import { getProfile } from "./profile";
 import { getPrompt } from "./prompts";
 
 export async function createChat(values: MessageFormValues) {
@@ -38,12 +39,15 @@ export async function createChat(values: MessageFormValues) {
     result.data.endDate,
   );
 
+  const profile = await getProfile();
+
   const generateResult = await geminiGenerateContent(
     prompt.content,
     null,
     result.data.content,
     result.data.useGoogleSearch,
     healthLogs,
+    profile,
   );
 
   if (!generateResult.ok) {

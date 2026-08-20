@@ -1,3 +1,6 @@
+import { User } from "@prisma/client";
+
+import { toTokyoDateString } from "@/lib/date";
 import { gemini } from "@/lib/gemini/gemini";
 import { ChatHistory, HealthLogForGemini } from "@/lib/types/gemini";
 
@@ -28,12 +31,24 @@ function formatHealthLogs(logs: HealthLogForGemini[]) {
     .join("\n");
 }
 
+function formatProfile(profile: User | null) {
+  if (!profile) return "プロフィールはありません";
+
+  return `
+    名前: ${profile.name ?? "未設定"}
+    性別: ${profile.gender ?? "未設定"}
+    身長: ${profile.heightCm ? `${profile.heightCm}cm` : "未設定"}
+    生年月日: ${profile.birthDate ? toTokyoDateString(profile.birthDate) : "未設定"}
+  `;
+}
+
 export async function geminiGenerateContent(
   promptContent: string,
   history: ChatHistory[] | null,
   messageContent: string,
   isUseGoogleSearch: boolean,
   healthLogs: HealthLogForGemini[],
+  profile: User | null,
 ): Promise<GeminiGenerateContentResult> {
   const config = isUseGoogleSearch
     ? { tools: [{ googleSearch: {} }] }
@@ -59,6 +74,8 @@ export async function geminiGenerateContent(
         ${promptContent}
         #メッセージ
         ${messageContent}
+        #プロフィール
+        ${formatProfile(profile)}
         #健康データ
         ${healthLogsString}
         #チャット履歴
