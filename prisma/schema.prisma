@@ -11,10 +11,16 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Gender {
+  male
+  female
+  other
+}
+
 model User {
   id                      String                   @id @default(uuid())
   name                    String?
-  gender                  String?
+  gender                  Gender?
   heightCm                Int?
   birthDate               DateTime?                @db.Date
   updatedAt               DateTime                 @updatedAt

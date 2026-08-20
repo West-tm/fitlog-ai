@@ -1,6 +1,11 @@
 "use client";
 
-import { ChevronsUpDownIcon, LinkIcon, LogOutIcon } from "lucide-react";
+import {
+  ChevronsUpDownIcon,
+  LinkIcon,
+  LogOutIcon,
+  SettingsIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
 
@@ -83,6 +88,14 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link href="/settings" className="cursor-pointer">
+                  <SettingsIcon />
+                  <span>設定</span>
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link href="/settings/integrations" className="cursor-pointer">
