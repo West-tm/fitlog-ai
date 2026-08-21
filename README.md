@@ -31,6 +31,12 @@
 
 ---
 
+## 全体アーキテクチャ
+
+スマートウォッチ・体重計の数値が、スマホ → Health Connect → Google Health → このアプリ → Supabase までどう届くか。
+
+<img width="1310" height="769" alt="diagram-export-2026-8-21-10_06_19" src="https://github.com/user-attachments/assets/7d7f9826-6468-49c4-a16e-d97f990e3191" />
+
 ## 利用の流れ
 
 1. サインアップ、またはデモアカウントでログイン
