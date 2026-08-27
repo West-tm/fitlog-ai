@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 
 import { signinAction } from "@/app/(auth)/auth/signin/actions";
 import { SigninActionState } from "@/app/(auth)/auth/signin/schema";
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -25,25 +26,59 @@ import { cn } from "@/lib/utils";
 
 import { Spinner } from "../ui/spinner";
 
+const DEMO_EMAIL = "demo@example.com";
+const DEMO_PASSWORD = "demo@exa";
+
 export function SigninForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const formRef = useRef<HTMLFormElement>(null);
   const [formState, formAction, isPending] = useActionState<
     SigninActionState,
     FormData
   >(signinAction, {
     success: false,
   });
+
+  const handleDemoAccount = () => {
+    const form = formRef.current;
+    if (!form) return;
+
+    const email = form.elements.namedItem("email");
+    const password = form.elements.namedItem("password");
+    if (!(email instanceof HTMLInputElement)) return;
+    if (!(password instanceof HTMLInputElement)) return;
+    email.value = DEMO_EMAIL;
+    password.value = DEMO_PASSWORD;
+    form.requestSubmit();
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
+      <p className="text-right text-sm text-muted-foreground">
+        ※デモアカウントは共有です。 <br />
+        個人情報は入力しないでください。
+      </p>
+
       <Card>
         <CardHeader>
           <CardTitle>アカウントにログイン</CardTitle>
           <CardDescription>以下の情報を入力してください。</CardDescription>
+          <CardAction>
+            <Button
+              className="cursor-pointer"
+              type="button"
+              variant="outline"
+              disabled={isPending}
+              onClick={handleDemoAccount}
+            >
+              デモでログイン
+            </Button>
+          </CardAction>
         </CardHeader>
         <CardContent>
-          <form action={formAction}>
+          <form ref={formRef} action={formAction}>
             <FieldGroup>
               <Field data-disabled={isPending}>
                 <FieldLabel htmlFor="email">メールアドレス</FieldLabel>
@@ -62,16 +97,7 @@ export function SigninForm({
                 )}
               </Field>
               <Field data-disabled={isPending}>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">パスワード</FieldLabel>
-                  <Link
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4
-                      hover:underline"
-                  >
-                    パスワードをお忘れですか？
-                  </Link>
-                </div>
+                <FieldLabel htmlFor="password">パスワード</FieldLabel>
                 <Input
                   id="password"
                   name="password"
@@ -88,7 +114,11 @@ export function SigninForm({
                 {formState.formError && (
                   <FieldError>{formState.formError}</FieldError>
                 )}
-                <Button type="submit" disabled={isPending}>
+                <Button
+                  className="cursor-pointer"
+                  type="submit"
+                  disabled={isPending}
+                >
                   {isPending && <Spinner />}
                   ログインする
                 </Button>
