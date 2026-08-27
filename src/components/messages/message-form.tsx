@@ -41,6 +41,7 @@ type Props = {
   prompts: Prompt[];
   onSubmitAction: (values: MessageFormValues) => Promise<{ error: string }>;
   defaultValues?: MessageFormValues;
+  unlockOnSuccess?: boolean;
 };
 
 export default function MessageForm({
@@ -52,6 +53,7 @@ export default function MessageForm({
     useGoogleSearch: false,
     ...getTokyoDateRangeStrings(89),
   },
+  unlockOnSuccess = true,
 }: Props) {
   const {
     register,
@@ -75,6 +77,11 @@ export default function MessageForm({
     void handleSubmit(onSubmit)(event);
   };
 
+  const unlock = () => {
+    submitLockRef.current = false;
+    setIsSubmitLocked(false);
+  };
+
   const onSubmit = async (value: MessageFormValues) => {
     if (submitLockRef.current) return;
 
@@ -83,12 +90,16 @@ export default function MessageForm({
 
     try {
       const result = await onSubmitAction(value);
-      if (result.error) {
+
+      if (result?.error) {
         setError("root", { message: result.error });
+        unlock();
+        return;
       }
     } finally {
-      submitLockRef.current = false;
-      setIsSubmitLocked(false);
+      if (unlockOnSuccess) {
+        unlock();
+      }
     }
   };
 
