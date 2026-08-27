@@ -15,7 +15,11 @@ export default async function CreateChatPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-semibold">新しいチャットを開始する</h1>
-      <MessageForm prompts={prompts} onSubmitAction={createChat} />
+      <MessageForm
+        prompts={prompts}
+        onSubmitAction={createChat}
+        unlockOnSuccess={false}
+      />
     </div>
   );
 }
