@@ -3,6 +3,10 @@ import { getBodyLogs } from "@/app/actions/body-logs";
 import TrendChart from "@/components/health/trend-chart";
 import { toTokyoDateString } from "@/lib/date";
 
+export const metadata = {
+  title: "健康データ",
+};
+
 function toChartPoints<T extends { measuredOn: Date }>(
   logs: T[],
   getValue: (log: T) => number | null,

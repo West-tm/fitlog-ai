@@ -1,8 +1,9 @@
 import { Pencil } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getPromptWithMessages } from "@/app/actions/prompts";
+import { getPrompt, getPromptWithMessages } from "@/app/actions/prompts";
 import DeletePromptButton from "@/components/prompts/delete-prompt-button";
 import PromptContentCollapsible from "@/components/prompts/prompt-content-collapsible";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatTokyoDateLabel } from "@/lib/date";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/prompts/[id]">): Promise<Metadata> {
+  const { id } = await params;
+  const prompt = await getPrompt(id);
+
+  return {
+    title: prompt?.title || "指示文の詳細",
+  };
+}
 
 export default async function PromptPage({
   params,

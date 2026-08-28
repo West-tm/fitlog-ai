@@ -14,6 +14,10 @@ import { getUser } from "@/lib/auth/get-user";
 import { syncGoogleHealthDataLogs } from "@/lib/google-health/actions";
 import { prisma } from "@/lib/prisma/prisma";
 
+export const metadata = {
+  title: "外部サービス連携",
+};
+
 type Props = {
   searchParams: Promise<{
     error?: string | string[];

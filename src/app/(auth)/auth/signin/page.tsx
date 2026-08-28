@@ -1,6 +1,10 @@
 import { SigninForm } from "@/components/auth/signin-form";
 import { Separator } from "@/components/ui/separator";
 
+export const metadata = {
+  title: "ログイン",
+};
+
 export default function SigninPage() {
   return (
     <div className="flex w-full flex-1 items-center justify-center">

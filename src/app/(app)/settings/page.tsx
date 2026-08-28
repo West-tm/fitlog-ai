@@ -3,6 +3,10 @@ import ProfileForm from "@/components/profile/profile-form";
 import { getUser } from "@/lib/auth/get-user";
 import { toTokyoDateString } from "@/lib/date";
 
+export const metadata = {
+  title: "設定",
+};
+
 export default async function SettingsPage() {
   const user = await getUser();
 

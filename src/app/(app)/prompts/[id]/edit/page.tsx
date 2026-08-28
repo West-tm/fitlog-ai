@@ -1,7 +1,19 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { getPrompt, updatePrompt } from "@/app/actions/prompts";
 import PromptForm from "@/components/prompts/prompt-form";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/prompts/[id]/edit">): Promise<Metadata> {
+  const { id } = await params;
+  const prompt = await getPrompt(id);
+
+  return {
+    title: prompt ? `${prompt.title} の編集` : "指示文の編集",
+  };
+}
 
 export default async function EditPromptPage({
   params,

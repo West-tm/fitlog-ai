@@ -14,6 +14,10 @@ import {
 import { formatTokyoDateLabel } from "@/lib/date";
 import { PROMPT_REQUIRED_NOTICE } from "@/lib/notice";
 
+export const metadata = {
+  title: "指示文一覧",
+};
+
 type Props = {
   searchParams: Promise<{
     notice?: string | string[];
