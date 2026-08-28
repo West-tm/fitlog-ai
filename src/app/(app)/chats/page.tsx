@@ -11,6 +11,10 @@ import {
 } from "@/components/ui/table";
 import { formatTokyoDateLabel } from "@/lib/date";
 
+export const metadata = {
+  title: "チャット一覧",
+};
+
 export default async function ChatsPage() {
   const chats = await getChats();
 

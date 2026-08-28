@@ -11,7 +11,10 @@ import { cn } from "@/lib/utils";
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "FitLog AI",
+  title: {
+    default: "FitLog AI",
+    template: "%s | FitLog AI",
+  },
   description: "FitLog AI",
 };
 

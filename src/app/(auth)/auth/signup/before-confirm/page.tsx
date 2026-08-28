@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 
 export const metadata = {
-  title: "メール確認 | FitLog AI",
+  title: "メール確認",
 };
 
 export default function BeforeConfirmPage() {

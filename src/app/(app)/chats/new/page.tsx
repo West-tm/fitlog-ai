@@ -5,6 +5,10 @@ import { getPrompts } from "@/app/actions/prompts";
 import MessageForm from "@/components/messages/message-form";
 import { PROMPT_REQUIRED_NOTICE } from "@/lib/notice";
 
+export const metadata = {
+  title: "新しいチャット",
+};
+
 export default async function CreateChatPage() {
   const prompts = await getPrompts();
 

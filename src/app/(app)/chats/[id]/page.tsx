@@ -1,4 +1,5 @@
 import { PencilIcon } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import ReactMarkdown from "react-markdown";
@@ -21,6 +22,17 @@ import {
 } from "@/components/ui/message";
 import { formatTokyoDateLabel, toTokyoDateString } from "@/lib/date";
 import { PROMPT_REQUIRED_NOTICE } from "@/lib/notice";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/chats/[id]">): Promise<Metadata> {
+  const { id } = await params;
+  const chat = await getChat(id);
+
+  return {
+    title: chat?.title || "チャット",
+  };
+}
 
 export default async function ChatPage({
   params,

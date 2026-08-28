@@ -2,6 +2,10 @@ import { createPrompt } from "@/app/actions/prompts";
 import PromptForm from "@/components/prompts/prompt-form";
 import { getUser } from "@/lib/auth/get-user";
 
+export const metadata = {
+  title: "指示文を作成",
+};
+
 export default async function NewPromptPage() {
   await getUser();
 
