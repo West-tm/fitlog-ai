@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useActionState, useRef } from "react";
+import { toast } from "sonner";
 
 import { signinAction } from "@/app/(auth)/auth/signin/actions";
 import { SigninActionState } from "@/app/(auth)/auth/signin/schema";
@@ -34,12 +36,21 @@ export function SigninForm({
   ...props
 }: React.ComponentProps<"div">) {
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
   const [formState, formAction, isPending] = useActionState<
     SigninActionState,
     FormData
-  >(signinAction, {
-    success: false,
-  });
+  >(
+    async (prevState, formData) => {
+      const result = await signinAction(prevState, formData);
+      if (result.success) {
+        toast.success("ログインに成功しました。");
+        router.push("/chats/new");
+      }
+      return result;
+    },
+    { success: false },
+  );
 
   const handleDemoAccount = () => {
     const form = formRef.current;

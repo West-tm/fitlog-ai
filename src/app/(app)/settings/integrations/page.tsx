@@ -1,6 +1,7 @@
 import { Plug } from "lucide-react";
 
 import GoogleHealthDataSyncForm from "@/components/health/google-health-data-sync-form";
+import { GoogleHealthNoticeToast } from "@/components/health/google-health-notice-toast";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,8 +21,7 @@ export const metadata = {
 
 type Props = {
   searchParams: Promise<{
-    error?: string | string[];
-    notice?: string | string[];
+    flash?: string | string[];
   }>;
 };
 
@@ -29,69 +29,12 @@ function getFirstParam(value?: string | string[]) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function getIntegrationMessage({
-  error,
-  notice,
-}: {
-  error?: string;
-  notice?: string;
-}) {
-  if (notice === "google-health-connected") {
-    return {
-      type: "success",
-      text: "Google Health と連携しました。",
-    };
-  }
-
-  if (notice === "google-health-disconnected") {
-    return {
-      type: "success",
-      text: "Google Health 連携を解除しました。",
-    };
-  }
-
-  if (notice === "google-health-not-connected") {
-    return {
-      type: "error",
-      text: "Google Health はまだ連携されていません。",
-    };
-  }
-
-  if (notice === "google-health-disconnect-failed") {
-    return {
-      type: "error",
-      text: "Google Health 連携の解除に失敗しました。時間をおいて再度お試しください。",
-    };
-  }
-
-  if (error === "google-health-cancelled") {
-    return {
-      type: "error",
-      text: "Google Health 連携がキャンセルされました。",
-    };
-  }
-
-  if (error) {
-    return {
-      type: "error",
-      text: "Google Health 連携に失敗しました。時間をおいて再度お試しください。",
-    };
-  }
-
-  return null;
-}
-
 export default async function SettingsIntegrationsPage({
   searchParams,
 }: Props) {
   const user = await getUser();
 
-  const { error, notice } = await searchParams;
-
-  const message = getIntegrationMessage({
-    error: getFirstParam(error),
-    notice: getFirstParam(notice),
-  });
+  const { flash } = await searchParams;
 
   const googleHealthConnection = await prisma.googleHealthConnection.findUnique(
     { where: { userId: user.id } },
@@ -101,20 +44,12 @@ export default async function SettingsIntegrationsPage({
 
   return (
     <div className="space-y-6">
+      <GoogleHealthNoticeToast flash={getFirstParam(flash)} />
+
       <div className="space-y-2">
         <h1 className="text-xl font-semibold">外部サービス連携</h1>
         <p>外部サービスとの連携を管理します。</p>
       </div>
-
-      {message && (
-        <div
-          className={
-            message.type === "success" ? "text-green-700" : "text-destructive"
-          }
-        >
-          {message.text}
-        </div>
-      )}
 
       <Card>
         <CardHeader>

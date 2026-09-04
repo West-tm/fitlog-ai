@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 import { getUser } from "@/lib/auth/get-user";
 import { prisma } from "@/lib/prisma/prisma";
@@ -29,7 +28,7 @@ export async function createPrompt(values: PromptFormValues) {
   });
 
   revalidatePath("/prompts");
-  redirect(`/prompts/${prompt.id}`);
+  return { path: `/prompts/${prompt.id}`, message: "指示文を作成しました。" };
 }
 
 export async function getPrompt(id: string) {
@@ -126,7 +125,10 @@ export async function updatePrompt(id: string, values: PromptFormValues) {
   }
 
   revalidatePath("/prompts");
-  redirect(`/prompts/${result.data.id}`);
+  return {
+    path: `/prompts/${result.data.id}`,
+    message: "指示文を更新しました。",
+  };
 }
 
 export async function deletePrompt(id: string) {
@@ -143,5 +145,5 @@ export async function deletePrompt(id: string) {
   }
 
   revalidatePath("/prompts");
-  redirect("/prompts");
+  return { success: true };
 }

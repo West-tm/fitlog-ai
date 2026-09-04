@@ -150,4 +150,5 @@ export async function deleteChat(id: string) {
   }
 
   revalidatePath("/chats");
+  return { success: true };
 }

@@ -14,11 +14,10 @@ export const runtime = "nodejs";
 
 const redirectToIntegrations = (
   request: NextRequest,
-  value: string = "google-health-callback-invalid",
-  query: string = "error",
+  flash: string = "google-health-callback-invalid",
 ) => {
   const redirectUrl = new URL("/settings/integrations", request.url);
-  redirectUrl.searchParams.set(query, value);
+  redirectUrl.searchParams.set("flash", flash);
 
   const response = NextResponse.redirect(redirectUrl, { status: 303 });
   response.cookies.delete(GOOGLE_HEALTH_OAUTH_STATE);
@@ -111,7 +110,7 @@ export async function GET(request: NextRequest) {
       update: connectionData,
     });
 
-    return redirectToIntegrations(request, "google-health-connected", "notice");
+    return redirectToIntegrations(request, "google-health-connected");
   } catch {
     return redirectToIntegrations(request);
   }

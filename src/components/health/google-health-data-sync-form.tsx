@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { getTokyoDateRangeStrings } from "@/lib/date";
 import {
@@ -59,7 +60,10 @@ export default function GoogleHealthDataSyncForm({
 
       if (!result.success) {
         setError("root", { message: result.error });
+        return;
       }
+
+      toast.success("データ取得に成功しました。");
     } catch (error) {
       console.error(error);
       setError("root", {

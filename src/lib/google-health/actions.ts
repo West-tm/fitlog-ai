@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import {
@@ -69,7 +68,10 @@ export async function syncGoogleHealthDataLogs(
   });
 
   if (!connection) {
-    redirect("/settings/integrations?notice=google-health-not-connected");
+    return {
+      success: false,
+      error: "Google Health はまだ連携されていません。",
+    };
   }
 
   const granted = new Set(connection.scope.split(/\s+/).filter(Boolean));
@@ -85,7 +87,16 @@ export async function syncGoogleHealthDataLogs(
 
   const parsedValues = googleHealthDataSyncFormSchema.parse(values);
 
-  const accessToken = await getGoogleHealthAccessToken();
+  let accessToken: string;
+  try {
+    accessToken = await getGoogleHealthAccessToken();
+  } catch {
+    return {
+      success: false,
+      error:
+        "Google Health のアクセストークンの取得に失敗しました。再連携後に再度お試しください。",
+    };
+  }
 
   function getGoogleHealthUrl(
     dataType: "weight" | "body-fat" | "steps" | "total-calories",

@@ -3,6 +3,7 @@
 import { Trash2Icon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { toast } from "sonner";
 
 import { deleteChat } from "@/app/actions/chats";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -25,12 +26,16 @@ export function DeleteChatMenuItem({ id }: { id: string }) {
         startTransition(async () => {
           const result = await deleteChat(id);
           if (result?.error) {
-            alert(result.error);
+            toast.error(result.error);
             return;
           }
 
-          if (pathname.includes(`/chats/${id}`)) {
-            router.push("/chats/new");
+          if (result?.success) {
+            toast.success("チャットを削除しました。");
+
+            if (pathname.includes(`/chats/${id}`)) {
+              router.push("/chats/new");
+            }
           }
         });
       }}
