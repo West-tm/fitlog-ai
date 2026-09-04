@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { updateProfile } from "@/app/actions/profile";
 import { Button } from "@/components/ui/button";
@@ -77,6 +78,8 @@ export default function ProfileForm({ email, defaultValues }: Props) {
         setError("root", { message: result.error });
         return;
       }
+
+      toast.success("アカウント情報を更新しました。");
     } finally {
       submitLockRef.current = false;
       setIsSubmitLocked(false);

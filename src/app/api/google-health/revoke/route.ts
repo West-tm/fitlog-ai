@@ -6,10 +6,10 @@ import { prisma } from "@/lib/prisma/prisma";
 
 export const runtime = "nodejs";
 
-const redirectToIntegrations = (request: NextRequest, notice: string) => {
+const redirectToIntegrations = (request: NextRequest, flash: string) => {
   const redirectUrl = new URL("/settings/integrations", request.url);
 
-  redirectUrl.searchParams.set("notice", notice);
+  redirectUrl.searchParams.set("flash", flash);
 
   return NextResponse.redirect(redirectUrl, { status: 303 });
 };

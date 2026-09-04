@@ -2,8 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { PromptTemplate } from "@/lib/prompt-templates";
 import { promptFormSchema, PromptFormValues } from "@/lib/validations/prompts";
@@ -16,7 +18,11 @@ import { Textarea } from "../ui/textarea";
 import { PromptTemplatePicker } from "./prompt-template-picker";
 
 type Props = {
-  onSubmitAction: (values: PromptFormValues) => Promise<{ error: string }>;
+  onSubmitAction: (values: PromptFormValues) => Promise<{
+    error?: string;
+    path?: string;
+    message?: string;
+  }>;
   defaultValues?: PromptFormValues;
   showTemplatePicker?: boolean;
 };
@@ -40,6 +46,7 @@ export default function PromptForm({
 
   const submitLockRef = useRef(false);
   const [isSubmitLocked, setIsSubmitLocked] = useState(false);
+  const router = useRouter();
 
   const isPending = isSubmitting || isSubmitLocked;
 
@@ -60,6 +67,11 @@ export default function PromptForm({
       setError("root", { message: result.error });
       submitLockRef.current = false;
       setIsSubmitLocked(false);
+    }
+
+    if (result.path) {
+      toast.success(result.message);
+      router.push(result.path);
     }
   };
 

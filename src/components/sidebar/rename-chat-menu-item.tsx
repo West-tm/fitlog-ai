@@ -2,6 +2,7 @@
 
 import { PencilIcon } from "lucide-react";
 import { useTransition } from "react";
+import { toast } from "sonner";
 
 import { updateChatTitle } from "@/app/actions/chats";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -24,15 +25,18 @@ export function RenameChatMenuItem({
         event.preventDefault();
 
         const nextTitle = window.prompt("新しい名前", title);
-        if (nextTitle === null) return; // キャンセル
+        if (nextTitle === null) return;
+
         const trimmed = nextTitle.trim().slice(0, 40);
         if (!trimmed || trimmed === title) return;
 
         startTransition(async () => {
           const result = await updateChatTitle({ id, title: trimmed });
           if (result?.error) {
-            alert(result.error);
+            toast.error(result.error);
+            return;
           }
+          toast.success("チャット名を変更しました。");
         });
       }}
     >

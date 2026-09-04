@@ -1,7 +1,9 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { toast } from "sonner";
 
 import { deletePrompt } from "@/app/actions/prompts";
 
@@ -14,6 +16,7 @@ type Props = {
 
 export default function DeletePromptButton({ id }: Props) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const deletePromptHandler = () => {
     const ok = window.confirm("本当に削除しますか？");
@@ -24,8 +27,12 @@ export default function DeletePromptButton({ id }: Props) {
       const result = await deletePrompt(id);
 
       if (result.error) {
-        alert(result.error);
+        toast.error(result.error);
+        return;
       }
+
+      toast.success("指示文を削除しました。");
+      router.push("/prompts");
     });
   };
 

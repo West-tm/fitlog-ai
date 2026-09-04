@@ -1,5 +1,4 @@
 import { google } from "googleapis";
-import { redirect } from "next/navigation";
 
 import {
   decryptGoogleHealthToken,
@@ -33,7 +32,7 @@ export async function getGoogleHealthAccessToken() {
   });
 
   if (!connection) {
-    redirect("/settings/integrations?notice=google-health-not-connected");
+    throw new Error("GOOGLE_HEALTH_NOT_CONNECTED");
   }
 
   if (
