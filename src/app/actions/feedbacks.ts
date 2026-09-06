@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 import { getUser } from "@/lib/auth/get-user";
 import { getHealthLogsByDateRange } from "@/lib/health-logs/get-health-logs-by-date-range";
@@ -95,7 +94,7 @@ export async function createFeedback(
   });
 
   revalidatePath("/chats");
-  redirect(`/chats/${chatId}`);
+  return { success: true, chatId };
 }
 
 export async function getFeedback(id: string) {
@@ -203,5 +202,5 @@ export async function updateFeedback(
   });
 
   revalidatePath("/chats");
-  redirect(`/chats/${message.chatId}`);
+  return { success: true, chatId: message.chatId };
 }

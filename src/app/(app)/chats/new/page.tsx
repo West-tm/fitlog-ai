@@ -22,6 +22,7 @@ export default async function CreateChatPage() {
       <MessageForm
         prompts={prompts}
         onSubmitAction={createChat}
+        // チャット詳細へ遷移するまで pending のままにし、解除チラツキを防ぐ
         unlockOnSuccess={false}
       />
     </div>
