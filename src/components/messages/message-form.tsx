@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Prompt } from "@prisma/client";
 import { CircleHelpIcon, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 
@@ -40,8 +41,16 @@ import { Spinner } from "../ui/spinner";
 
 type Props = {
   prompts: Prompt[];
-  onSubmitAction: (values: MessageFormValues) => Promise<{ error: string }>;
+  onSubmitAction: (
+    values: MessageFormValues,
+  ) => Promise<{ error?: string; success?: boolean; chatId?: string }>;
   defaultValues?: MessageFormValues;
+  /**
+   * 成功後に送信ロックを解除するか。
+   * router.push は遷移完了を待たないため、別ページへ移る直前に unlock すると
+   * ボタンが一瞬戻ってチラつく。ページを離れる画面（例: /chats/new）では false にする。
+   * 同じ画面に残って再送信する場合は true（デフォルト）。
+   */
   unlockOnSuccess?: boolean;
 };
 
@@ -62,11 +71,14 @@ export default function MessageForm({
     setError,
     formState: { errors, isSubmitting },
     control,
+    reset,
   } = useForm<MessageFormValues>({
     resolver: zodResolver(createMessageSchema),
     defaultValues,
     mode: "onBlur",
   });
+
+  const router = useRouter();
 
   const submitLockRef = useRef(false);
   const [isSubmitLocked, setIsSubmitLocked] = useState(false);
@@ -96,6 +108,11 @@ export default function MessageForm({
         setError("root", { message: result.error });
         unlock();
         return;
+      }
+
+      if (result?.success) {
+        reset({ ...defaultValues, content: "" });
+        router.push(`/chats/${result.chatId}`);
       }
     } finally {
       if (unlockOnSuccess) {

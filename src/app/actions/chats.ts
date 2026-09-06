@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 import { getUser } from "@/lib/auth/get-user";
 import { getHealthLogsByDateRange } from "@/lib/health-logs/get-health-logs-by-date-range";
@@ -87,7 +86,7 @@ export async function createChat(values: MessageFormValues) {
   });
 
   revalidatePath("/chats");
-  redirect(`/chats/${chat.id}`);
+  return { success: true, chatId: chat.id };
 }
 
 export async function getChat(id: string) {
