@@ -29,6 +29,7 @@ import {
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Marker, MarkerContent, MarkerIcon } from "../ui/marker";
 import {
   Popover,
   PopoverAnchor,
@@ -117,6 +118,17 @@ export default function MessageForm({
 
   return (
     <form className="space-y-4" onSubmit={handleFormSubmit}>
+      {isPending && (
+        <Marker role="status">
+          <MarkerIcon>
+            <Spinner />
+          </MarkerIcon>
+          <MarkerContent className="shimmer">
+            AIが回答を作成しています…
+          </MarkerContent>
+        </Marker>
+      )}
+
       <InputGroup
         className="border-foreground/30
           has-[[data-slot][aria-invalid=true]]:border-foreground/30
